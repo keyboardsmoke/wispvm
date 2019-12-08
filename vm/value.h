@@ -56,6 +56,13 @@ namespace wisp
     class PointerValue : public Value
     {
     public:
+        PointerValue() = delete;
+        PointerValue(uint32 offset) : m_offset(offset) {}
+
+        uint32 GetOffset()
+        {
+            return m_offset;
+        }
 
     private:
         uint32 m_offset;

@@ -2,6 +2,7 @@
 #include "shared/random.h"
 #include "shared/decoder.h"
 #include "shared/hash/crc32.h"
+#include "instruction.h"
 
 using namespace wisp;
 
@@ -18,7 +19,12 @@ const char* Vm::GetErrorString(VmError error)
     }
 }
 
-VmError Vm::BindFunction(void* functionPointer, const char* functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes)
+VmError Vm::BindGlobal(Value* value, const std::string& name)
+{
+    return VmError::OK;
+}
+
+VmError Vm::BindFunction(void* functionPointer, const std::string& functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes)
 {
     // We will utilize the function signature for type enforcement during runtime
 
@@ -56,7 +62,56 @@ VmError Vm::ExecuteProgram(void *program, uint32 size)
     if (pEntryPoint >= pProgramEnd)
         return VmError::CorruptBlob;
 
-    // Start executing at the entrypoint :)
+    m_state.programBase = pProgramStart;
+    m_state.programSize = programSize;
+
+    PointerValue* ep = new PointerValue(header->ep);
+
+    m_state.regPc.SetValue(ep);
+
+    // Start execution
 
     return VmError::OK;
+}
+
+VmError Vm::ExecuteState()
+{
+    if (m_state.programBase == nullptr || m_state.programSize == 0)
+    {
+        return VmError::InvalidProgramState;
+    }
+
+    PointerValue* pcValue = dynamic_cast<PointerValue*>(m_state.regPc.GetValue());
+
+    if (pcValue == nullptr)
+    {
+        // Invalid PC register value
+
+        return VmError::RegisterMismatch;
+    }
+
+    uint8* pc = m_state.programBase + pcValue->GetOffset();
+
+    // Execute Instruction at PC
+
+    // You should ideally be calling ExecuteState in a while loop until it hits VmError::EndOfProgram
+    // Which is triggered when the ep returns and there is nothing left on the stack to return to.
+
+    return ExecuteInstruction(pc);
+}
+
+VmError Vm::ExecuteInstruction(uint8* pc)
+{
+    // We want to get the instruction type from PC
+    // Which should involve going through the instruction class
+    // Then, there should just be an execute virtual call which updates value/register/etc state.
+    Instruction* inst = Instruction::CreateInstruction(pc);
+
+    if (inst == nullptr)
+    {
+        // Invalid Instruction
+        return VmError::InvalidInstruction;
+    }
+
+    return inst->Execute(this, &m_state);
 }

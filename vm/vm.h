@@ -2,6 +2,7 @@
 
 #include "shared/types.h"
 #include "value.h"
+#include "state.h"
 
 // The "Vm" object is an instance of the virtual machine
 
@@ -13,7 +14,13 @@ namespace wisp
         InvalidArguments,
         InvalidMagic,
         InvalidOpcode,
+        InvalidProgramState,
+        InvalidInstruction,
         CorruptBlob,
+        RegisterMismatch,
+
+        // Happens when the EP returns
+        EndOfProgram
     };
 
     struct ProgramHeader
@@ -29,15 +36,27 @@ namespace wisp
         uint32 bytecodeCrc;
     };
 
+    struct FunctionPrototype
+    {
+        ValueType returnType;
+        std::vector<ValueType> arguments;
+    };
+
     class Vm
     {
     public:
+        Vm() : m_state() {}
+
         static const char* GetErrorString(VmError error);
 
-        VmError BindFunction(void* functionPointer, const char* functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes);
+        VmError BindGlobal(Value* value, const std::string& name);
+        VmError BindFunction(void* functionPointer, const std::string& functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes);
         VmError ExecuteProgram(void* program, uint32 size);
 
     private:
-        //
+        VmError ExecuteState();
+        VmError ExecuteInstruction(uint8* pc);
+
+        State m_state;
     };
 }

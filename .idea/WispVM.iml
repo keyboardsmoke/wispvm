@@ -11,14 +11,16 @@
       <sourceFolder url="file://$MODULE_DIR$/wisp/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/wisp/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/vm.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/register.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/value.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/register.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/state.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/register.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/vm.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/instruction.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/value.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/state.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/vm.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/instruction.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/shared/decoder.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/shared/platform.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/shared/types.h" isTestSource="false" />

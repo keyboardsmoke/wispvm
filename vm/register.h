@@ -1,5 +1,7 @@
 #pragma once
 
+#include "value.h"
+
 // Wisp operands are not like intermediate operands from <internal name redacted>
 // They are for storing the active register state in the State structure
 // They have no ID associated with them, the ID lookup will occur in the VM
@@ -21,9 +23,31 @@ namespace wisp
     class Register
     {
     public:
-        //
+        Register() : m_value(nullptr) {}
+
+        void Clear()
+        {
+            SetValue(nullptr);
+        }
+
+        Value* GetValue() const
+        {
+            return m_value;
+        }
+
+        void SetValue(Value* value)
+        {
+            // Built-in cleanup of yeeted values
+            // TODO: Do we even want this?
+            if (value == nullptr)
+            {
+                delete m_value;
+            }
+
+            m_value = value;
+        }
 
     private:
-        //
+        Value* m_value;
     };
 }
