@@ -1,11 +1,2 @@
-#define CATCH_CONFIG_FAST_COMPILE
-#define CATCH_CONFIG_RUNNER
-#include "catch2/catch.hpp"
-
-int main( int argc, char** argv )
-{
-    // global setup...
-    int result = Catch::Session().run( argc, argv );
-    // global clean-up...
-    return result;
-}
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest/doctest.h"

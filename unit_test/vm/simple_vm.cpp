@@ -1,5 +1,4 @@
-#define CATCH_CONFIG_FAST_COMPILE
-#include "catch2/catch.hpp"
+#include "doctest/doctest.h"
 #include "vm/vm.h"
 
 void MyHelloWorld(wisp::Vm* vm, wisp::State* state)
@@ -38,7 +37,7 @@ wisp::VmError Inst1(wisp::Vm* vm, wisp::State* state)
     return wisp::VmError::EndOfProgram;
 }
 
-TEST_CASE("Simple VM", "[vm]")
+TEST_CASE("Simple VM")
 {
     std::vector<wisp::uint8> code;
     code.push_back(0); // CALL_NATIVE

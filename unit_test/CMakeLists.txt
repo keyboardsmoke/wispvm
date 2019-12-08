@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj -std=c++17")
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/unit_test)
-include_directories(${CMAKE_SOURCE_DIR}/ext/catch2/include)
+include_directories(${CMAKE_SOURCE_DIR}/ext/doctest)
 
 set(UNIT_TEST_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
@@ -16,4 +16,4 @@ set(UNIT_TEST_FILES
 add_executable(unit_test ${UNIT_TEST_FILES})
 target_link_libraries(unit_test vm)
 target_link_libraries(unit_test compiler)
-target_link_libraries(unit_test Catch2)
+target_link_libraries(unit_test doctest)
