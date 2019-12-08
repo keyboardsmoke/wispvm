@@ -1,59 +1,90 @@
 #include "doctest/doctest.h"
 #include "vm/vm.h"
 
-void MyHelloWorld(wisp::Vm* vm, wisp::State* state)
+static wisp::VmError StoreRegisterInt(wisp::Vm* vm, wisp::State* state)
 {
-    printf("Hello, World!\n");
-    printf("Small Change.\n");
-
-    // state->regGeneral[0].SetValue(new wisp::IntegerValue(100));
-
-    return;
-}
-
-wisp::VmError Inst0(wisp::Vm* vm, wisp::State* state)
-{
-    // This instruction calls a native by ID!
-
-    wisp::uint8 index = *vm->GetProgramCounterData();
-
+    wisp::uint8 regIndex = *vm->GetProgramCounterData();
+    vm->AdvanceProgramCounter(sizeof(wisp::uint8));
+    wisp::uint8 constant = *vm->GetProgramCounterData();
     vm->AdvanceProgramCounter(sizeof(wisp::uint8));
 
-    auto natives = vm->GetNativeList()->GetNatives();
+    wisp::IntegerValue* valueInt = dynamic_cast<wisp::IntegerValue*>(state->regGeneral[regIndex].GetValue());
 
-    if (index < natives.size())
+    if (valueInt == nullptr)
     {
-        natives[index](vm, state);
-        return wisp::VmError::OK;
+        state->regGeneral[regIndex].SetValue(new wisp::IntegerValue(constant));
+    }
+    else
+    {
+        valueInt->SetInt(constant);
     }
 
-    return wisp::VmError::InvalidInstruction;
+    return wisp::VmError::OK;
 }
 
-wisp::VmError Inst1(wisp::Vm* vm, wisp::State* state)
+static wisp::VmError AddRegisterToRegister(wisp::Vm* vm, wisp::State* state)
 {
-    // terminate!
+    wisp::uint8 regIndex0 = *vm->GetProgramCounterData();
+    vm->AdvanceProgramCounter(sizeof(wisp::uint8));
+    wisp::uint8 regIndex1 = *vm->GetProgramCounterData();
+    vm->AdvanceProgramCounter(sizeof(wisp::uint8));
 
-    return wisp::VmError::EndOfProgram;
+    wisp::IntegerValue* reg0 = dynamic_cast<wisp::IntegerValue*>(state->regGeneral[regIndex0].GetValue());
+    wisp::IntegerValue* reg1 = dynamic_cast<wisp::IntegerValue*>(state->regGeneral[regIndex1].GetValue());
+
+    if (reg0 == nullptr || reg1 == nullptr)
+    {
+        return wisp::VmError::InvalidInstruction;
+    }
+
+    wisp::uint64 val = reg0->GetInt<wisp::uint8>() + reg1->GetInt<wisp::uint8>();
+
+    reg0->SetInt<wisp::uint64>(val);
+
+    return wisp::VmError::OK;
 }
+
+static wisp::VmError EndProgram(wisp::Vm* vm, wisp::State* state)
+{
+    return wisp::VmError ::EndOfProgram;
+}
+
+typedef std::vector<wisp::uint8> ProgramCode;
 
 TEST_CASE("Simple VM")
 {
-    std::vector<wisp::uint8> code;
-    code.push_back(0); // CALL_NATIVE
-    code.push_back(0); // index 0
-    code.push_back(1); // END_PROGRAM
-
-    std::vector<wisp::uint8> prog = wisp::Vm::CreateProgram(code);
-
+    // Not going to do any native stuff here
     wisp::NativeList modList;
-    modList.AddNative(MyHelloWorld);
 
+    // Just addition!
     wisp::InstructionList instList;
-    instList.AddInstruction(Inst0);
-    instList.AddInstruction(Inst1);
+    wisp::uint32 StoreRegisterIntIndex = instList.AddInstruction(StoreRegisterInt);
+    wisp::uint32 AddRegisterToRegisterIndex = instList.AddInstruction(AddRegisterToRegister);
+    wisp::uint32 EndProgramIndex = instList.AddInstruction(EndProgram);
+
+    wisp::uint8 reg0 = 0;
+    wisp::uint8 reg1 = 1;
+
+    ProgramCode programCode;
+
+    programCode.push_back(static_cast<wisp::uint8>(StoreRegisterIntIndex));
+    programCode.push_back(reg0);
+    programCode.push_back(1);
+
+    programCode.push_back(static_cast<wisp::uint8>(StoreRegisterIntIndex));
+    programCode.push_back(reg1);
+    programCode.push_back(10);
+
+    programCode.push_back(static_cast<wisp::uint8>(AddRegisterToRegisterIndex));
+    programCode.push_back(reg0);
+    programCode.push_back(reg1);
+
+    programCode.push_back(static_cast<wisp::uint8>(EndProgramIndex)); // END_PROGRAM
+
+    ProgramCode prog = wisp::Vm::CreateProgram(programCode);
 
     wisp::Vm vm(&modList, &instList);
-    wisp::VmError err = vm.ExecuteProgram(prog.data(), prog.size());
+    wisp::VmError err = vm.ExecuteProgram(prog.data(), static_cast<wisp::uint32>(prog.size()));
     REQUIRE(err == wisp::VmError::OK);
+    REQUIRE(dynamic_cast<wisp::IntegerValue*>(vm.GetState()->regGeneral[reg0].GetValue())->GetInt<wisp::uint8>() == 11);
 }

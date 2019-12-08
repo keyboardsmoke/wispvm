@@ -50,6 +50,20 @@ namespace wisp
     class IntegerValue : public Value
     {
     public:
+        IntegerValue() : m_value(0) {}
+        IntegerValue(uint64 value) : m_value(value) {}
+
+        template<typename T>
+        T GetInt()
+        {
+            return static_cast<T>(m_value);
+        }
+
+        template<typename T>
+        void SetInt(const T& value)
+        {
+            m_value = static_cast<uint64>(value);
+        }
 
     private:
         uint64 m_value;

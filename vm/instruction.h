@@ -15,9 +15,11 @@ namespace wisp
     class InstructionList
     {
     public:
-        void AddInstruction(InstructionDefinition def)
+        uint32 AddInstruction(InstructionDefinition def)
         {
+            uint32 index = static_cast<uint32>(m_instructions.size());
             m_instructions.emplace_back(def);
+            return index;
         }
 
         VmError Execute(Vm* vm, State* state, uint8 id);

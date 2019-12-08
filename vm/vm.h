@@ -62,6 +62,11 @@ namespace wisp
             return m_instList;
         }
 
+        State* GetState()
+        {
+            return &m_state;
+        }
+
         VmError AdvanceProgramCounter(uint32 size);
         uint8* GetProgramCounterData();
 
