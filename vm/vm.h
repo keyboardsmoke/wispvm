@@ -48,6 +48,7 @@ namespace wisp
                 m_state(), m_nativeList(nativeList), m_instList(instList) {}
 
         static const char* GetErrorString(VmError error);
+        static std::vector<wisp::uint8> CreateProgram(std::vector<wisp::uint8>& byteCode);
 
         VmError ExecuteProgram(void* program, uint32 size);
 
@@ -61,9 +62,12 @@ namespace wisp
             return m_instList;
         }
 
+        VmError AdvanceProgramCounter(uint32 size);
+        uint8* GetProgramCounterData();
+
     private:
         VmError ExecuteState();
-        VmError ExecuteInstruction(uint8** pc);
+        VmError ExecuteInstruction(PointerValue* pc);
 
         State m_state;
         NativeList* m_nativeList;

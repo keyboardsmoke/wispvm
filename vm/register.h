@@ -25,11 +25,6 @@ namespace wisp
     public:
         Register() : m_value(nullptr) {}
 
-        void Clear()
-        {
-            SetValue(nullptr);
-        }
-
         Value* GetValue() const
         {
             return m_value;
@@ -37,14 +32,27 @@ namespace wisp
 
         void SetValue(Value* value)
         {
-            // Built-in cleanup of yeeted values
-            // TODO: Do we even want this?
-            if (value == nullptr)
-            {
-                delete m_value;
-            }
-
             m_value = value;
+        }
+
+        void CopyValue(Register* rhs)
+        {
+            // We need to make a copy for each type... this isn't great.
+            // Surely there's an easier way to do this?
+        }
+
+        void TakeValue(Register* rhs)
+        {
+            CopyValue(rhs);
+
+            rhs->DestroyValue();
+        }
+
+        void DestroyValue()
+        {
+            delete m_value;
+
+            m_value = nullptr;
         }
 
     private:

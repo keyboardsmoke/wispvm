@@ -37,6 +37,23 @@ const char* Vm::GetErrorString(VmError error)
     return "Unknown";
 }
 
+std::vector<wisp::uint8> Vm::CreateProgram(std::vector<wisp::uint8>& byteCode)
+{
+    wisp::ProgramHeader header;
+    header.seed = 0; // When no seed is set, nothing is really encoded/randomized
+    header.magic = wisp::ProgramHeader::WISP_MAGIC;
+    header.ep = 0;
+    header.bytecodeCrc = wisp::hash::crc32(byteCode.data(), static_cast<wisp::uint32>(byteCode.size()));
+
+    wisp::uint8* headerBytes = reinterpret_cast<wisp::uint8*>(&header);
+
+    std::vector<wisp::uint8> prog(headerBytes, headerBytes + sizeof(wisp::ProgramHeader));
+
+    prog.insert(prog.end(), byteCode.begin(), byteCode.end());
+
+    return prog;
+}
+
 VmError Vm::ExecuteProgram(void *program, uint32 size)
 {
     if (program == nullptr || size < sizeof(ProgramHeader))
@@ -114,28 +131,48 @@ VmError Vm::ExecuteState()
         return VmError::RegisterMismatch;
     }
 
-    uint8* pc = m_state.programBase + pcValue->GetOffset();
-
     // Execute Instruction at PC
 
     // You should ideally be calling ExecuteState in a while loop until it hits VmError::EndOfProgram
     // Which is triggered when the ep returns and there is nothing left on the stack to return to.
-
-    uint8* newPc = pc;
-    VmError err = ExecuteInstruction(&newPc);
+    VmError err = ExecuteInstruction(pcValue);
     if (err != VmError::OK)
         return err;
-
-    uint32 dist = newPc - pc;
-
-    pcValue->Increment(dist);
 
     return VmError::OK;
 }
 
-VmError Vm::ExecuteInstruction(uint8** pc)
+VmError Vm::ExecuteInstruction(PointerValue* pc)
 {
-    uint8 instId = *((*pc)++);
+    uint8 instId = *(m_state.programBase + pc->GetOffset());
 
-    return m_instList->Execute(this, &m_state, pc, instId);
+    // Advance PC so that the handlers start off in the right place.
+    VmError err = AdvanceProgramCounter(sizeof(uint8));
+    if (err != VmError::OK)
+        return err;
+
+    return m_instList->Execute(this, &m_state, instId);
+}
+
+VmError Vm::AdvanceProgramCounter(uint32 size)
+{
+    wisp::PointerValue* pcValue = dynamic_cast<wisp::PointerValue*>(m_state.regPc.GetValue());
+    if (pcValue != nullptr)
+    {
+        pcValue->Increment(size);
+        return VmError::OK;
+    }
+
+    return VmError::RegisterMismatch;
+}
+
+uint8* Vm::GetProgramCounterData()
+{
+    wisp::PointerValue* pcValue = dynamic_cast<wisp::PointerValue*>(m_state.regPc.GetValue());
+    if (pcValue != nullptr)
+    {
+        return m_state.programBase + pcValue->GetOffset();
+    }
+
+    return nullptr;
 }

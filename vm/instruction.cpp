@@ -3,11 +3,11 @@
 
 using namespace wisp;
 
-VmError InstructionList::Execute(Vm* vm, State* state, uint8** pc, uint8 id)
+VmError InstructionList::Execute(Vm* vm, State* state, uint8 id)
 {
     if (id < m_instructions.size())
     {
-        return m_instructions[id](vm, state, pc);
+        return m_instructions[id](vm, state);
     }
 
     return VmError::InvalidOpcode;

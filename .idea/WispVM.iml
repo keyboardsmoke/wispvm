@@ -2,14 +2,21 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/unit_test/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/unit_test/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/unit_test/vm/simple_vm.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/lexer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/lexer.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/compiler.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/compiler.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/wisp/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/wisp/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shared/decoder.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shared/platform.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shared/types.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shared/random.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shared/hash/crc32.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/vm.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/register.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/value.cpp" isTestSource="false" />
@@ -21,11 +28,8 @@
       <sourceFolder url="file://$MODULE_DIR$/vm/state.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/instruction.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/decoder.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/platform.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/types.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/random.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/hash/crc32.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ext/catch2/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">

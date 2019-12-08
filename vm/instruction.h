@@ -10,7 +10,7 @@ namespace wisp
     // and every instruction is represented by a native
     // when the VM reads the instruction ID (first byte)
     // it passes the PC to the instruction handler which decides how to interpret the data it's been given
-    typedef std::function<VmError(Vm*, State*, uint8**)> InstructionDefinition;
+    typedef std::function<VmError(Vm*, State*)> InstructionDefinition;
 
     class InstructionList
     {
@@ -20,7 +20,7 @@ namespace wisp
             m_instructions.emplace_back(def);
         }
 
-        VmError Execute(Vm* vm, State* state, uint8** pc, uint8 id);
+        VmError Execute(Vm* vm, State* state, uint8 id);
 
     private:
         std::vector<InstructionDefinition> m_instructions;
