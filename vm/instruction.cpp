@@ -3,9 +3,12 @@
 
 using namespace wisp;
 
-Instruction* Instruction::CreateInstruction(uint8 *pc)
+VmError InstructionList::Execute(Vm* vm, State* state, uint8** pc, uint8 id)
 {
-    // TODO: We need some way to parse instructions!
+    if (id < m_instructions.size())
+    {
+        return m_instructions[id](vm, state, pc);
+    }
 
-    return nullptr;
+    return VmError::InvalidOpcode;
 }

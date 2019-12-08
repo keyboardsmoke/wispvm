@@ -3,6 +3,8 @@
 #include "shared/types.h"
 #include "value.h"
 #include "state.h"
+#include "native.h"
+#include "instruction.h"
 
 // The "Vm" object is an instance of the virtual machine
 
@@ -16,7 +18,9 @@ namespace wisp
         InvalidOpcode,
         InvalidProgramState,
         InvalidInstruction,
-        CorruptBlob,
+        InvalidEntryPoint,
+        ProgramCrcMismatch,
+        CorruptProgram,
         RegisterMismatch,
 
         // Happens when the EP returns
@@ -36,27 +40,33 @@ namespace wisp
         uint32 bytecodeCrc;
     };
 
-    struct FunctionPrototype
-    {
-        ValueType returnType;
-        std::vector<ValueType> arguments;
-    };
-
     class Vm
     {
     public:
-        Vm() : m_state() {}
+        Vm() = delete;
+        Vm(NativeList* nativeList, InstructionList* instList) :
+                m_state(), m_nativeList(nativeList), m_instList(instList) {}
 
         static const char* GetErrorString(VmError error);
 
-        VmError BindGlobal(Value* value, const std::string& name);
-        VmError BindFunction(void* functionPointer, const std::string& functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes);
         VmError ExecuteProgram(void* program, uint32 size);
+
+        NativeList* GetNativeList()
+        {
+            return m_nativeList;
+        }
+
+        InstructionList* GetInstructionList()
+        {
+            return m_instList;
+        }
 
     private:
         VmError ExecuteState();
-        VmError ExecuteInstruction(uint8* pc);
+        VmError ExecuteInstruction(uint8** pc);
 
         State m_state;
+        NativeList* m_nativeList;
+        InstructionList* m_instList;
     };
 }

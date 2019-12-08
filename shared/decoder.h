@@ -9,6 +9,9 @@ namespace wisp
     public:
         template<typename T> static T Decode(T& number, uint64 key)
         {
+            if (key == 0)
+                return number;
+            
             return number ^ key;
         }
     };

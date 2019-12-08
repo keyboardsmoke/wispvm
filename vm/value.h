@@ -21,6 +21,7 @@ namespace wisp
 {
     enum class ValueType
     {
+        None = 0,
         Int8,
         UInt8,
         Int16,
@@ -41,6 +42,7 @@ namespace wisp
     class Value
     {
     public:
+        virtual ~Value() = default;
 
     private:
     };
@@ -62,6 +64,21 @@ namespace wisp
         uint32 GetOffset()
         {
             return m_offset;
+        }
+
+        void SetOffset(uint32 offset)
+        {
+            m_offset = offset;
+        }
+
+        void Increment(uint32 delta)
+        {
+            m_offset += delta;
+        }
+
+        void Decrement(uint32 delta)
+        {
+            m_offset -= delta;
         }
 
     private:

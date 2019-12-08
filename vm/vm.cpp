@@ -12,23 +12,29 @@ const char* Vm::GetErrorString(VmError error)
     {
         case VmError::OK:
             return "None";
+        case VmError::InvalidArguments:
+            return "Invalid Arguments";
+        case VmError::InvalidMagic:
+            return "Invalid Program Signature";
         case VmError::InvalidOpcode:
             return "Invalid Opcode";
-        default:
-            return "Unknown";
+        case VmError::InvalidProgramState:
+            return "Invalid Program State";
+        case VmError::InvalidInstruction:
+            return "Invalid Instruction";
+        case VmError::InvalidEntryPoint:
+            return "Invalid EntryPoint";
+        case VmError::ProgramCrcMismatch:
+            return "Program CRC mismatch";
+        case VmError::CorruptProgram:
+            return "Invalid program, possible corruption";
+        case VmError::RegisterMismatch:
+            return "Register type mismatch detected";
+        case VmError::EndOfProgram:
+            return "Program ended";
     }
-}
 
-VmError Vm::BindGlobal(Value* value, const std::string& name)
-{
-    return VmError::OK;
-}
-
-VmError Vm::BindFunction(void* functionPointer, const std::string& functionName, const ValueType& returnType const std::vector<ValueType>& argumentTypes)
-{
-    // We will utilize the function signature for type enforcement during runtime
-
-    return VmError::OK;
+    return "Unknown";
 }
 
 VmError Vm::ExecuteProgram(void *program, uint32 size)
@@ -53,14 +59,14 @@ VmError Vm::ExecuteProgram(void *program, uint32 size)
     const uint32 calculatedCrc = hash::crc32(pProgramStart, programSize);
 
     if (calculatedCrc != providedCrc)
-        return VmError::CorruptBlob;
+        return VmError::ProgramCrcMismatch;
 
     const uint32 decodedEp = Decoder::Decode(header->ep, header->seed);
 
     uint8* pEntryPoint = pProgramStart + decodedEp;
 
-    if (pEntryPoint >= pProgramEnd)
-        return VmError::CorruptBlob;
+    if (pEntryPoint < pProgramStart || pEntryPoint >= pProgramEnd)
+        return VmError::InvalidEntryPoint;
 
     m_state.programBase = pProgramStart;
     m_state.programSize = programSize;
@@ -70,6 +76,24 @@ VmError Vm::ExecuteProgram(void *program, uint32 size)
     m_state.regPc.SetValue(ep);
 
     // Start execution
+    VmError err = VmError::OK;
+
+    while (true)
+    {
+        err = ExecuteState();
+
+        if (err == VmError::OK)
+        {
+            continue;
+        }
+
+        if (err == VmError::EndOfProgram)
+        {
+            break;
+        }
+
+        return err;
+    }
 
     return VmError::OK;
 }
@@ -97,21 +121,21 @@ VmError Vm::ExecuteState()
     // You should ideally be calling ExecuteState in a while loop until it hits VmError::EndOfProgram
     // Which is triggered when the ep returns and there is nothing left on the stack to return to.
 
-    return ExecuteInstruction(pc);
+    uint8* newPc = pc;
+    VmError err = ExecuteInstruction(&newPc);
+    if (err != VmError::OK)
+        return err;
+
+    uint32 dist = newPc - pc;
+
+    pcValue->Increment(dist);
+
+    return VmError::OK;
 }
 
-VmError Vm::ExecuteInstruction(uint8* pc)
+VmError Vm::ExecuteInstruction(uint8** pc)
 {
-    // We want to get the instruction type from PC
-    // Which should involve going through the instruction class
-    // Then, there should just be an execute virtual call which updates value/register/etc state.
-    Instruction* inst = Instruction::CreateInstruction(pc);
+    uint8 instId = *((*pc)++);
 
-    if (inst == nullptr)
-    {
-        // Invalid Instruction
-        return VmError::InvalidInstruction;
-    }
-
-    return inst->Execute(this, &m_state);
+    return m_instList->Execute(this, &m_state, pc, instId);
 }
