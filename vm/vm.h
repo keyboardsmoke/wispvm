@@ -44,8 +44,8 @@ namespace wisp
     {
     public:
         Vm() = delete;
-        Vm(NativeList* nativeList, InstructionList* instList) :
-                m_state(), m_nativeList(nativeList), m_instList(instList) {}
+        Vm(NativeList* nativeList, InstructionList* instList, uint64 stackReserveSize) :
+                m_state(stackReserveSize), m_nativeList(nativeList), m_instList(instList) {}
 
         static const char* GetErrorString(VmError error);
         static std::vector<wisp::uint8> CreateProgram(std::vector<wisp::uint8>& byteCode);
@@ -69,6 +69,13 @@ namespace wisp
 
         VmError AdvanceProgramCounter(uint32 size);
         uint8* GetProgramCounterData();
+
+        template<typename T> T ReadArgument()
+        {
+            T ret = *reinterpret_cast<T*>(GetProgramCounterData());
+            AdvanceProgramCounter(sizeof(T));
+            return ret;
+        }
 
     private:
         VmError ExecuteState();

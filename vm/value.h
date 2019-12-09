@@ -119,11 +119,6 @@ namespace wisp
         //
     };
 
-    class NativeFunctionValue : public Value
-    {
-        //
-    };
-
     class TableValue : public Value
     {
         //

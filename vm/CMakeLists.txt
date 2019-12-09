@@ -15,6 +15,8 @@ set(VM_FILES
         value.cpp
         register.h
         register.cpp
+        stack.h
+        stack.cpp
         state.h
         state.cpp
         instruction.h

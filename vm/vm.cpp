@@ -88,6 +88,10 @@ VmError Vm::ExecuteProgram(void *program, uint32 size)
     m_state.programBase = pProgramStart;
     m_state.programSize = programSize;
 
+    PointerValue* sp = new PointerValue(0);
+
+    m_state.regSp.SetValue(sp);
+
     PointerValue* ep = new PointerValue(header->ep);
 
     m_state.regPc.SetValue(ep);

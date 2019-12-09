@@ -35,25 +35,10 @@ namespace wisp
             m_value = value;
         }
 
-        void CopyValue(Register* rhs)
-        {
-            // We need to make a copy for each type... this isn't great.
-            // Surely there's an easier way to do this?
-        }
-
-        void TakeValue(Register* rhs)
-        {
-            CopyValue(rhs);
-
-            rhs->DestroyValue();
-        }
-
-        void DestroyValue()
-        {
-            delete m_value;
-
-            m_value = nullptr;
-        }
+        void CopyValue(Register& rhs);
+        void TakeValue(Register& rhs);
+        void TransferValue(Register& to);
+        void DestroyValue();
 
     private:
         Value* m_value;
