@@ -41,16 +41,7 @@ static wisp::VmError StoreRegisterUInt8(wisp::Vm* vm, wisp::State* state)
 
     wisp::Register& reg = TranslateRegisterNumber(regIndex, vm);
 
-    wisp::IntegerValue* valueInt = dynamic_cast<wisp::IntegerValue*>(reg.GetValue());
-
-    if (valueInt == nullptr)
-    {
-        reg.SetValue(new wisp::IntegerValue(constant));
-    }
-    else
-    {
-        valueInt->SetInt(constant);
-    }
+    reg.SetUInt8(constant);
 
     return wisp::VmError::OK;
 }
@@ -62,11 +53,6 @@ static wisp::VmError MoveRegisterToRegister(wisp::Vm* vm, wisp::State* state)
 
     wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
     wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
-
-    if (reg1.GetValue() == nullptr)
-    {
-        return wisp::VmError::InvalidInstruction;
-    }
 
     reg0.CopyValue(reg1);
 
@@ -81,19 +67,12 @@ static wisp::VmError AddRegisterToRegister(wisp::Vm* vm, wisp::State* state)
     wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
     wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
 
-    wisp::IntegerValue* num0 = dynamic_cast<wisp::IntegerValue*>(reg0.GetValue());
-    wisp::IntegerValue* num1 = dynamic_cast<wisp::IntegerValue*>(reg1.GetValue());
-
-    if (num0 == nullptr || num1 == nullptr)
+    if (!reg0.HasValue() || !reg1.HasValue())
     {
         return wisp::VmError::InvalidInstruction;
     }
 
-    wisp::uint64 val = num0->GetInt<wisp::uint8>() + num1->GetInt<wisp::uint8>();
-
-    num0->SetInt<wisp::uint64>(val);
-
-    return wisp::VmError::OK;
+    return reg0.AddRegister(reg1);
 }
 
 static wisp::VmError AddNumToRegister(wisp::Vm* vm, wisp::State* state)
@@ -110,13 +89,18 @@ static wisp::VmError AddNumToRegister(wisp::Vm* vm, wisp::State* state)
         state->stack.Request(constant);
     }
 
-    if (wisp::PointerValue* pv = dynamic_cast<wisp::PointerValue*>(reg.GetValue()))
+    if (reg.IsUnsignedInteger())
     {
-        pv->Increment(constant);
+        reg.AddUnsignedInteger(constant);
     }
-    else if (wisp::IntegerValue* iv = dynamic_cast<wisp::IntegerValue*>(reg.GetValue()))
+    else if (reg.IsSignedInteger())
     {
-        iv->SetInt(iv->GetInt<wisp::uint64>() + constant);
+        // TODO: Is this even correct? lol
+        reg.AddSignedInteger(static_cast<wisp::int64>(constant));
+    }
+    else if (reg.IsPointer())
+    {
+        reg.SetPointer(reg.GetPointerOffset() + constant);
     }
     else
     {
@@ -133,20 +117,18 @@ static wisp::VmError SubtractNumFromRegister(wisp::Vm* vm, wisp::State* state)
 
     wisp::Register& reg = TranslateRegisterNumber(regIndex, vm);
 
-    // Special handling for the stack pointer
-    if (IsRegisterStackPointer(regIndex))
+    if (reg.IsUnsignedInteger())
     {
-        // Request stack size
-        state->stack.Request(constant);
+        reg.SubUnsignedInteger(constant);
     }
-
-    if (wisp::PointerValue* pv = dynamic_cast<wisp::PointerValue*>(reg.GetValue()))
+    else if (reg.IsSignedInteger())
     {
-        pv->Decrement(constant);
+        // TODO: Is this even correct? lol
+        reg.SubSignedInteger(static_cast<wisp::int64>(constant));
     }
-    else if (wisp::IntegerValue* iv = dynamic_cast<wisp::IntegerValue*>(reg.GetValue()))
+    else if (reg.IsPointer())
     {
-        iv->SetInt(iv->GetInt<wisp::uint64>() - constant);
+        reg.SetPointer(reg.GetPointerOffset() - constant);
     }
     else
     {
@@ -160,13 +142,17 @@ static void PrintRegister(const char* name, wisp::Register& reg)
 {
     printf("Register %s [type: ", name);
 
-    if (wisp::PointerValue* pv = dynamic_cast<wisp::PointerValue*>(reg.GetValue()))
+    if (reg.IsPointer())
     {
-        printf("pointer][value: 0x%x", pv->GetOffset());
+        printf("pointer][value: 0x%ld", reg.GetPointerOffset());
     }
-    else if (wisp::IntegerValue* iv = dynamic_cast<wisp::IntegerValue*>(reg.GetValue()))
+    else if (reg.IsUnsignedInteger())
     {
-        printf("pointer][value: 0x%jx", iv->GetInt<wisp::uint64>());
+        printf("uint][value: 0x%ld", reg.GetInteger<wisp::uint64>());
+    }
+    else if (reg.IsSignedInteger())
+    {
+        printf("int][value: %ld", reg.GetInteger<wisp::int64>());
     }
     else
     {
@@ -230,13 +216,11 @@ TEST_CASE("Simple VM")
     wisp::VmError err = vm.ExecuteProgram(prog.data(), static_cast<wisp::uint32>(prog.size()));
     REQUIRE(err == wisp::VmError::OK);
 
-    auto addResult = dynamic_cast<wisp::IntegerValue*>(vm.GetState()->regGeneral[reg0].GetValue());
-    auto movResult = dynamic_cast<wisp::IntegerValue*>(vm.GetState()->regGeneral[reg2].GetValue());
-    REQUIRE(addResult != nullptr);
-    REQUIRE(movResult != nullptr);
+    REQUIRE(vm.GetState()->regGeneral[reg0].IsUnsignedInteger());
+    REQUIRE(vm.GetState()->regGeneral[reg2].IsUnsignedInteger());
 
-    REQUIRE(addResult->GetInt<wisp::uint8>() == 11);
-    REQUIRE(movResult->GetInt<wisp::uint8>() == 10);
+    REQUIRE(vm.GetState()->regGeneral[reg0].GetInteger<wisp::uint8>() == 11);
+    REQUIRE(vm.GetState()->regGeneral[reg2].GetInteger<wisp::uint8>() == 10);
 
     vm.GetState()->Release();
 }

@@ -88,16 +88,11 @@ VmError Vm::ExecuteProgram(void *program, uint32 size)
     m_state.programBase = pProgramStart;
     m_state.programSize = programSize;
 
-    PointerValue* sp = new PointerValue(0);
-
-    m_state.regSp.SetValue(sp);
-
-    PointerValue* ep = new PointerValue(header->ep);
-
-    m_state.regPc.SetValue(ep);
+    m_state.regSp.SetPointer(0);
+    m_state.regPc.SetPointer(header->ep);
 
     // Start execution
-    VmError err = VmError::OK;
+    VmError err;
 
     while (true)
     {
@@ -126,29 +121,16 @@ VmError Vm::ExecuteState()
         return VmError::InvalidProgramState;
     }
 
-    PointerValue* pcValue = dynamic_cast<PointerValue*>(m_state.regPc.GetValue());
-
-    if (pcValue == nullptr)
-    {
-        // Invalid PC register value
-
-        return VmError::RegisterMismatch;
-    }
-
-    // Execute Instruction at PC
-
-    // You should ideally be calling ExecuteState in a while loop until it hits VmError::EndOfProgram
-    // Which is triggered when the ep returns and there is nothing left on the stack to return to.
-    VmError err = ExecuteInstruction(pcValue);
+    VmError err = ExecuteInstruction();
     if (err != VmError::OK)
         return err;
 
     return VmError::OK;
 }
 
-VmError Vm::ExecuteInstruction(PointerValue* pc)
+VmError Vm::ExecuteInstruction()
 {
-    uint8 instId = *(m_state.programBase + pc->GetOffset());
+    uint8 instId = *(m_state.regPc.GetPointerFromBase(m_state.programBase));
 
     // Advance PC so that the handlers start off in the right place.
     VmError err = AdvanceProgramCounter(sizeof(uint8));
@@ -160,23 +142,22 @@ VmError Vm::ExecuteInstruction(PointerValue* pc)
 
 VmError Vm::AdvanceProgramCounter(uint32 size)
 {
-    wisp::PointerValue* pcValue = dynamic_cast<wisp::PointerValue*>(m_state.regPc.GetValue());
-    if (pcValue != nullptr)
+    if (!m_state.regPc.HasValue() || m_state.regPc.GetType() != ValueType::Pointer)
     {
-        pcValue->Increment(size);
-        return VmError::OK;
+        return VmError::RegisterMismatch;
     }
 
-    return VmError::RegisterMismatch;
+    m_state.regPc.SetPointer(m_state.regPc.GetPointerOffset() + size);
+
+    return VmError::OK;
 }
 
 uint8* Vm::GetProgramCounterData()
 {
-    wisp::PointerValue* pcValue = dynamic_cast<wisp::PointerValue*>(m_state.regPc.GetValue());
-    if (pcValue != nullptr)
+    if (!m_state.regPc.HasValue() || m_state.regPc.GetType() != ValueType::Pointer)
     {
-        return m_state.programBase + pcValue->GetOffset();
+        return nullptr;
     }
 
-    return nullptr;
+    return m_state.regPc.GetPointerFromBase(m_state.programBase);
 }

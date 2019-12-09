@@ -1,7 +1,6 @@
 #pragma once
 
 #include "shared/types.h"
-#include "value.h"
 #include "state.h"
 #include "native.h"
 #include "instruction.h"
@@ -79,7 +78,7 @@ namespace wisp
 
     private:
         VmError ExecuteState();
-        VmError ExecuteInstruction(PointerValue* pc);
+        VmError ExecuteInstruction();
 
         State m_state;
         NativeList* m_nativeList;

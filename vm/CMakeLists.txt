@@ -11,8 +11,6 @@ set(VM_FILES
         ${CMAKE_SOURCE_DIR}/shared/random.h
         ${CMAKE_SOURCE_DIR}/shared/decoder.h
         ${CMAKE_SOURCE_DIR}/shared/hash/crc32.h
-        value.h
-        value.cpp
         register.h
         register.cpp
         stack.h
