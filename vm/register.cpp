@@ -1,7 +1,7 @@
 #include "shared/types.h"
 #include "register.h"
 #include "vm.h"
-#include "register_math_tables.h"
+#include "register_math.h"
 
 using namespace wisp;
 
@@ -319,4 +319,44 @@ VmError Register::AddRegister(Register& rhs)
 VmError Register::SubRegister(Register& rhs)
 {
 	return SubRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::MulRegister(Register& rhs)
+{
+    return MulRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::DivRegister(Register& rhs)
+{
+    return DivRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::ModuloRegister(Register& rhs)
+{
+    return ModRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::XorRegister(Register& rhs)
+{
+    return XorRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::OrRegister(Register& rhs)
+{
+    return OrRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::AndRegister(Register& rhs)
+{
+    return AndRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::LeftShiftRegister(Register& rhs)
+{
+    return LSHRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
+}
+
+VmError Register::RightShiftRegister(Register& rhs)
+{
+    return RSHRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
 }

@@ -187,8 +187,34 @@ namespace wisp
         VmError SubSignedInteger(int64 value);
         VmError SubFloatingPoint(double value);
 
+        // Basic Math
         VmError AddRegister(Register& rhs);
         VmError SubRegister(Register& rhs);
+        VmError MulRegister(Register& rhs);
+        VmError DivRegister(Register& rhs);
+        VmError ModuloRegister(Register& rhs);
+
+        // Bitwise
+        VmError XorRegister(Register& rhs);
+        VmError OrRegister(Register& rhs);
+        VmError AndRegister(Register& rhs);
+        VmError LeftShiftRegister(Register& rhs);
+        VmError RightShiftRegister(Register& rhs);
+
+
+		/*// Integer and float
+CreateMathOperationTable(AddRegisterOperationTable, +);
+CreateMathOperationTable(SubRegisterOperationTable, -);
+CreateMathOperationTable(MulRegisterOperationTable, *);
+CreateMathOperationTable(DivRegisterOperationTable, /);
+
+// Integer only
+CreateBitwiseMathOperationTable(XorRegisterOperationTable, ^);
+CreateBitwiseMathOperationTable(OrRegisterOperationTable, | );
+CreateBitwiseMathOperationTable(AndRegisterOperationTable, &);
+CreateBitwiseMathOperationTable(LSHRegisterOperandTable, << );
+CreateBitwiseMathOperationTable(RSHRegisterOperandTable, >> );
+CreateBitwiseMathOperationTable(ModRegisterOperationTable, %);*/
 
         void CopyValue(Register& rhs);
         void DestroyValue();

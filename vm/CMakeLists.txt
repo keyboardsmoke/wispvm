@@ -11,6 +11,7 @@ set(VM_FILES
         ${CMAKE_SOURCE_DIR}/shared/hash/crc32.h
         register.h
         register.cpp
+        register_math.h
         stack.h
         stack.cpp
         state.h

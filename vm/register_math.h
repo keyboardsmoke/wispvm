@@ -173,12 +173,181 @@ typedef VmError(*RegisterMathOperation)(Register& lhs, Register& rhs);
 	}, \
 };
 
+#define CreateBitwiseMathOperationTable(name, op) RegisterMathOperation name[static_cast<uint8>(ValueType::Max)][static_cast<uint8>(ValueType::Max)] = \
+{ \
+	{ \
+		/* None */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	CreateIntegerMathOperationTableRow(ValueType::Int8, int8, op) \
+	CreateIntegerMathOperationTableRow(ValueType::Int16, int16, op) \
+	CreateIntegerMathOperationTableRow(ValueType::Int32, int32, op) \
+	CreateIntegerMathOperationTableRow(ValueType::Int64, int64, op) \
+	CreateIntegerMathOperationTableRow(ValueType::UInt8, uint8, op) \
+	CreateIntegerMathOperationTableRow(ValueType::UInt16, uint16, op) \
+	CreateIntegerMathOperationTableRow(ValueType::UInt32, uint32, op) \
+	CreateIntegerMathOperationTableRow(ValueType::UInt64, uint64, op) \
+	{ \
+		/* Bool */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* Float */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* Double */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* Pointer */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* NativeFunction */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* Table */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+	{ \
+		/* Array */ \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+		[](Register & lhs, Register & rhs) -> VmError { return VmError::RegisterMismatch; }, \
+	}, \
+};
 
+// Integer and float
 CreateMathOperationTable(AddRegisterOperationTable, +);
 CreateMathOperationTable(SubRegisterOperationTable, -);
 CreateMathOperationTable(MulRegisterOperationTable, *);
 CreateMathOperationTable(DivRegisterOperationTable, /);
 
-// Bitwise will have to wait, I need to make a macro thingy that omits floating point
-// CreateMathOperationTable(XorRegisterOperationTable, ^);
+// Integer only
+CreateBitwiseMathOperationTable(XorRegisterOperationTable, ^);
+CreateBitwiseMathOperationTable(OrRegisterOperationTable, | );
+CreateBitwiseMathOperationTable(AndRegisterOperationTable, &);
+CreateBitwiseMathOperationTable(LSHRegisterOperationTable, << );
+CreateBitwiseMathOperationTable(RSHRegisterOperationTable, >> );
+CreateBitwiseMathOperationTable(ModRegisterOperationTable, %);
 }

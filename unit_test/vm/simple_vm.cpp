@@ -75,6 +75,22 @@ static wisp::VmError AddRegisterToRegister(wisp::Vm* vm, wisp::State* state)
     return reg0.AddRegister(reg1);
 }
 
+static wisp::VmError AndRegisterToRegister(wisp::Vm* vm, wisp::State* state)
+{
+	wisp::uint8 regIndex0 = vm->ReadArgument<wisp::uint8>();
+	wisp::uint8 regIndex1 = vm->ReadArgument<wisp::uint8>();
+
+	wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
+	wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
+
+	if (!reg0.HasValue() || !reg1.HasValue())
+	{
+		return wisp::VmError::InvalidInstruction;
+	}
+
+	return reg0.AndRegister(reg1);
+}
+
 static wisp::VmError AddNumToRegister(wisp::Vm* vm, wisp::State* state)
 {
     wisp::uint8 regIndex = vm->ReadArgument<wisp::uint8>();
@@ -187,6 +203,7 @@ TEST_CASE("Simple VM")
     const wisp::uint8 STORE_UINT8 = static_cast<wisp::uint8>(instList.AddInstruction(StoreRegisterUInt8));
     const wisp::uint8 MOVE_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(MoveRegisterToRegister));
     const wisp::uint8 ADD_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(AddRegisterToRegister));
+    const wisp::uint8 AND_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(AndRegisterToRegister));
     const wisp::uint8 ADD_NUM_REG = static_cast<wisp::uint8>(instList.AddInstruction(AddNumToRegister));
     const wisp::uint8 SUB_NUM_REG = static_cast<wisp::uint8>(instList.AddInstruction(SubtractNumFromRegister));
     const wisp::uint8 PRINT_CONTEXT = static_cast<wisp::uint8>(instList.AddInstruction(PrintContext));
@@ -195,17 +212,24 @@ TEST_CASE("Simple VM")
     const wisp::uint8 reg0 = 0;
     const wisp::uint8 reg1 = 1;
     const wisp::uint8 reg2 = 2;
+    const wisp::uint8 reg3 = 3;
+    const wisp::uint8 reg4 = 4;
+
+    // 0x06 & 0x1E == 0x06
 
     wisp::uint8 programCode[] =
     {
         ADD_NUM_REG, sp, 0x10, // our stack grows down...
-        PRINT_CONTEXT,
+        // PRINT_CONTEXT,
         STORE_UINT8, reg0, 1,
         STORE_UINT8, reg1, 10,
+        STORE_UINT8, reg3, 0x06,
+        STORE_UINT8, reg4, 0x1E,
+        AND_REG_TO_REG, reg3, reg4,
         MOVE_REG_TO_REG, reg2, reg1,
         ADD_REG_TO_REG, reg0, reg1,
         SUB_NUM_REG, sp, 0x10,
-        PRINT_CONTEXT,
+        // PRINT_CONTEXT,
         END_PROGRAM
     };
 
@@ -218,9 +242,11 @@ TEST_CASE("Simple VM")
 
     REQUIRE(vm.GetState()->regGeneral[reg0].IsUnsignedInteger());
     REQUIRE(vm.GetState()->regGeneral[reg2].IsUnsignedInteger());
+    REQUIRE(vm.GetState()->regGeneral[reg3].IsUnsignedInteger());
 
     REQUIRE(vm.GetState()->regGeneral[reg0].GetInteger<wisp::uint8>() == 11);
     REQUIRE(vm.GetState()->regGeneral[reg2].GetInteger<wisp::uint8>() == 10);
+    REQUIRE(vm.GetState()->regGeneral[reg3].GetInteger<wisp::uint8>() == 0x06);
 
     vm.GetState()->Release();
 }
