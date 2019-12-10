@@ -1,6 +1,7 @@
 #include "shared/types.h"
 #include "register.h"
 #include "vm.h"
+#include "register_math_tables.h"
 
 using namespace wisp;
 
@@ -14,6 +15,148 @@ void Register::DestroyValue()
 {
     m_value = 0;
     m_type = ValueType::None;
+}
+
+uint64 Register::GetPointerOffset()
+{
+    return m_value;
+}
+
+uint8* Register::GetPointerFromBase(uint8* base)
+{
+    return base + GetPointerOffset();
+}
+
+bool Register::GetBool()
+{
+    return m_value != 0u;
+}
+
+uint64 Register::GetNativeFunctionIndex()
+{
+    return m_value;
+}
+
+uint64 Register::GetTableIndex()
+{
+    return m_value;
+}
+
+uint64 Register::GetArrayIndex()
+{
+    return m_value;
+}
+
+uint64 Register::GetRawInteger()
+{
+    return m_value;
+}
+
+double Register::GetRawFP()
+{
+    return RetrieveValueFrom64BitInteger<double>();
+}
+
+//
+
+void Register::SetInt8(int8 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::Int8;
+}
+
+void Register::SetUInt8(uint8 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::UInt8;
+}
+
+void Register::SetInt16(int16 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::Int16;
+}
+
+void Register::SetUInt16(uint16 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::UInt16;
+}
+
+void Register::SetInt32(int32 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::Int32;
+}
+
+void Register::SetUInt32(uint32 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::UInt32;
+}
+
+void Register::SetInt64(int64 value)
+{
+    StoreValueIn64BitInteger(value);
+    m_type = ValueType::Int64;
+}
+
+void Register::SetUInt64(uint64 value)
+{
+    m_value = value;
+    m_type = ValueType::UInt64;
+}
+
+void Register::SetPointer(uint64 offset)
+{
+    m_value = offset;
+    m_type = ValueType::Pointer;
+}
+
+void Register::SetBool(bool value)
+{
+    m_value = (value) ? 1u : 0u;
+    m_type = ValueType::Bool;
+}
+
+void Register::SetFloat(float fp)
+{
+    StoreValueIn64BitInteger(fp);
+    m_type = ValueType::Float;
+}
+
+void Register::SetDouble(double db)
+{
+    StoreValueIn64BitInteger(db);
+    m_type = ValueType::Double;
+}
+
+void Register::SetNativeFunctionIndex(uint64 functionIndex)
+{
+    m_value = functionIndex;
+    m_type = ValueType::NativeFunction;
+}
+
+void Register::SetTableIndex(uint64 tableIndex)
+{
+    m_value = tableIndex;
+    m_type = ValueType::Table;
+}
+
+void Register::SetArrayIndex(uint64 arrayIndex)
+{
+    m_value = arrayIndex;
+    m_type = ValueType::Array;
+}
+
+void Register::SetRawInteger(uint64 value)
+{
+    m_value = value;
+}
+
+void Register::SetRawFP(double value)
+{
+    StoreValueIn64BitInteger(value);
 }
 
 VmError Register::AddUnsignedInteger(uint64 value)
@@ -78,11 +221,11 @@ VmError Register::AddFloatingPoint(double value)
 
     if (m_type == ValueType::Float)
     {
-        m_fp = static_cast<double>(static_cast<float>(m_fp) + static_cast<float>(value));
+        StoreValueIn64BitInteger(RetrieveValueFrom64BitInteger<float>() + static_cast<float>(value));
     }
     else if (m_type == ValueType::Double)
     {
-        m_fp += value;
+        StoreValueIn64BitInteger(RetrieveValueFrom64BitInteger<double>() + value);
     }
     else
     {
@@ -154,11 +297,11 @@ VmError Register::SubFloatingPoint(double value)
 
     if (m_type == ValueType::Float)
     {
-        m_fp = static_cast<double>(static_cast<float>(m_fp) - static_cast<float>(value));
+        StoreValueIn64BitInteger(RetrieveValueFrom64BitInteger<float>() - static_cast<float>(value));
     }
     else if (m_type == ValueType::Double)
     {
-        m_fp -= value;
+        StoreValueIn64BitInteger(RetrieveValueFrom64BitInteger<double>() - value);
     }
     else
     {
@@ -170,13 +313,10 @@ VmError Register::SubFloatingPoint(double value)
 
 VmError Register::AddRegister(Register& rhs)
 {
-
-
-    return VmError::OK;
+	return AddRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
 }
 
 VmError Register::SubRegister(Register& rhs)
 {
-
-    return VmError::OK;
+	return SubRegisterOperationTable[static_cast<uint8>(GetType())][static_cast<uint8>(rhs.GetType())](*this, rhs);
 }

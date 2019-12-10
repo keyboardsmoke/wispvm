@@ -28,7 +28,7 @@ namespace wisp
 
         uint32 AddNative(NativeDefinition native)
         {
-            uint32 idx = m_natives.size();
+            uint32 idx = static_cast<uint32>(m_natives.size());
             m_natives.emplace_back(native);
             return idx;
         }

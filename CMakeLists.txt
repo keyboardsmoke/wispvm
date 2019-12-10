@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(WispVM)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qspectre-")
-endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 

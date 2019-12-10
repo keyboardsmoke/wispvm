@@ -17,6 +17,7 @@
 //      Etc.
 
 #include <cassert>
+#include <cstring>
 
 namespace wisp
 {
@@ -51,7 +52,8 @@ namespace wisp
         // Native index represented
         NativeFunction,
         Table,
-        Array
+        Array,
+		Max,
     };
 
     class Register
@@ -123,157 +125,58 @@ namespace wisp
         template<typename T>
         T GetInteger()
         {
-            return static_cast<T>(m_value);
+            return RetrieveValueFrom64BitInteger<T>();
         }
 
         template<typename T>
         T GetFP()
         {
-            return static_cast<T>(m_fp);
+            return RetrieveValueFrom64BitInteger<T>();
         }
 
-        uint64 GetPointerOffset()
-        {
-            return m_value;
-        }
-
-        uint8* GetPointerFromBase(uint8* base)
-        {
-            return base + GetPointerOffset();
-        }
-
-        bool GetBool()
-        {
-            return m_value != 0u;
-        }
-
-        uint64 GetNativeFunctionIndex()
-        {
-            return m_value;
-        }
-
-        uint64 GetTableIndex()
-        {
-            return m_value;
-        }
-
-        uint64 GetArrayIndex()
-        {
-            return m_value;
-        }
-
-        uint64 GetRawInteger()
-        {
-            return m_value;
-        }
-
-        double GetRawFP()
-        {
-            return m_fp;
-        }
+        uint64 GetPointerOffset();
+        uint8* GetPointerFromBase(uint8* base);
+        bool GetBool();
+        uint64 GetNativeFunctionIndex();
+        uint64 GetTableIndex();
+        uint64 GetArrayIndex();
+        uint64 GetRawInteger();
+        double GetRawFP();
 
         // Setters
-        void SetInt8(int8 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::Int8;
-        }
+		template<typename T>
+		void SetInteger(T value, ValueType type)
+		{
+			m_type = type;
+			assert(IsInteger());
+			StoreValueIn64BitInteger<T>(value);
+		}
 
-        void SetUInt8(uint8 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::UInt8;
-        }
+		template<typename T>
+		void SetFP(T value, ValueType type)
+		{
+			m_type = type;
+			assert(IsFloatingPoint());
+			StoreValueIn64BitInteger<T>(value);
+		}
 
-        void SetInt16(int16 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::Int16;
-        }
-
-        void SetUInt16(uint16 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::UInt16;
-        }
-
-        void SetInt32(int32 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::Int32;
-        }
-
-        void SetUInt32(uint32 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::UInt32;
-        }
-
-        void SetInt64(int64 value)
-        {
-            m_value = static_cast<uint64>(value);
-            m_type = ValueType::Int64;
-        }
-
-        void SetUInt64(uint64 value)
-        {
-            m_value = value;
-            m_type = ValueType::UInt64;
-        }
-
-        void SetPointer(uint64 offset)
-        {
-            m_value = offset;
-            m_type = ValueType::Pointer;
-        }
-
-        void SetBool(bool value)
-        {
-            m_value = (value) ? 1u : 0u;
-            m_type = ValueType::Bool;
-        }
-
-        void SetFloat(float fp)
-        {
-            m_fp = static_cast<double>(fp);
-            m_type = ValueType::Float;
-        }
-
-        void SetDouble(double db)
-        {
-            m_fp = db;
-            m_type = ValueType::Double;
-        }
-
-        void SetNativeFunctionIndex(uint64 functionIndex)
-        {
-            m_value = functionIndex;
-            m_type = ValueType::NativeFunction;
-        }
-
-        void SetTableIndex(uint64 tableIndex)
-        {
-            m_value = tableIndex;
-            m_type = ValueType::Table;
-        }
-
-        void SetArrayIndex(uint64 arrayIndex)
-        {
-            m_value = arrayIndex;
-            m_type = ValueType::Array;
-        }
-
-        void SetRawInteger(uint64 value)
-        {
-            assert(IsInteger());
-            m_value = value;
-        }
-
-        void SetRawFP(double value)
-        {
-            assert(IsFloatingPoint());
-            m_fp = value;
-        }
+        void SetInt8(int8 value);
+        void SetUInt8(uint8 value);
+        void SetInt16(int16 value);
+        void SetUInt16(uint16 value);
+        void SetInt32(int32 value);
+        void SetUInt32(uint32 value);
+        void SetInt64(int64 value);
+        void SetUInt64(uint64 value);
+        void SetPointer(uint64 offset);
+        void SetBool(bool value);
+        void SetFloat(float fp);
+        void SetDouble(double db);
+        void SetNativeFunctionIndex(uint64 functionIndex);
+        void SetTableIndex(uint64 tableIndex);
+        void SetArrayIndex(uint64 arrayIndex);
+        void SetRawInteger(uint64 value);
+        void SetRawFP(double value);
 
         // Math operations
         VmError AddUnsignedInteger(uint64 value);
@@ -292,12 +195,23 @@ namespace wisp
 
     private:
 
-        union
+        template<typename T>
+        void StoreValueIn64BitInteger(const T& value)
         {
-            uint64 m_value;
-            double m_fp;
-        };
+            memset(&m_value, 0, sizeof(uint64));
+            memcpy(&m_value, &value, sizeof(T));
+        }
 
+        template<typename T>
+        T RetrieveValueFrom64BitInteger()
+        {
+            T ret;
+            memset(&ret, 0, sizeof(T));
+            memcpy(&ret, &m_value, sizeof(T));
+            return ret;
+        }
+
+        uint64 m_value;
         ValueType m_type;
     };
 }

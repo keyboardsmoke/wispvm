@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(vm)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
 include_directories(${CMAKE_SOURCE_DIR})
 
 set(VM_FILES
@@ -23,3 +21,9 @@ set(VM_FILES
         vm.cpp)
 
 add_library(vm STATIC ${VM_FILES})
+
+set_target_properties(vm PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
