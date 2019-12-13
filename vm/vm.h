@@ -1,9 +1,9 @@
 #pragma once
 
 #include "shared/types.h"
-#include "state.h"
-#include "native.h"
-#include "instruction.h"
+#include "context.h"
+#include "isa.h"
+#include "modules/memory.h"
 
 // The "Vm" object is an instance of the virtual machine
 
@@ -22,66 +22,42 @@ namespace wisp
         CorruptProgram,
         RegisterMismatch,
 
-        // Happens when the EP returns
-        EndOfProgram
-    };
-
-    struct ProgramHeader
-    {
-        static const uint32 WISP_MAGIC = 0x77697370; // 'wisp'
-
-        // Seed dictates how the following values are encoded
-        // That way, when we use the seed to decode magic
-        // We can still ensure integrity without having an obvious static magic
-        uint64 seed;
-        uint32 magic;
-        uint32 ep;
-        uint32 bytecodeCrc;
+        // The VM will immediately halt execution
+        HaltExecution
     };
 
     class Vm
     {
     public:
         Vm() = delete;
-        Vm(NativeList* nativeList, InstructionList* instList, uint64 stackReserveSize) :
-                m_state(stackReserveSize), m_nativeList(nativeList), m_instList(instList) {}
+        Vm(Context* context, MemoryModule* memory, ISA* isa) :
+			m_context(context), m_memory(memory), m_isa(isa) {}
 
         static const char* GetErrorString(VmError error);
-        static std::vector<wisp::uint8> CreateProgram(std::vector<wisp::uint8>& byteCode);
 
-        VmError ExecuteProgram(void* program, uint32 size);
+		VmError Execute(uint64 offset);
 
-        NativeList* GetNativeList()
+		Context* GetContext()
         {
-            return m_nativeList;
+            return m_context;
         }
 
-        InstructionList* GetInstructionList()
+        MemoryModule* GetMemory()
         {
-            return m_instList;
+            return m_memory;
         }
 
-        State* GetState()
+        ISA* GetISA()
         {
-            return &m_state;
-        }
-
-        VmError AdvanceProgramCounter(uint32 size);
-        uint8* GetProgramCounterData();
-
-        template<typename T> T ReadArgument()
-        {
-            T ret = *reinterpret_cast<T*>(GetProgramCounterData());
-            AdvanceProgramCounter(sizeof(T));
-            return ret;
+            return m_isa;
         }
 
     private:
         VmError ExecuteState();
         VmError ExecuteInstruction();
 
-        State m_state;
-        NativeList* m_nativeList;
-        InstructionList* m_instList;
+		Context* m_context;
+        MemoryModule* m_memory;
+		ISA* m_isa;
     };
 }

@@ -2,212 +2,180 @@
 #include "vm/vm.h"
 
 // Reserved Register Numbers
-const wisp::uint8 sp = 0xff;
-const wisp::uint8 pc = 0xfe;
-const wisp::uint8 retval = 0xfd;
+const wisp::uint8 pc = 0xff;
 
-// This function has to exist to emulate indices for reserved registers (sp, pc, etc)
-wisp::Register& TranslateRegisterNumber(wisp::uint8 num, wisp::Vm* vm, bool argument = false)
+class SimpleVmRegister
 {
-    if (num == sp)
-    {
-        return vm->GetState()->regSp;
-    }
-    else if (num == pc)
-    {
-        return vm->GetState()->regPc;
-    }
-    else if (num == retval)
-    {
-        return vm->GetState()->regReturn;
-    }
-    else if (argument)
-    {
-        return vm->GetState()->regArguments[num];
-    }
+public:
+    wisp::uint8 value;
+};
 
-    return vm->GetState()->regGeneral[num];
-}
-
-bool IsRegisterStackPointer(wisp::uint8 num)
+class SimpleVmContext : public wisp::Context
 {
-    return (num == sp);
-}
+public:
+    SimpleVmRegister regGeneral[32];
+};
 
-static wisp::VmError StoreRegisterUInt8(wisp::Vm* vm, wisp::State* state)
+class SimpleVmISA : public wisp::ISA
 {
-    wisp::uint8 regIndex = vm->ReadArgument<wisp::uint8>();
-    wisp::uint8 constant = vm->ReadArgument<wisp::uint8>();
+public:
+    SimpleVmISA(SimpleVmContext* context) : m_context(context) {}
 
-    wisp::Register& reg = TranslateRegisterNumber(regIndex, vm);
-
-    reg.SetUInt8(constant);
-
-    return wisp::VmError::OK;
-}
-
-static wisp::VmError MoveRegisterToRegister(wisp::Vm* vm, wisp::State* state)
-{
-    wisp::uint8 regIndex0 = vm->ReadArgument<wisp::uint8>();
-    wisp::uint8 regIndex1 = vm->ReadArgument<wisp::uint8>();
-
-    wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
-    wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
-
-    reg0.CopyValue(reg1);
-
-    return wisp::VmError::OK;
-}
-
-static wisp::VmError AddRegisterToRegister(wisp::Vm* vm, wisp::State* state)
-{
-    wisp::uint8 regIndex0 = vm->ReadArgument<wisp::uint8>();
-    wisp::uint8 regIndex1 = vm->ReadArgument<wisp::uint8>();
-
-    wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
-    wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
-
-    if (!reg0.HasValue() || !reg1.HasValue())
+    enum InstructionId : wisp::uint8
     {
-        return wisp::VmError::InvalidInstruction;
+        Store = 0,
+        MoveRegToReg,
+        AddRegToReg,
+        AndRegToReg,
+        AddNumToReg,
+        SubNumFromReg,
+        PrintContext,
+        End,
+    };
+
+    wisp::VmError ExecuteInstruction(wisp::Vm* vm) override
+    {
+        wisp::uint8* pc = vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get();
+
+        vm->GetContext()->regPc.Advance(sizeof(wisp::uint8));
+
+        switch (pc[0])
+        {
+            case InstructionId::Store: return StoreNative(vm);
+            case InstructionId::MoveRegToReg: return MoveRegToRegNative(vm);
+            case InstructionId::AddRegToReg: return AddRegToRegNative(vm);
+            case InstructionId::AndRegToReg: return AndRegToRegNative(vm);
+            case InstructionId::AddNumToReg: return AddNumToRegNative(vm);
+            case InstructionId::SubNumFromReg: return SubNumFromRegNative(vm);
+            case InstructionId::PrintContext: return PrintContextNative(vm);
+            case InstructionId::End: return EndNative(vm);
+            default: return wisp::VmError::InvalidInstruction;
+        }
     }
 
-    return reg0.AddRegister(reg1);
-}
-
-static wisp::VmError AndRegisterToRegister(wisp::Vm* vm, wisp::State* state)
-{
-	wisp::uint8 regIndex0 = vm->ReadArgument<wisp::uint8>();
-	wisp::uint8 regIndex1 = vm->ReadArgument<wisp::uint8>();
-
-	wisp::Register& reg0 = TranslateRegisterNumber(regIndex0, vm);
-	wisp::Register& reg1 = TranslateRegisterNumber(regIndex1, vm);
-
-	if (!reg0.HasValue() || !reg1.HasValue())
-	{
-		return wisp::VmError::InvalidInstruction;
-	}
-
-	return reg0.AndRegister(reg1);
-}
-
-static wisp::VmError AddNumToRegister(wisp::Vm* vm, wisp::State* state)
-{
-    wisp::uint8 regIndex = vm->ReadArgument<wisp::uint8>();
-    wisp::uint8 constant = vm->ReadArgument<wisp::uint8>();
-
-    wisp::Register& reg = TranslateRegisterNumber(regIndex, vm);
-
-    // Special handling for the stack pointer
-    if (IsRegisterStackPointer(regIndex))
+    wisp::VmError StoreNative(wisp::Vm* vm)
     {
-        // Request stack size
-        state->stack.Request(constant);
+        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
+
+        SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
+
+        reg.value = constant;
+
+        return wisp::VmError::OK;
     }
 
-    if (reg.IsUnsignedInteger())
+    wisp::VmError MoveRegToRegNative(wisp::Vm* vm)
     {
-        reg.AddUnsignedInteger(constant);
-    }
-    else if (reg.IsSignedInteger())
-    {
-        // TODO: Is this even correct? lol
-        reg.AddSignedInteger(static_cast<wisp::int64>(constant));
-    }
-    else if (reg.IsPointer())
-    {
-        reg.SetPointer(reg.GetPointerOffset() + constant);
-    }
-    else
-    {
-        return wisp::VmError::InvalidInstruction;
+        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
+
+        SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
+        SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
+
+        reg0.value = reg1.value;
+
+        return wisp::VmError::OK;
     }
 
-    return wisp::VmError::OK;
-}
+    wisp::VmError AddRegToRegNative(wisp::Vm* vm)
+    {
+        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
 
-static wisp::VmError SubtractNumFromRegister(wisp::Vm* vm, wisp::State* state)
-{
-    wisp::uint8 regIndex = vm->ReadArgument<wisp::uint8>();
-    wisp::uint8 constant = vm->ReadArgument<wisp::uint8>();
+        SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
+        SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
 
-    wisp::Register& reg = TranslateRegisterNumber(regIndex, vm);
+        reg0.value += reg1.value;
 
-    if (reg.IsUnsignedInteger())
-    {
-        reg.SubUnsignedInteger(constant);
-    }
-    else if (reg.IsSignedInteger())
-    {
-        // TODO: Is this even correct? lol
-        reg.SubSignedInteger(static_cast<wisp::int64>(constant));
-    }
-    else if (reg.IsPointer())
-    {
-        reg.SetPointer(reg.GetPointerOffset() - constant);
-    }
-    else
-    {
-        return wisp::VmError::InvalidInstruction;
+        return wisp::VmError::OK;
     }
 
-    return wisp::VmError::OK;
-}
+    wisp::VmError AndRegToRegNative(wisp::Vm* vm)
+    {
+        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
 
-static void PrintRegister(const char* name, wisp::Register& reg)
-{
-    printf("Register %s [type: ", name);
+        SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
+        SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
 
-    if (reg.IsPointer())
-    {
-        printf("pointer][value: 0x%ld", reg.GetPointerOffset());
-    }
-    else if (reg.IsUnsignedInteger())
-    {
-        printf("uint][value: 0x%ld", reg.GetInteger<wisp::uint64>());
-    }
-    else if (reg.IsSignedInteger())
-    {
-        printf("int][value: %ld", reg.GetInteger<wisp::int64>());
-    }
-    else
-    {
-        printf("Unknown");
+        reg0.value &= reg1.value;
+
+        return wisp::VmError::OK;
     }
 
-    printf("]\n");
-}
+    wisp::VmError AddNumToRegNative(wisp::Vm* vm)
+    {
+        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
 
-static wisp::VmError PrintContext(wisp::Vm* vm, wisp::State* state)
-{
-    PrintRegister("pc", state->regPc);
-    PrintRegister("sp", state->regSp);
+        SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
 
-    return wisp::VmError::OK;
-}
+        reg.value += constant;
 
-static wisp::VmError EndProgram(wisp::Vm* vm, wisp::State* state)
-{
-    return wisp::VmError::EndOfProgram;
-}
+        return wisp::VmError::OK;
+    }
+
+    wisp::VmError SubNumFromRegNative(wisp::Vm* vm)
+    {
+        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
+        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
+
+        SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
+
+        reg.value -= constant;
+
+        return wisp::VmError::OK;
+    }
+
+    wisp::VmError PrintContextNative(wisp::Vm* vm)
+    {
+        // not implemented yet
+
+        return wisp::VmError::OK;
+    }
+
+    wisp::VmError EndNative(wisp::Vm* vm)
+    {
+        return wisp::VmError::HaltExecution;
+    }
+
+private:
+    template<typename T>
+    T ReadArgument(wisp::Vm* vm)
+    {
+        T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
+        vm->GetContext()->regPc.Advance(sizeof(T));
+        return ret;
+    }
+
+    SimpleVmRegister& TranslateRegisterNumber(wisp::uint8 num, wisp::Vm* vm)
+    {
+        SimpleVmContext* context = dynamic_cast<SimpleVmContext*>(vm->GetContext());
+        REQUIRE(context != nullptr);
+        REQUIRE(num >= 0);
+        REQUIRE(num <= 32);
+
+        return context->regGeneral[num];
+    }
+
+    void PrintRegister(const char* name, SimpleVmRegister& reg)
+    {
+        printf("Register %s [value: 0x%x]\n", name, reg.value);
+    }
+
+    SimpleVmContext* m_context;
+};
 
 typedef std::vector<wisp::uint8> ProgramCode;
 
 TEST_CASE("Simple VM")
 {
-    // Not going to do any native stuff here
-    wisp::NativeList modList;
-
-    // Just addition!
-    wisp::InstructionList instList;
-    const wisp::uint8 STORE_UINT8 = static_cast<wisp::uint8>(instList.AddInstruction(StoreRegisterUInt8));
-    const wisp::uint8 MOVE_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(MoveRegisterToRegister));
-    const wisp::uint8 ADD_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(AddRegisterToRegister));
-    const wisp::uint8 AND_REG_TO_REG = static_cast<wisp::uint8>(instList.AddInstruction(AndRegisterToRegister));
-    const wisp::uint8 ADD_NUM_REG = static_cast<wisp::uint8>(instList.AddInstruction(AddNumToRegister));
-    const wisp::uint8 SUB_NUM_REG = static_cast<wisp::uint8>(instList.AddInstruction(SubtractNumFromRegister));
-    const wisp::uint8 PRINT_CONTEXT = static_cast<wisp::uint8>(instList.AddInstruction(PrintContext));
-    const wisp::uint8 END_PROGRAM = static_cast<wisp::uint8>(instList.AddInstruction(EndProgram));
+    wisp::uint64 memorySize = 16000 * 1000; // 16MB
+    wisp::MemoryModule ram(memorySize);
+    SimpleVmContext context;
+    SimpleVmISA isa(&context);
+    wisp::Vm instance(&context, &ram, &isa);
 
     const wisp::uint8 reg0 = 0;
     const wisp::uint8 reg1 = 1;
@@ -215,38 +183,27 @@ TEST_CASE("Simple VM")
     const wisp::uint8 reg3 = 3;
     const wisp::uint8 reg4 = 4;
 
-    // 0x06 & 0x1E == 0x06
-
     wisp::uint8 programCode[] =
     {
-        ADD_NUM_REG, sp, 0x10, // our stack grows down...
-        // PRINT_CONTEXT,
-        STORE_UINT8, reg0, 1,
-        STORE_UINT8, reg1, 10,
-        STORE_UINT8, reg3, 0x06,
-        STORE_UINT8, reg4, 0x1E,
-        AND_REG_TO_REG, reg3, reg4,
-        MOVE_REG_TO_REG, reg2, reg1,
-        ADD_REG_TO_REG, reg0, reg1,
-        SUB_NUM_REG, sp, 0x10,
-        // PRINT_CONTEXT,
-        END_PROGRAM
+        // SimpleVmISA::InstructionId::PrintContext,
+        SimpleVmISA::InstructionId::Store, reg0, 1,
+        SimpleVmISA::InstructionId::Store, reg1, 10,
+        SimpleVmISA::InstructionId::Store, reg3, 0x06,
+        SimpleVmISA::InstructionId::Store, reg4, 0x1E,
+        SimpleVmISA::InstructionId::AndRegToReg, reg3, reg4,
+        SimpleVmISA::InstructionId::MoveRegToReg, reg2, reg1,
+        SimpleVmISA::InstructionId::AddRegToReg, reg0, reg1,
+        // SimpleVmISA::InstructionId::PrintContext,
+        SimpleVmISA::InstructionId::End
     };
 
-    ProgramCode programCodeVec(programCode, programCode + sizeof(programCode));
-    ProgramCode prog = wisp::Vm::CreateProgram(programCodeVec);
+    memcpy(ram.GetPhysicalMemory(), programCode, sizeof(programCode));
 
-    wisp::Vm vm(&modList, &instList, 0x1000);
-    wisp::VmError err = vm.ExecuteProgram(prog.data(), static_cast<wisp::uint32>(prog.size()));
+    wisp::VmError err = instance.Execute(0);
+
     REQUIRE(err == wisp::VmError::OK);
 
-    REQUIRE(vm.GetState()->regGeneral[reg0].IsUnsignedInteger());
-    REQUIRE(vm.GetState()->regGeneral[reg2].IsUnsignedInteger());
-    REQUIRE(vm.GetState()->regGeneral[reg3].IsUnsignedInteger());
-
-    REQUIRE(vm.GetState()->regGeneral[reg0].GetInteger<wisp::uint8>() == 11);
-    REQUIRE(vm.GetState()->regGeneral[reg2].GetInteger<wisp::uint8>() == 10);
-    REQUIRE(vm.GetState()->regGeneral[reg3].GetInteger<wisp::uint8>() == 0x06);
-
-    vm.GetState()->Release();
+    REQUIRE(context.regGeneral[reg0].value == 11);
+    REQUIRE(context.regGeneral[reg2].value == 10);
+    REQUIRE(context.regGeneral[reg3].value == 0x06);
 }

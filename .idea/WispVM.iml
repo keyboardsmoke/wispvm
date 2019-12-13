@@ -5,29 +5,40 @@
       <sourceFolder url="file://$MODULE_DIR$/unit_test/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/unit_test/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/unit_test/vm/simple_vm.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/memory.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/int.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/control_flow.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/int.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/fp.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/isa.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/compare.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/fp.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/control_flow.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/memory.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/compare.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/string.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/string.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/isa/isa.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/register.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/wisp/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/register.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/register_math.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/context.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/program.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/wisp/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/wisp/program.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/lexer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/lexer.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/compiler.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/compiler/compiler.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/decoder.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/shared/platform.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/shared/types.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/random.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shared/hash/crc32.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/vm.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/register.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/vm.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/register.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/state.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/instruction.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/stack.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/state.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/isa.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/vm/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/instruction.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/vm/stack.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/vm.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/context.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/vm/vm.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ext/doctest/scripts/cmake/Config.cmake.in" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ext/doctest/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ext/doctest/doctest/parts/doctest.cpp" isTestSource="false" />

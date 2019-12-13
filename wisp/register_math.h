@@ -2,7 +2,7 @@
 
 namespace wisp {
 
-typedef VmError(*RegisterMathOperation)(Register& lhs, Register& rhs);
+	typedef VmError(*RegisterMathOperation)(Register& lhs, Register& rhs);
 
 #define CreateIntegerMathOperationTableRow(lhsValueType, lhsCppType, op) \
 	{ \
@@ -337,17 +337,17 @@ typedef VmError(*RegisterMathOperation)(Register& lhs, Register& rhs);
 	}, \
 };
 
-// Integer and float
-CreateMathOperationTable(AddRegisterOperationTable, +);
-CreateMathOperationTable(SubRegisterOperationTable, -);
-CreateMathOperationTable(MulRegisterOperationTable, *);
-CreateMathOperationTable(DivRegisterOperationTable, /);
+	// Integer and float
+	CreateMathOperationTable(AddRegisterOperationTable, +);
+	CreateMathOperationTable(SubRegisterOperationTable, -);
+	CreateMathOperationTable(MulRegisterOperationTable, *);
+	CreateMathOperationTable(DivRegisterOperationTable, / );
 
-// Integer only
-CreateBitwiseMathOperationTable(XorRegisterOperationTable, ^);
-CreateBitwiseMathOperationTable(OrRegisterOperationTable, | );
-CreateBitwiseMathOperationTable(AndRegisterOperationTable, &);
-CreateBitwiseMathOperationTable(LSHRegisterOperationTable, << );
-CreateBitwiseMathOperationTable(RSHRegisterOperationTable, >> );
-CreateBitwiseMathOperationTable(ModRegisterOperationTable, %);
+	// Integer only
+	CreateBitwiseMathOperationTable(XorRegisterOperationTable, ^);
+	CreateBitwiseMathOperationTable(OrRegisterOperationTable, | );
+	CreateBitwiseMathOperationTable(AndRegisterOperationTable, &);
+	CreateBitwiseMathOperationTable(LSHRegisterOperationTable, << );
+	CreateBitwiseMathOperationTable(RSHRegisterOperationTable, >> );
+	CreateBitwiseMathOperationTable(ModRegisterOperationTable, %);
 }

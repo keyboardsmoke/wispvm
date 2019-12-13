@@ -6,18 +6,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(VM_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
         ${CMAKE_SOURCE_DIR}/shared/types.h
-        ${CMAKE_SOURCE_DIR}/shared/random.h
-        ${CMAKE_SOURCE_DIR}/shared/decoder.h
-        ${CMAKE_SOURCE_DIR}/shared/hash/crc32.h
-        register.h
-        register.cpp
-        register_math.h
-        stack.h
-        stack.cpp
-        state.h
-        state.cpp
-        instruction.h
-        instruction.cpp
+		isa.h
+		context.h
         vm.h
         vm.cpp)
 

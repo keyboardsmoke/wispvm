@@ -1,3 +1,6 @@
 [submodule "ext/doctest"]
 	path = ext/doctest
 	url = https://github.com/onqtam/doctest.git
+[submodule "ext/cxxopts"]
+	path = ext/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git
