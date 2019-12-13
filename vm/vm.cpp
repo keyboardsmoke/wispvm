@@ -79,26 +79,3 @@ VmError Vm::ExecuteInstruction()
 
     return m_isa->ExecuteInstruction(this);
 }
-
-/*
-VmError Vm::AdvanceProgramCounter(uint32 size)
-{
-    if (!m_state.regPc.HasValue() || m_state.regPc.GetType() != ValueType::Pointer)
-    {
-        return VmError::RegisterMismatch;
-    }
-
-    m_state.regPc.SetPointer(m_state.regPc.GetPointerOffset() + size);
-
-    return VmError::OK;
-}
-
-uint8* Vm::GetProgramCounterData()
-{
-    if (!m_state.regPc.HasValue() || m_state.regPc.GetType() != ValueType::Pointer)
-    {
-        return nullptr;
-    }
-
-    return m_state.regPc.GetPointerFromBase(m_state.programBase);
-}*/
