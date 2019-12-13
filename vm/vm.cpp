@@ -4,7 +4,7 @@
 #include "shared/hash/crc32.h"
 #include "isa.h"
 
-using namespace wisp;
+using namespace vmcore;
 
 const char* Vm::GetErrorString(VmError error)
 {

@@ -4,6 +4,7 @@
 #include "vm/vm.h"
 #include "program.h"
 
+using namespace vmcore;
 using namespace wisp;
 
 std::vector<uint8> Program::CreateProgram(std::vector<uint8>& byteCode)

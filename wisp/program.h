@@ -5,9 +5,6 @@
 
 namespace wisp
 {
-    enum class VmError;
-    class Vm;
-
 	class Program
 	{
 		struct ProgramHeader
@@ -24,6 +21,6 @@ namespace wisp
 		};
 
 		static std::vector<uint8> CreateProgram(std::vector<uint8>& byteCode);
-		VmError ExecuteProgram(Vm* vm, void *program, uint32 size);
+		vmcore::VmError ExecuteProgram(vmcore::Vm* vm, void *program, uint32 size);
 	};
 }

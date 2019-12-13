@@ -5,7 +5,7 @@
 
 namespace wisp
 {
-    class WispContext : public Context
+    class WispContext : public vmcore::Context
     {
     public:
         uint8 GetRegisterId(Register& reg);

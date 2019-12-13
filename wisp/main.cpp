@@ -12,10 +12,10 @@ int main(int argc, char** argv)
     // Basic memory module, we can make one that expands or even uses a different pool from main program memory
     // but I'm lazy, so no.
     uint64 memorySize = 16000 * 1000; // 16MB
-    wisp::MemoryModule ram(memorySize);
+    vmcore::MemoryModule ram(memorySize);
 	wisp::WispContext context;
     wisp::WispISA isa;
-    wisp::Vm instance(&context, &ram, &isa);
+    vmcore::Vm instance(&context, &ram, &isa);
 
     // bytecode?
 

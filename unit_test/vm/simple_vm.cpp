@@ -12,13 +12,13 @@ public:
     uint8 value;
 };
 
-class SimpleVmContext : public wisp::Context
+class SimpleVmContext : public vmcore::Context
 {
 public:
     SimpleVmRegister regGeneral[32];
 };
 
-class SimpleVmISA : public wisp::ISA
+class SimpleVmISA : public vmcore::ISA
 {
 public:
     SimpleVmISA(SimpleVmContext* context) : m_context(context) {}
@@ -37,7 +37,7 @@ public:
         End,
     };
 
-	wisp::VmError ExecuteInstruction(wisp::Vm* vm) override
+	vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override
 	{
 		uint64 oldPc = vm->GetContext()->regPc.Get();
 		uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
@@ -59,12 +59,12 @@ public:
             default: 
 			{
 				printf("Invalid register index (0x%x) at (0x%I64X), New PC: 0x%I64X\n", id, oldPc, newPc);
-				return wisp::VmError::InvalidInstruction;
+				return vmcore::VmError::InvalidInstruction;
 			}
         }
     }
 
-    wisp::VmError StoreNative(wisp::Vm* vm)
+	vmcore::VmError StoreNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -73,10 +73,10 @@ public:
 
         reg.value = constant;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError MoveRegToRegNative(wisp::Vm* vm)
+	vmcore::VmError MoveRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -86,10 +86,10 @@ public:
 
         reg0.value = reg1.value;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError AddRegToRegNative(wisp::Vm* vm)
+	vmcore::VmError AddRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -99,10 +99,10 @@ public:
 
         reg0.value += reg1.value;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError AndRegToRegNative(wisp::Vm* vm)
+	vmcore::VmError AndRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -112,10 +112,10 @@ public:
 
         reg0.value &= reg1.value;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError AddNumToRegNative(wisp::Vm* vm)
+	vmcore::VmError AddNumToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -124,10 +124,10 @@ public:
 
         reg.value += constant;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError SubNumFromRegNative(wisp::Vm* vm)
+	vmcore::VmError SubNumFromRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -136,10 +136,10 @@ public:
 
         reg.value -= constant;
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-    wisp::VmError PrintContextNative(wisp::Vm* vm)
+	vmcore::VmError PrintContextNative(vmcore::Vm* vm)
     {
         // not implemented yet
 		for (uint32 i = 0; i < 32; ++i)
@@ -151,17 +151,17 @@ public:
 
 		printf("PC = 0x%I64X\n", m_context->regPc.Get());
 
-        return wisp::VmError::OK;
+        return vmcore::VmError::OK;
     }
 
-	wisp::VmError PrintHelloWorldNative(wisp::Vm* vm)
+	vmcore::VmError PrintHelloWorldNative(vmcore::Vm* vm)
 	{
 		printf("Hello, World!\n");
 
-		return wisp::VmError::OK;
+		return vmcore::VmError::OK;
 	}
 
-	wisp::VmError JumpNative(wisp::Vm* vm)
+	vmcore::VmError JumpNative(vmcore::Vm* vm)
 	{
 		uint64 pc = m_context->regPc.Get();
 		uint8 dst = ReadArgument<uint8>(vm);
@@ -171,24 +171,24 @@ public:
 
 		m_context->regPc.GoTo(calcDest);
 
-		return wisp::VmError::OK;
+		return vmcore::VmError::OK;
 	}
 
-    wisp::VmError EndNative(wisp::Vm* vm)
+	vmcore::VmError EndNative(vmcore::Vm* vm)
     {
-        return wisp::VmError::HaltExecution;
+        return vmcore::VmError::HaltExecution;
     }
 
 private:
     template<typename T>
-    T ReadArgument(wisp::Vm* vm)
+    T ReadArgument(vmcore::Vm* vm)
     {
         T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
         vm->GetContext()->regPc.Advance(sizeof(T));
         return ret;
     }
 
-    SimpleVmRegister& TranslateRegisterNumber(uint8 num, wisp::Vm* vm)
+    SimpleVmRegister& TranslateRegisterNumber(uint8 num, vmcore::Vm* vm)
     {
         SimpleVmContext* context = dynamic_cast<SimpleVmContext*>(vm->GetContext());
         REQUIRE(context != nullptr);
@@ -211,10 +211,10 @@ typedef std::vector<uint8> ProgramCode;
 TEST_CASE("Simple VM")
 {
     uint64 memorySize = 16000 * 1000; // 16MB
-    wisp::MemoryModule ram(memorySize);
+	vmcore::MemoryModule ram(memorySize);
     SimpleVmContext context;
     SimpleVmISA isa(&context);
-    wisp::Vm instance(&context, &ram, &isa);
+	vmcore::Vm instance(&context, &ram, &isa);
 
     const uint8 reg0 = 0;
     const uint8 reg1 = 1;
@@ -243,9 +243,9 @@ TEST_CASE("Simple VM")
 
     memcpy(ram.GetPhysicalMemory(), programCode, sizeof(programCode));
 
-    wisp::VmError err = instance.Execute(0);
+	vmcore::VmError err = instance.Execute(0);
 
-    REQUIRE(err == wisp::VmError::OK);
+    REQUIRE(err == vmcore::VmError::OK);
 
     REQUIRE(context.regGeneral[reg0].value == 11);
     REQUIRE(context.regGeneral[reg2].value == 10);

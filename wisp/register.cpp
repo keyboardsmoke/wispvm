@@ -1,9 +1,13 @@
 #include "shared/types.h"
-#include "register.h"
 #include "vm/vm.h"
+
+using namespace vmcore;
+
+#include "register.h"
 #include "register_math.h"
 
 using namespace wisp;
+
 
 void Register::CopyValue(Register& rhs)
 {

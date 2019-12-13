@@ -2,7 +2,7 @@
 
 #include "shared/types.h"
 
-namespace wisp
+namespace vmcore
 {
     enum class VmError;
 

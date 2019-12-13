@@ -4,11 +4,18 @@
 
 namespace wisp
 {
-    enum class VmError;
-
-    class WispISA : public ISA
+    class WispISA : public vmcore::ISA
     {
     public:
-        VmError ExecuteInstruction(Vm* vm) override;
+		vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override;
+
+	private:
+		template<typename T>
+		T ReadArgument(vmcore::Vm* vm)
+		{
+			T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
+			vm->GetContext()->regPc.Advance(sizeof(T));
+			return ret;
+		}
     };
 }

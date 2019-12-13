@@ -1,6 +1,6 @@
 #pragma once
 
-namespace wisp
+namespace vmcore
 {
     class MemoryModule
     {

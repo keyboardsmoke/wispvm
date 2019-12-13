@@ -19,10 +19,10 @@
 #include <cassert>
 #include <cstring>
 
+#include "vm/vm.h"
+
 namespace wisp
 {
-	enum class VmError;
-
 	enum class ValueType
 	{
 		None = 0,
@@ -179,27 +179,27 @@ namespace wisp
 		void SetRawFP(double value);
 
 		// Math operations
-		VmError AddUnsignedInteger(uint64 value);
-		VmError AddSignedInteger(int64 value);
-		VmError AddFloatingPoint(double value);
+		vmcore::VmError AddUnsignedInteger(uint64 value);
+		vmcore::VmError AddSignedInteger(int64 value);
+		vmcore::VmError AddFloatingPoint(double value);
 
-		VmError SubUnsignedInteger(uint64 value);
-		VmError SubSignedInteger(int64 value);
-		VmError SubFloatingPoint(double value);
+		vmcore::VmError SubUnsignedInteger(uint64 value);
+		vmcore::VmError SubSignedInteger(int64 value);
+		vmcore::VmError SubFloatingPoint(double value);
 
 		// Basic Math
-		VmError AddRegister(Register & rhs);
-		VmError SubRegister(Register & rhs);
-		VmError MulRegister(Register & rhs);
-		VmError DivRegister(Register & rhs);
-		VmError ModuloRegister(Register & rhs);
+		vmcore::VmError AddRegister(Register & rhs);
+		vmcore::VmError SubRegister(Register & rhs);
+		vmcore::VmError MulRegister(Register & rhs);
+		vmcore::VmError DivRegister(Register & rhs);
+		vmcore::VmError ModuloRegister(Register & rhs);
 
 		// Bitwise
-		VmError XorRegister(Register & rhs);
-		VmError OrRegister(Register & rhs);
-		VmError AndRegister(Register & rhs);
-		VmError LeftShiftRegister(Register & rhs);
-		VmError RightShiftRegister(Register & rhs);
+		vmcore::VmError XorRegister(Register & rhs);
+		vmcore::VmError OrRegister(Register & rhs);
+		vmcore::VmError AndRegister(Register & rhs);
+		vmcore::VmError LeftShiftRegister(Register & rhs);
+		vmcore::VmError RightShiftRegister(Register & rhs);
 
 		void CopyValue(Register & rhs);
 		void DestroyValue();

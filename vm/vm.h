@@ -7,7 +7,7 @@
 
 // The "Vm" object is an instance of the virtual machine
 
-namespace wisp
+namespace vmcore
 {
     enum class VmError
     {
