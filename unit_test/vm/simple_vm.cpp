@@ -2,14 +2,14 @@
 #include "vm/vm.h"
 
 // Reserved Register Numbers
-const wisp::uint8 pc = 0xff;
+const uint8 pc = 0xff;
 
 class SimpleVmRegister
 {
 public:
 	SimpleVmRegister() : value(0) {}
 
-    wisp::uint8 value;
+    uint8 value;
 };
 
 class SimpleVmContext : public wisp::Context
@@ -23,7 +23,7 @@ class SimpleVmISA : public wisp::ISA
 public:
     SimpleVmISA(SimpleVmContext* context) : m_context(context) {}
 
-    enum InstructionId : wisp::uint8
+    enum InstructionId : uint8
     {
         Store = 0,
         MoveRegToReg,
@@ -39,10 +39,10 @@ public:
 
 	wisp::VmError ExecuteInstruction(wisp::Vm* vm) override
 	{
-		wisp::uint64 oldPc = vm->GetContext()->regPc.Get();
-		wisp::uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
-        vm->GetContext()->regPc.Advance(sizeof(wisp::uint8));
-		wisp::uint64 newPc = vm->GetContext()->regPc.Get();
+		uint64 oldPc = vm->GetContext()->regPc.Get();
+		uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
+        vm->GetContext()->regPc.Advance(sizeof(uint8));
+		uint64 newPc = vm->GetContext()->regPc.Get();
 
         switch (id)
         {
@@ -66,8 +66,8 @@ public:
 
     wisp::VmError StoreNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex = ReadArgument<uint8>(vm);
+        uint8 constant = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
 
@@ -78,8 +78,8 @@ public:
 
     wisp::VmError MoveRegToRegNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex0 = ReadArgument<uint8>(vm);
+        uint8 regIndex1 = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
         SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
@@ -91,8 +91,8 @@ public:
 
     wisp::VmError AddRegToRegNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex0 = ReadArgument<uint8>(vm);
+        uint8 regIndex1 = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
         SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
@@ -104,8 +104,8 @@ public:
 
     wisp::VmError AndRegToRegNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex0 = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 regIndex1 = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex0 = ReadArgument<uint8>(vm);
+        uint8 regIndex1 = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg0 = TranslateRegisterNumber(regIndex0, vm);
         SimpleVmRegister& reg1 = TranslateRegisterNumber(regIndex1, vm);
@@ -117,8 +117,8 @@ public:
 
     wisp::VmError AddNumToRegNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex = ReadArgument<uint8>(vm);
+        uint8 constant = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
 
@@ -129,8 +129,8 @@ public:
 
     wisp::VmError SubNumFromRegNative(wisp::Vm* vm)
     {
-        wisp::uint8 regIndex = ReadArgument<wisp::uint8>(vm);
-        wisp::uint8 constant = ReadArgument<wisp::uint8>(vm);
+        uint8 regIndex = ReadArgument<uint8>(vm);
+        uint8 constant = ReadArgument<uint8>(vm);
 
         SimpleVmRegister& reg = TranslateRegisterNumber(regIndex, vm);
 
@@ -142,7 +142,7 @@ public:
     wisp::VmError PrintContextNative(wisp::Vm* vm)
     {
         // not implemented yet
-		for (wisp::uint32 i = 0; i < 32; ++i)
+		for (uint32 i = 0; i < 32; ++i)
 		{
 			char regname[8] = { 0 };
 			sprintf_s(regname, "R%d", i);
@@ -163,10 +163,11 @@ public:
 
 	wisp::VmError JumpNative(wisp::Vm* vm)
 	{
-		wisp::uint8 dst = ReadArgument<wisp::uint8>(vm);
+		uint64 pc = m_context->regPc.Get();
+		uint8 dst = ReadArgument<uint8>(vm);
 
 		// Calculate the PC relative destination... this would be more efficient without the sub...
-		wisp::uint8 calcDest = (m_context->regPc.Get() - sizeof(wisp::uint8)) + dst;
+		uint8 calcDest = (pc - sizeof(uint8)) + dst;
 
 		m_context->regPc.GoTo(calcDest);
 
@@ -187,7 +188,7 @@ private:
         return ret;
     }
 
-    SimpleVmRegister& TranslateRegisterNumber(wisp::uint8 num, wisp::Vm* vm)
+    SimpleVmRegister& TranslateRegisterNumber(uint8 num, wisp::Vm* vm)
     {
         SimpleVmContext* context = dynamic_cast<SimpleVmContext*>(vm->GetContext());
         REQUIRE(context != nullptr);
@@ -205,23 +206,23 @@ private:
     SimpleVmContext* m_context;
 };
 
-typedef std::vector<wisp::uint8> ProgramCode;
+typedef std::vector<uint8> ProgramCode;
 
 TEST_CASE("Simple VM")
 {
-    wisp::uint64 memorySize = 16000 * 1000; // 16MB
+    uint64 memorySize = 16000 * 1000; // 16MB
     wisp::MemoryModule ram(memorySize);
     SimpleVmContext context;
     SimpleVmISA isa(&context);
     wisp::Vm instance(&context, &ram, &isa);
 
-    const wisp::uint8 reg0 = 0;
-    const wisp::uint8 reg1 = 1;
-    const wisp::uint8 reg2 = 2;
-    const wisp::uint8 reg3 = 3;
-    const wisp::uint8 reg4 = 4;
+    const uint8 reg0 = 0;
+    const uint8 reg1 = 1;
+    const uint8 reg2 = 2;
+    const uint8 reg3 = 3;
+    const uint8 reg4 = 4;
 
-    wisp::uint8 programCode[] =
+    uint8 programCode[] =
     {
         SimpleVmISA::InstructionId::PrintContext,					// 0000
         SimpleVmISA::InstructionId::Store, reg0, 1,					// 0001

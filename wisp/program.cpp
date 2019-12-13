@@ -12,9 +12,9 @@ std::vector<uint8> Program::CreateProgram(std::vector<uint8>& byteCode)
 	header.seed = 0; // When no seed is set, nothing is really encoded/randomized
 	header.magic = Program::ProgramHeader::WISP_MAGIC;
 	header.ep = 0;
-	header.bytecodeCrc = wisp::hash::crc32(byteCode.data(), static_cast<wisp::uint32>(byteCode.size()));
+	header.bytecodeCrc = wisp::hash::crc32(byteCode.data(), static_cast<uint32>(byteCode.size()));
 
-	uint8* headerBytes = reinterpret_cast<wisp::uint8*>(&header);
+	uint8* headerBytes = reinterpret_cast<uint8*>(&header);
 
 	std::vector<uint8> prog(headerBytes, headerBytes + sizeof(Program::ProgramHeader));
 

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(WispVM)
 
-
-set(CMAKE_EXE_LINKER_FLAGS "-static")
+if (NOT MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
 #add_subdirectory(${CMAKE_SOURCE_DIR}/ext/catch2)
 add_subdirectory(${CMAKE_SOURCE_DIR}/ext/doctest)

@@ -23,7 +23,7 @@ namespace wisp
 			uint32 bytecodeCrc;
 		};
 
-		static std::vector<wisp::uint8> CreateProgram(std::vector<wisp::uint8>& byteCode);
+		static std::vector<uint8> CreateProgram(std::vector<uint8>& byteCode);
 		VmError ExecuteProgram(Vm* vm, void *program, uint32 size);
 	};
 }
