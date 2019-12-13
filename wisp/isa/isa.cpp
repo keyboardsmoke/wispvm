@@ -5,6 +5,7 @@
 using namespace wisp;
 using namespace vmcore;
 
+/*
 VmError Store(WispISA* isa, Vm* vm)
 {
 	return VmError::OK;
@@ -55,7 +56,6 @@ VmError Call(WispISA* isa, Vm* vm)
 	return VmError::OK;
 }
 
-/*
 std::function<VmError(WispISA*, Vm*)> g_definitionTable[] =
 {
 	// General Purpose

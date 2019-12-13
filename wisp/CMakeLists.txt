@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(wisp)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
 include_directories(${CMAKE_SOURCE_DIR})
 
 set(WISP_FILES
@@ -33,3 +31,15 @@ set(WISP_FILES
 add_executable(wisp ${WISP_FILES})
 target_link_libraries(wisp vm)
 target_link_libraries(wisp compiler)
+
+set_target_properties(wisp PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
+if(MSVC)
+  target_compile_options(wisp PRIVATE /W4 /WX)
+else()
+  target_compile_options(wisp PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()

@@ -14,7 +14,7 @@ namespace wisp
 			// Seed dictates how the following values are encoded
 			// That way, when we use the seed to decode magic
 			// We can still ensure integrity without having an obvious static magic
-			uint64 seed;
+			uint32 seed;
 			uint32 magic;
 			uint32 ep;
 			uint32 bytecodeCrc;

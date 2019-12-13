@@ -9,6 +9,9 @@
 
 int main(int argc, char** argv)
 {
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
+
     // Basic memory module, we can make one that expands or even uses a different pool from main program memory
     // but I'm lazy, so no.
     uint64 memorySize = 16000 * 1000; // 16MB

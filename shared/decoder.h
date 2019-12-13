@@ -7,12 +7,12 @@ namespace wisp
     class Decoder
     {
     public:
-        template<typename T> static T Decode(T& number, uint64 key)
+        template<typename T> static T Decode(T& number, uint32 key)
         {
             if (key == 0)
                 return number;
             
-            return number ^ key;
+            return static_cast<T>(number ^ key);
         }
     };
 }

@@ -167,7 +167,7 @@ public:
 		uint8 dst = ReadArgument<uint8>(vm);
 
 		// Calculate the PC relative destination... this would be more efficient without the sub...
-		uint8 calcDest = (pc - sizeof(uint8)) + dst;
+		uint8 calcDest = (static_cast<uint8>(pc) - sizeof(uint8)) + dst;
 
 		m_context->regPc.GoTo(calcDest);
 

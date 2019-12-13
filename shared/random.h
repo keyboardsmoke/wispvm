@@ -8,7 +8,7 @@ namespace wisp
     {
     public:
         Random() = delete;
-        Random(uint64 seed) : m_seed(seed), m_engine(seed)
+        Random(uint32 seed) : m_seed(seed), m_engine(seed)
         {
 
         }
@@ -34,7 +34,7 @@ namespace wisp
         }
 
     private:
-        uint64 m_seed;
+        uint32 m_seed;
         std::default_random_engine m_engine;
     };
 }

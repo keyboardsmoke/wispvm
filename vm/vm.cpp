@@ -75,7 +75,5 @@ VmError Vm::ExecuteState()
 
 VmError Vm::ExecuteInstruction()
 {
-    uint8* inst = m_memory->GetPhysicalMemory() + m_context->regPc.Get();
-
     return m_isa->ExecuteInstruction(this);
 }

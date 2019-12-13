@@ -26,3 +26,7 @@ typedef unsigned long int uint64;
 #include <functional>
 #include <random>
 #include <limits>
+
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(x) x;
+#endif

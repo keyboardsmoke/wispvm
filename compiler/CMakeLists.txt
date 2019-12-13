@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(compiler)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
 include_directories(${CMAKE_SOURCE_DIR})
 
 set(COMPILER_FILES
@@ -14,3 +12,15 @@ set(COMPILER_FILES
         compiler.cpp)
 
 add_library(compiler STATIC ${COMPILER_FILES})
+
+set_target_properties(compiler PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
+if(MSVC)
+  target_compile_options(compiler PRIVATE /W4 /WX)
+else()
+  target_compile_options(compiler PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()

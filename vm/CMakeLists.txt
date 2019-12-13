@@ -20,3 +20,9 @@ set_target_properties(vm PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
+
+if(MSVC)
+  target_compile_options(vm PRIVATE /W4 /WX)
+else()
+  target_compile_options(vm PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
