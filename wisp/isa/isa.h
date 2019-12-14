@@ -9,7 +9,6 @@ namespace wisp
     public:
 		vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override;
 
-	private:
 		template<typename T>
 		T ReadArgument(vmcore::Vm* vm)
 		{

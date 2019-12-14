@@ -14,6 +14,7 @@ namespace vmcore
         OK = 0,
         InvalidArguments,
         InvalidMagic,
+        InvalidContext,
         InvalidOpcode,
         InvalidProgramState,
         InvalidInstruction,
