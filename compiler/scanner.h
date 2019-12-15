@@ -41,12 +41,18 @@ namespace compiler
         // TODO: If we want to look for newlines, we can, but that isn't an option yet.
         void Forward(uint32 count)
         {
+            if (count == 0)
+                return;
+
             m_sourceIndex += count;
             m_colIndex += count;
         }
 
         void Rewind(uint32 count)
         {
+            if (count == 0)
+                return;
+
             m_sourceIndex -= count;
             m_colIndex -= count;
         }

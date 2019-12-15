@@ -256,6 +256,9 @@ Tokenizer::TokenizerResult Tokenizer::GetToken(Token& token)
         return TokenizerResult::EndOfSource;
     }
 
+    token.kw = nullptr;
+    token.punc = nullptr;
+
     token.sourceIndex = c.sourceIndex;
     token.sourceLength = 1; // until this is overwritten, it's 1.
     token.lineIndex = c.line;
@@ -301,6 +304,8 @@ Tokenizer::TokenizerResult Tokenizer::GetToken(Token& token)
             token.type = TokenType::Punctuator;
             token.punc = punc;
 
+            m_scanner.Forward(token.sourceLength - 1);
+
             return TokenizerResult::OK;
         }
 
@@ -317,7 +322,9 @@ Punctuator* Tokenizer::GetPunctuatorAtPosition(Character& c)
 {
     const char* ptr = &m_scanner.GetSourceText()[c.sourceIndex];
 
-    for (uint32 p = 0; p < CountOfArray(Punctuators); ++p)
+    // Clang store punctuators in order from simple to complex
+    // If we go backward, we should be fine.
+    for (uint32 p = CountOfArray(Punctuators); p > 0; --p)
     {
         Punctuator& pp = Punctuators[p];
 
@@ -335,10 +342,6 @@ Punctuator* Tokenizer::GetPunctuatorAtPosition(Character& c)
 
 Keyword* Tokenizer::GetKeywordAtPosition(Character& c)
 {
-    // TODO: It is only matching the first found identifier, which isn't correct.
-    // When we have & before && and &=, that means it will always try to match &.
-    // To solve this, we need more complex logic. I'd like something performant.
-
     const char* ptr = &m_scanner.GetSourceText()[c.sourceIndex];
 
     for (uint32 k = 0; k < CountOfArray(Keywords); ++k)

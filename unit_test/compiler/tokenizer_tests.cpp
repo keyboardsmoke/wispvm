@@ -185,29 +185,64 @@ TEST_CASE("Tokenizer Tests")
         REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
         REQUIRE(token.type == compiler::TokenType::Unknown); // $
     }
+
+    SUBCASE("Match complex punctuator first")
+    {
+        const char* fileContent = "&& += + -=";
+
+        compiler::Token token;
+        compiler::Tokenizer tokenizer(fileContent);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 0);
+        REQUIRE(token.sourceIndex == 0);
+        REQUIRE(token.sourceLength == 2);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::ampamp);
+        REQUIRE(token.punc->raw == "&&");
+
+        // whitespace
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.type == compiler::TokenType::Whitespace);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 3);
+        REQUIRE(token.sourceIndex == 3);
+        REQUIRE(token.sourceLength == 2);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::plusequal);
+        REQUIRE(token.punc->raw == "+=");
+
+        // whitespace
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.type == compiler::TokenType::Whitespace);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 6);
+        REQUIRE(token.sourceIndex == 6);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::plus);
+        REQUIRE(token.punc->raw == "+");
+
+        // whitespace
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.type == compiler::TokenType::Whitespace);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 8);
+        REQUIRE(token.sourceIndex == 8);
+        REQUIRE(token.sourceLength == 2);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::minusequal);
+        REQUIRE(token.punc->raw == "-=");
+    }
 }
-
-
-
-
-/*
-while (true)
-{
-    compiler::Token token;
-    compiler::Tokenizer::TokenizerResult result = tokenizer.GetToken(token);
-
-    if (result == compiler::Tokenizer::TokenizerResult::EndOfSource)
-        break;
-
-    const uint32 stringLength = token.sourceLength + 1;
-
-    char* subContent = new char[stringLength];
-    memset(subContent, 0, stringLength);
-    memcpy(subContent, &fileContent[token.sourceIndex], token.sourceLength);
-
-    std::cout << "Token [" << subContent << "][" << TokenTypeToString(token.type) << "]" << std::endl;
-
-    delete[] subContent;
-}*/
-
-//
