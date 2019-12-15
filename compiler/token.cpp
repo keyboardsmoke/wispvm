@@ -2,6 +2,7 @@
 #include "scanner.h"
 #include "token.h"
 #include "char.h"
+#include <iostream>
 
 using namespace compiler;
 
@@ -216,23 +217,34 @@ Tokenizer::TokenizerResult Tokenizer::GetCharConstant(Character& c, Token& token
 
 Tokenizer::TokenizerResult Tokenizer::GetIdentifier(Character& c, Token& token)
 {
-    // Test keyword first
-    compiler::Keyword* kw = GetKeywordAtPosition(c);
-    if (kw != nullptr)
-    {
-        m_scanner.Forward(static_cast<uint32>(kw->raw.length()) - 1);
-        token.sourceLength = static_cast<uint32>(kw->raw.length());
-        token.type = TokenType::Keyword;
+    uint32 startIndex = c.sourceIndex;
 
-        return TokenizerResult::OK;
+    while (compiler::charinfo::isIdentifierBody(c.character))
+    {
+        if (m_scanner.GetCharacter(c) == compiler::Scanner::ScannerResult::EndOfSource)
+            break;
     }
 
-    // Do we need to do some kind of lookup here?...
+    // We consumed 1 extra character
+    m_scanner.Rewind(1);
+
+    uint32 endIndex = c.sourceIndex;
+
+    token.sourceLength = endIndex - startIndex;
+    token.type = TokenType::Identifier;
+
+    // Test for keyword.
+    std::string total(&m_scanner.GetSourceText()[startIndex], &m_scanner.GetSourceText()[endIndex]);
+
+    auto f = m_keywordLookup.find(total);
+    if (f != m_keywordLookup.end())
+    {
+        token.type = TokenType::Keyword;
+        token.kw = f->second;
+    }
 
     return TokenizerResult::OK;
 }
-
-#include <iostream>
 
 Tokenizer::TokenizerResult Tokenizer::GetToken(Token& token)
 {
@@ -287,6 +299,7 @@ Tokenizer::TokenizerResult Tokenizer::GetToken(Token& token)
         {
             token.sourceLength = static_cast<uint32>(punc->raw.length());
             token.type = TokenType::Punctuator;
+            token.punc = punc;
 
             return TokenizerResult::OK;
         }
@@ -322,6 +335,10 @@ Punctuator* Tokenizer::GetPunctuatorAtPosition(Character& c)
 
 Keyword* Tokenizer::GetKeywordAtPosition(Character& c)
 {
+    // TODO: It is only matching the first found identifier, which isn't correct.
+    // When we have & before && and &=, that means it will always try to match &.
+    // To solve this, we need more complex logic. I'd like something performant.
+
     const char* ptr = &m_scanner.GetSourceText()[c.sourceIndex];
 
     for (uint32 k = 0; k < CountOfArray(Keywords); ++k)

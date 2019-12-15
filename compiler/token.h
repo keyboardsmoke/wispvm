@@ -13,9 +13,9 @@ namespace compiler
         RawIdentifier,              // Used only in raw lexing mode.
         NumericConstant,            // 0x123
         CharConstant,               // 'a'
-        WideCharConstant,           // L'a'
+        // WideCharConstant,           // L'a'
         StringLiteral,              // "foo"
-        WideStringLiteral,          // L"foo"
+        // WideStringLiteral,          // L"foo"
         Punctuator,                 // "[", "]", "&&", "+=", etc.
         Keyword,                    // "uint8", "import", "case", "if", "else", etc.
         Whitespace,                 // space, newline, tab
@@ -159,10 +159,22 @@ namespace compiler
 
     struct Token
     {
+        Token() :
+            sourceIndex(0),
+            sourceLength(0),
+            lineIndex(0),
+            colIndex(0),
+            kw(nullptr),
+            punc(nullptr),
+            type(TokenType::Unknown) {}
+
         uint32 sourceIndex;
         uint32 sourceLength;
         uint32 lineIndex;
         uint32 colIndex;
+
+        Keyword* kw;
+        Punctuator* punc;
 
         TokenType type;
     };
