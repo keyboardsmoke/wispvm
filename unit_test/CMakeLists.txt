@@ -9,6 +9,8 @@ set(UNIT_TEST_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
         ${CMAKE_SOURCE_DIR}/shared/types.h
         vm/simple_vm.cpp
+		compiler/scanner_tests.cpp
+		compiler/tokenizer_tests.cpp
         main.cpp)
 
 add_executable(unit_test ${UNIT_TEST_FILES})

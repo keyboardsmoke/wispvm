@@ -6,10 +6,20 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(COMPILER_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
         ${CMAKE_SOURCE_DIR}/shared/types.h
+        ast.h
+        ast.cpp
+        compiler.h
+        compiler.cpp
+		char.h
+		char.cpp
         lexer.h
         lexer.cpp
-        compiler.h
-        compiler.cpp)
+        parser.h
+        parser.cpp
+        scanner.h
+        scanner.cpp
+        token.h
+        token.cpp)
 
 add_library(compiler STATIC ${COMPILER_FILES})
 
