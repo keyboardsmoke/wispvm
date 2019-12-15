@@ -32,13 +32,13 @@ namespace vmcore
     public:
         Vm() = delete;
         Vm(Context* context, MemoryModule* memory, ISA* isa) :
-			m_context(context), m_memory(memory), m_isa(isa) {}
+            m_context(context), m_memory(memory), m_isa(isa) {}
 
         static const char* GetErrorString(VmError error);
 
-		VmError Execute(uint64 offset);
+        VmError Execute(uint64 offset);
 
-		Context* GetContext()
+        Context* GetContext()
         {
             return m_context;
         }
@@ -57,8 +57,8 @@ namespace vmcore
         VmError ExecuteState();
         VmError ExecuteInstruction();
 
-		Context* m_context;
+        Context* m_context;
         MemoryModule* m_memory;
-		ISA* m_isa;
+        ISA* m_isa;
     };
 }

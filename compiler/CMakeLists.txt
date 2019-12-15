@@ -10,8 +10,8 @@ set(COMPILER_FILES
         ast.cpp
         compiler.h
         compiler.cpp
-		char.h
-		char.cpp
+        char.h
+        char.cpp
         lexer.h
         lexer.cpp
         parser.h

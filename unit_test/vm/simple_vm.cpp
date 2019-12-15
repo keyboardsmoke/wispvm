@@ -7,7 +7,7 @@ const uint8 pc = 0xff;
 class SimpleVmRegister
 {
 public:
-	SimpleVmRegister() : value(0) {}
+    SimpleVmRegister() : value(0) {}
 
     uint8 value;
 };
@@ -32,17 +32,17 @@ public:
         AddNumToReg,
         SubNumFromReg,
         PrintContext,
-		PrintHelloWorld,
-		Jump,
+        PrintHelloWorld,
+        Jump,
         End,
     };
 
-	vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override
-	{
-		uint64 oldPc = vm->GetContext()->regPc.Get();
-		uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
+    vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override
+    {
+        uint64 oldPc = vm->GetContext()->regPc.Get();
+        uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
         vm->GetContext()->regPc.Advance(sizeof(uint8));
-		uint64 newPc = vm->GetContext()->regPc.Get();
+        uint64 newPc = vm->GetContext()->regPc.Get();
 
         switch (id)
         {
@@ -53,18 +53,18 @@ public:
             case InstructionId::AddNumToReg: return AddNumToRegNative(vm);
             case InstructionId::SubNumFromReg: return SubNumFromRegNative(vm);
             case InstructionId::PrintContext: return PrintContextNative(vm);
-			case InstructionId::PrintHelloWorld: return PrintHelloWorldNative(vm);
-			case InstructionId::Jump: return JumpNative(vm);
+            case InstructionId::PrintHelloWorld: return PrintHelloWorldNative(vm);
+            case InstructionId::Jump: return JumpNative(vm);
             case InstructionId::End: return EndNative(vm);
             default: 
-			{
-				printf("Invalid register index (0x%x) at (0x%I64X), New PC: 0x%I64X\n", id, oldPc, newPc);
-				return vmcore::VmError::InvalidInstruction;
-			}
+            {
+                printf("Invalid register index (0x%x) at (0x%I64X), New PC: 0x%I64X\n", id, oldPc, newPc);
+                return vmcore::VmError::InvalidInstruction;
+            }
         }
     }
 
-	vmcore::VmError StoreNative(vmcore::Vm* vm)
+    vmcore::VmError StoreNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -76,7 +76,7 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError MoveRegToRegNative(vmcore::Vm* vm)
+    vmcore::VmError MoveRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -89,7 +89,7 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError AddRegToRegNative(vmcore::Vm* vm)
+    vmcore::VmError AddRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -102,7 +102,7 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError AndRegToRegNative(vmcore::Vm* vm)
+    vmcore::VmError AndRegToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex0 = ReadArgument<uint8>(vm);
         uint8 regIndex1 = ReadArgument<uint8>(vm);
@@ -115,7 +115,7 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError AddNumToRegNative(vmcore::Vm* vm)
+    vmcore::VmError AddNumToRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -127,7 +127,7 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError SubNumFromRegNative(vmcore::Vm* vm)
+    vmcore::VmError SubNumFromRegNative(vmcore::Vm* vm)
     {
         uint8 regIndex = ReadArgument<uint8>(vm);
         uint8 constant = ReadArgument<uint8>(vm);
@@ -139,42 +139,42 @@ public:
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError PrintContextNative(vmcore::Vm* vm)
+    vmcore::VmError PrintContextNative(vmcore::Vm* vm)
     {
         // not implemented yet
-		for (uint32 i = 0; i < 32; ++i)
-		{
-			char regname[8] = { 0 };
-			sprintf_s(regname, "R%d", i);
-			PrintRegister(regname, m_context->regGeneral[i]);
-		}
+        for (uint32 i = 0; i < 32; ++i)
+        {
+            char regname[8] = { 0 };
+            sprintf_s(regname, "R%d", i);
+            PrintRegister(regname, m_context->regGeneral[i]);
+        }
 
-		printf("PC = 0x%I64X\n", m_context->regPc.Get());
+        printf("PC = 0x%I64X\n", m_context->regPc.Get());
 
         return vmcore::VmError::OK;
     }
 
-	vmcore::VmError PrintHelloWorldNative(vmcore::Vm* vm)
-	{
-		printf("Hello, World!\n");
+    vmcore::VmError PrintHelloWorldNative(vmcore::Vm* vm)
+    {
+        printf("Hello, World!\n");
 
-		return vmcore::VmError::OK;
-	}
+        return vmcore::VmError::OK;
+    }
 
-	vmcore::VmError JumpNative(vmcore::Vm* vm)
-	{
-		uint64 pc = m_context->regPc.Get();
-		uint8 dst = ReadArgument<uint8>(vm);
+    vmcore::VmError JumpNative(vmcore::Vm* vm)
+    {
+        uint64 pc = m_context->regPc.Get();
+        uint8 dst = ReadArgument<uint8>(vm);
 
-		// Calculate the PC relative destination... this would be more efficient without the sub...
-		uint8 calcDest = (static_cast<uint8>(pc) - sizeof(uint8)) + dst;
+        // Calculate the PC relative destination... this would be more efficient without the sub...
+        uint8 calcDest = (static_cast<uint8>(pc) - sizeof(uint8)) + dst;
 
-		m_context->regPc.GoTo(calcDest);
+        m_context->regPc.GoTo(calcDest);
 
-		return vmcore::VmError::OK;
-	}
+        return vmcore::VmError::OK;
+    }
 
-	vmcore::VmError EndNative(vmcore::Vm* vm)
+    vmcore::VmError EndNative(vmcore::Vm* vm)
     {
         return vmcore::VmError::HaltExecution;
     }
@@ -211,10 +211,10 @@ typedef std::vector<uint8> ProgramCode;
 TEST_CASE("Simple VM")
 {
     uint64 memorySize = 16000 * 1000; // 16MB
-	vmcore::MemoryModule ram(memorySize);
+    vmcore::MemoryModule ram(memorySize);
     SimpleVmContext context;
     SimpleVmISA isa(&context);
-	vmcore::Vm instance(&context, &ram, &isa);
+    vmcore::Vm instance(&context, &ram, &isa);
 
     const uint8 reg0 = 0;
     const uint8 reg1 = 1;
@@ -224,26 +224,26 @@ TEST_CASE("Simple VM")
 
     uint8 programCode[] =
     {
-        SimpleVmISA::InstructionId::PrintContext,					// 0000
-        SimpleVmISA::InstructionId::Store, reg0, 1,					// 0001
-        SimpleVmISA::InstructionId::Store, reg1, 10,				// 0004
-        SimpleVmISA::InstructionId::Store, reg3, 0x06,				// 0007
-        SimpleVmISA::InstructionId::Store, reg4, 0x1E,				// 0010
-        SimpleVmISA::InstructionId::AndRegToReg, reg3, reg4,		// 0013
-        SimpleVmISA::InstructionId::MoveRegToReg, reg2, reg1,		// 0016
-        SimpleVmISA::InstructionId::AddRegToReg, reg0, reg1,		// 0019
-        SimpleVmISA::InstructionId::PrintContext,					// 0022
-		SimpleVmISA::InstructionId::Jump, 7,						// 0023
-		0x90, 0x90, 0x90, 0x90, 0x90,								// 0025
-		SimpleVmISA::InstructionId::PrintHelloWorld,				// 0030
-        SimpleVmISA::InstructionId::End								// 0031
+        SimpleVmISA::InstructionId::PrintContext,                   // 0000
+        SimpleVmISA::InstructionId::Store, reg0, 1,                 // 0001
+        SimpleVmISA::InstructionId::Store, reg1, 10,                // 0004
+        SimpleVmISA::InstructionId::Store, reg3, 0x06,              // 0007
+        SimpleVmISA::InstructionId::Store, reg4, 0x1E,              // 0010
+        SimpleVmISA::InstructionId::AndRegToReg, reg3, reg4,        // 0013
+        SimpleVmISA::InstructionId::MoveRegToReg, reg2, reg1,       // 0016
+        SimpleVmISA::InstructionId::AddRegToReg, reg0, reg1,        // 0019
+        SimpleVmISA::InstructionId::PrintContext,                   // 0022
+        SimpleVmISA::InstructionId::Jump, 7,                        // 0023
+        0x90, 0x90, 0x90, 0x90, 0x90,                               // 0025
+        SimpleVmISA::InstructionId::PrintHelloWorld,                // 0030
+        SimpleVmISA::InstructionId::End                             // 0031
     };
 
-	// memset(ram.GetPhysicalMemory(), 0, ram.GetPhysicalMemorySize());
+    // memset(ram.GetPhysicalMemory(), 0, ram.GetPhysicalMemorySize());
 
     memcpy(ram.GetPhysicalMemory(), programCode, sizeof(programCode));
 
-	vmcore::VmError err = instance.Execute(0);
+    vmcore::VmError err = instance.Execute(0);
 
     REQUIRE(err == vmcore::VmError::OK);
 

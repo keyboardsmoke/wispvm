@@ -6,10 +6,10 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(VM_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
         ${CMAKE_SOURCE_DIR}/shared/types.h
-		modules/memory.h
-		modules/memory.cpp
-		isa.h
-		context.h
+        modules/memory.h
+        modules/memory.cpp
+        isa.h
+        context.h
         vm.h
         vm.cpp)
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(WispVM)
 
 if (NOT MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "-static")
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
 endif()
 
 #add_subdirectory(${CMAKE_SOURCE_DIR}/ext/catch2)

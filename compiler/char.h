@@ -2,9 +2,9 @@
 
 namespace compiler
 {
-	namespace charinfo
-	{
-		extern const uint16 InfoTable[256];
+    namespace charinfo
+    {
+        extern const uint16 InfoTable[256];
 
         enum {
             CHAR_HORZ_WS = 0x0001,  // '\t', '\f', '\v'.  Note, no '\0'
@@ -176,5 +176,5 @@ namespace compiler
 
             return true;
         }
-	}
+    }
 }

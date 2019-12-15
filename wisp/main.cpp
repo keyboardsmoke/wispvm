@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     // but I'm lazy, so no.
     uint64 memorySize = 16000 * 1000; // 16MB
     vmcore::MemoryModule ram(memorySize);
-	wisp::WispContext context;
+    wisp::WispContext context;
     wisp::WispISA isa;
     vmcore::Vm instance(&context, &ram, &isa);
 
