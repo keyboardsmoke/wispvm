@@ -324,7 +324,7 @@ Punctuator* Tokenizer::GetPunctuatorAtPosition(Character& c)
 
     // Clang store punctuators in order from simple to complex
     // If we go backward, we should be fine.
-    for (uint32 p = CountOfArray(Punctuators); p > 0; --p)
+    for (uint32 p = CountOfArray(Punctuators); p-- > 0;)
     {
         Punctuator& pp = Punctuators[p];
 

@@ -57,7 +57,6 @@ void DumpToken(const char* src, compiler::Token& token)
 TEST_CASE("Tokenizer Tests")
 {
     // TODO: We don't yet support wchar, wstring. Not sure how to handle these yet.
-    // TODO: We don't yet support identifiers. This is kind of an issue, yeah.
     // TODO: We don't enforce any grammar rules, so keyword after keyword without whitespace/punctuation is accepted. 
     //      Is this a lexer's job?
 
@@ -244,5 +243,73 @@ TEST_CASE("Tokenizer Tests")
         REQUIRE(token.punc != nullptr);
         REQUIRE(token.punc->type == compiler::PunctuatorType::minusequal);
         REQUIRE(token.punc->raw == "-=");
+    }
+
+    SUBCASE("Simple array declaration")
+    {
+        const char* fileContent = "uint64 baby_yoda[256];";
+
+        compiler::Token token;
+        compiler::Tokenizer tokenizer(fileContent);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 0);
+        REQUIRE(token.sourceIndex == 0);
+        REQUIRE(token.sourceLength == 6);
+        REQUIRE(token.type == compiler::TokenType::Keyword);
+        REQUIRE(token.kw != nullptr);
+        REQUIRE(token.kw->type == compiler::KeywordType::kw_uint64);
+        REQUIRE(token.kw->raw == "uint64");
+
+        // whitespace
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.type == compiler::TokenType::Whitespace);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 7);
+        REQUIRE(token.sourceIndex == 7);
+        REQUIRE(token.sourceLength == 9);
+        REQUIRE(token.type == compiler::TokenType::Identifier);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "baby_yoda", 9) == 0);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 16);
+        REQUIRE(token.sourceIndex == 16);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::l_square);
+        REQUIRE(token.punc->raw == "[");
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 17);
+        REQUIRE(token.sourceIndex == 17);
+        REQUIRE(token.sourceLength == 3);
+        REQUIRE(token.type == compiler::TokenType::NumericConstant);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "256", 3) == 0);
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 20);
+        REQUIRE(token.sourceIndex == 20);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::r_square);
+        REQUIRE(token.punc->raw == "]");
+
+        REQUIRE(tokenizer.GetToken(token) == compiler::Tokenizer::TokenizerResult::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 21);
+        REQUIRE(token.sourceIndex == 21);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::TokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::PunctuatorType::semi);
+        REQUIRE(token.punc->raw == ";");
     }
 }
