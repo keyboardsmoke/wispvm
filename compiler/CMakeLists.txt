@@ -8,6 +8,11 @@ set(COMPILER_FILES
         ${CMAKE_SOURCE_DIR}/shared/types.h
         ast.h
         ast.cpp
+        ast_types.h
+        decl.h
+        decl.cpp
+        statement.h
+        statement.cpp
         compiler.h
         compiler.cpp
         char.h

@@ -2,5 +2,13 @@
 
 namespace compiler
 {
+    namespace ast
+    {
+        class AST
+        {
+        public:
 
+        private:
+        };
+    }
 }

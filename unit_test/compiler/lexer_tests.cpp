@@ -311,18 +311,158 @@ TEST_CASE("Lexer Tests")
 
     SUBCASE("Tricky identifiers")
     {
-        const char* fileContent = R"(
-            uint8 uint64p = 0;
-            float floatBeep = 1.0f;
-            uint64 stringFoo = 0x12345;
-        )";
+        const char* fileContent = R"(uint8 uint64p=0;float floatBeep=1.0f;uint64 stringFoo=0x12345;)";
 
         compiler::LexicalToken token;
         compiler::Lexer lex(fileContent);
 
-        while (lex.GetToken(token) != compiler::Lexer::Result::EndOfSource)
-        {
-            DumpToken(fileContent, token);
-        }
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 0);
+        REQUIRE(token.sourceIndex == 0);
+        REQUIRE(token.sourceLength == 5);
+        REQUIRE(token.type == compiler::LexicalTokenType::Keyword);
+        REQUIRE(token.kw != nullptr);
+        REQUIRE(token.kw->type == compiler::LexicalKeywordType::kw_uint8);
+        REQUIRE(token.kw->raw == "uint8");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.type == compiler::LexicalTokenType::Whitespace);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 6);
+        REQUIRE(token.sourceIndex == 6);
+        REQUIRE(token.sourceLength == 7);
+        REQUIRE(token.type == compiler::LexicalTokenType::Identifier);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "uint64p", 7) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 13);
+        REQUIRE(token.sourceIndex == 13);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::equal);
+        REQUIRE(token.punc->raw == "=");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 14);
+        REQUIRE(token.sourceIndex == 14);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::NumericConstant);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "0", 1) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 15);
+        REQUIRE(token.sourceIndex == 15);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::semi);
+        REQUIRE(token.punc->raw == ";");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 16);
+        REQUIRE(token.sourceIndex == 16);
+        REQUIRE(token.sourceLength == 5);
+        REQUIRE(token.type == compiler::LexicalTokenType::Keyword);
+        REQUIRE(token.kw != nullptr);
+        REQUIRE(token.kw->type == compiler::LexicalKeywordType::kw_float);
+        REQUIRE(token.kw->raw == "float");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.type == compiler::LexicalTokenType::Whitespace);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 22);
+        REQUIRE(token.sourceIndex == 22);
+        REQUIRE(token.sourceLength == 9);
+        REQUIRE(token.type == compiler::LexicalTokenType::Identifier);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "floatBeep", 9) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 31);
+        REQUIRE(token.sourceIndex == 31);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::equal);
+        REQUIRE(token.punc->raw == "=");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 32);
+        REQUIRE(token.sourceIndex == 32);
+        REQUIRE(token.sourceLength == 4);
+        REQUIRE(token.type == compiler::LexicalTokenType::NumericConstant);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "1.0f", 4) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 36);
+        REQUIRE(token.sourceIndex == 36);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::semi);
+        REQUIRE(token.punc->raw == ";");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 37);
+        REQUIRE(token.sourceIndex == 37);
+        REQUIRE(token.sourceLength == 6);
+        REQUIRE(token.type == compiler::LexicalTokenType::Keyword);
+        REQUIRE(token.kw != nullptr);
+        REQUIRE(token.kw->type == compiler::LexicalKeywordType::kw_uint64);
+        REQUIRE(token.kw->raw == "uint64");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.type == compiler::LexicalTokenType::Whitespace);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 44);
+        REQUIRE(token.sourceIndex == 44);
+        REQUIRE(token.sourceLength == 9);
+        REQUIRE(token.type == compiler::LexicalTokenType::Identifier);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "stringFoo", 9) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 53);
+        REQUIRE(token.sourceIndex == 53);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::equal);
+        REQUIRE(token.punc->raw == "=");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 54);
+        REQUIRE(token.sourceIndex == 54);
+        REQUIRE(token.sourceLength == 7);
+        REQUIRE(token.type == compiler::LexicalTokenType::NumericConstant);
+        REQUIRE(memcmp(&fileContent[token.sourceIndex], "0x12345", 7) == 0);
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::OK);
+        REQUIRE(token.lineIndex == 0);
+        REQUIRE(token.colIndex == 61);
+        REQUIRE(token.sourceIndex == 61);
+        REQUIRE(token.sourceLength == 1);
+        REQUIRE(token.type == compiler::LexicalTokenType::Punctuator);
+        REQUIRE(token.punc != nullptr);
+        REQUIRE(token.punc->type == compiler::LexicalPunctuatorType::semi);
+        REQUIRE(token.punc->raw == ";");
+
+        REQUIRE(lex.GetToken(token) == compiler::Lexer::Result::EndOfSource);
     }
 }
