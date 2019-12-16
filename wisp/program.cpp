@@ -31,12 +31,12 @@ VmError Program::ExecuteProgram(Vm* vm, void *program, uint32 size)
 
     ProgramHeader* header = reinterpret_cast<ProgramHeader*>(program);
 
-    const uint32 magic = Decoder::Decode(header->magic, header->seed);
+    const uint32 magic = shared::Decoder::Decode(header->magic, header->seed);
 
     if (magic != ProgramHeader::WISP_MAGIC)
         return VmError::InvalidMagic;
 
-    const uint32 providedCrc = Decoder::Decode(header->bytecodeCrc, header->seed);
+    const uint32 providedCrc = shared::Decoder::Decode(header->bytecodeCrc, header->seed);
 
     uint8* pProgram = reinterpret_cast<uint8*>(program);
     uint8* pProgramStart = pProgram + sizeof(ProgramHeader);
@@ -48,7 +48,7 @@ VmError Program::ExecuteProgram(Vm* vm, void *program, uint32 size)
     if (calculatedCrc != providedCrc)
         return VmError::ProgramCrcMismatch;
 
-    const uint32 decodedEp = Decoder::Decode(header->ep, header->seed);
+    const uint32 decodedEp = shared::Decoder::Decode(header->ep, header->seed);
 
     uint8* pEntryPoint = pProgramStart + decodedEp;
 

@@ -159,7 +159,13 @@ static VmError Load(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
     return VmError::OK;
 }
 
-// 
+/*
+static VmError JumpToDestination(WispContext* context, uint64 instructionPc, int64 delta)
+{
+    uint64 dest = static_cast<uint64>(static_cast<int64>(instructionPc) + delta);
+
+    context->regPc.GoTo(dest);
+}*/
 
 static VmError Jump(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {

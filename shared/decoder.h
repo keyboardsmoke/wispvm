@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-namespace wisp
+namespace shared
 {
     class Decoder
     {

@@ -6,6 +6,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(WISP_FILES
         ${CMAKE_SOURCE_DIR}/shared/platform.h
         ${CMAKE_SOURCE_DIR}/shared/types.h
+        ${CMAKE_SOURCE_DIR}/shared/random.h
+        ${CMAKE_SOURCE_DIR}/shared/decoder.h
         program.h
         program.cpp
         register_math.h
