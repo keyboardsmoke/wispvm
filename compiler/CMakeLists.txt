@@ -16,8 +16,6 @@ set(COMPILER_FILES
         lexer.cpp
         parser.h
         parser.cpp
-        scanner.h
-        scanner.cpp
         token.h
         token.cpp)
 
