@@ -182,13 +182,13 @@ static VmError ConditionalJump(WispISA* isa, Vm* vm, WispContext* context, uint6
     switch (conditionCode)
     {
     case ConditionCode::Overflow: if (context->eflags.OverflowFlag == 1) { shouldSwitchPc = 1u; } break;
-	case ConditionCode::NotOverflow: if (context->eflags.OverflowFlag == 0) { shouldSwitchPc = 1u; } break;
+    case ConditionCode::NotOverflow: if (context->eflags.OverflowFlag == 0) { shouldSwitchPc = 1u; } break;
     case ConditionCode::LessThan: if (context->eflags.CarryFlag == 1) { shouldSwitchPc = 1u; } break;
     case ConditionCode::GreaterThan: if (context->eflags.CarryFlag == 0 && context->eflags.ZeroFlag == 0) { shouldSwitchPc = 1u; } break;
     case ConditionCode::GreaterThanOrEqual: if (context->eflags.CarryFlag == 0) { shouldSwitchPc = 1u; } break;
     case ConditionCode::LessThanOrEqual: if (context->eflags.CarryFlag == 1 || context->eflags.ZeroFlag == 1) { shouldSwitchPc = 1u; } break;
     case ConditionCode::Zero: if (context->eflags.ZeroFlag == 1) { shouldSwitchPc = 1u; } break;
-	case ConditionCode::NotZero: if (context->eflags.ZeroFlag == 0) { shouldSwitchPc = 1u; } break;
+    case ConditionCode::NotZero: if (context->eflags.ZeroFlag == 0) { shouldSwitchPc = 1u; } break;
     case ConditionCode::Signed: if (context->eflags.SignFlag == 1) { shouldSwitchPc = 1u; } break;
     case ConditionCode::NotSigned: if (context->eflags.SignFlag == 0) { shouldSwitchPc = 1u; } break;
     case ConditionCode::Parity: if (context->eflags.ParityFlag == 1) { shouldSwitchPc = 1u; } break;
@@ -320,33 +320,33 @@ VmError WispISA::GetRelativeAddressDestinationFromPc(vmcore::Vm* vm, WispContext
 {
     UNREFERENCED_PARAMETER(context);
 
-	switch (static_cast<ValueType>(encoding))
-	{
-	case ValueType::Int8:
+    switch (static_cast<ValueType>(encoding))
+    {
+    case ValueType::Int8:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int8>(vm));
         return VmError::OK;
-	case ValueType::Int16:
+    case ValueType::Int16:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int16>(vm));
         return VmError::OK;
-	case ValueType::Int32:
+    case ValueType::Int32:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int32>(vm));
         return VmError::OK;
-	case ValueType::Int64:
+    case ValueType::Int64:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int64>(vm));
         return VmError::OK;
-	case ValueType::UInt8:
+    case ValueType::UInt8:
         *addr = pc + ReadArgument<uint8>(vm);
         return VmError::OK;
-	case ValueType::UInt16:
+    case ValueType::UInt16:
         *addr = pc + ReadArgument<uint16>(vm);
         return VmError::OK;
-	case ValueType::UInt32:
+    case ValueType::UInt32:
         *addr = pc + ReadArgument<uint32>(vm);
         return VmError::OK;
-	case ValueType::UInt64:
+    case ValueType::UInt64:
         *addr = pc + ReadArgument<uint64>(vm);
         return VmError::OK;
-	}
+    }
 
-	return VmError::InvalidInstruction;
+    return VmError::InvalidInstruction;
 }
