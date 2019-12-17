@@ -45,9 +45,8 @@ namespace wisp
     struct WispExecutionFlags
     {
         WispExecutionFlags() :
-            CarryFlag(0), ParityFlag(0), AdjustFlag(0),
-            ZeroFlag(0), SignFlag(0), DirectionFlag(0),
-            OverflowFlag(0), Reserved(0)
+            CarryFlag(0), ParityFlag(0), ZeroFlag(0), 
+            SignFlag(0), OverflowFlag(0), Reserved(0)
         {
         }
 
@@ -55,22 +54,18 @@ namespace wisp
         {
             CarryFlag = 0;
             ParityFlag = 0;
-            AdjustFlag = 0;
             ZeroFlag = 0;
             SignFlag = 0;
-            DirectionFlag = 0;
             OverflowFlag = 0;
             Reserved = 0;
         }
 
         uint8 CarryFlag : 1;
         uint8 ParityFlag : 1;
-        uint8 AdjustFlag : 1;
         uint8 ZeroFlag : 1;
         uint8 SignFlag : 1;
-        uint8 DirectionFlag : 1;
         uint8 OverflowFlag : 1;
-        uint8 Reserved : 1;
+        uint8 Reserved : 3;
     };
     static_assert(sizeof(WispExecutionFlags) == sizeof(uint8), "Invalid size for WispExecutionFlags");
 
