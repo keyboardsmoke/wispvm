@@ -94,16 +94,16 @@ static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 i
     switch (encoding)
     {
     case ValueType::Int8:
-        instructionPc += isa->ReadArgument<int8>(vm);
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int8>(vm));
         break;
     case ValueType::Int16:
-        instructionPc += isa->ReadArgument<int16>(vm);
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int16>(vm));
         break;
     case ValueType::Int32:
-        instructionPc += isa->ReadArgument<int32>(vm);
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int32>(vm));
         break;
     case ValueType::Int64:
-        instructionPc += isa->ReadArgument<int64>(vm);
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int64>(vm));
         break;
     case ValueType::UInt8:
         instructionPc += isa->ReadArgument<uint8>(vm);
@@ -242,16 +242,139 @@ static VmError Halt(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 
 //
 
-/*
+template<typename T>
+void SetFlags(WispContext* context, const WispExecutionFlags& dirty, const T& dst, const T& src1, const T& src2)
+{
+    if (dirty.CarryFlag)
+        context->eflags.CarryFlag = ((src1 ^ ((src1 ^ src2) & (src2 ^ dst))) >> sizeof(T) & 1);
+
+    if (dirty.ParityFlag)
+    {
+        uint8 v = dst & 0xff;
+        v ^= v >> 1;
+        v ^= v >> 2;
+        v = (v & 0x11111111U) * 0x11111111U;
+        context->eflags.ParityFlag = (!((v >> 28) & 1));
+    }
+
+    if (dirty.ZeroFlag)
+        context->eflags.ZeroFlag = (!dst);
+
+    if (dirty.SignFlag)
+        context->eflags.SignFlag = (dst >> sizeof(T) & 1);
+
+    if (dirty.OverflowFlag)
+        context->eflags.OverflowFlag = (((src1 ^ dst) & (src2 ^ dst)) >> sizeof(T) & 1);
+}
+
+template<typename T>
+void SetFlags(WispContext* context, const T& dst, const T& src1, const T& src2)
+{
+    WispExecutionFlags ef;
+    ef.CarryFlag = 1u;
+    ef.ParityFlag = 1u;
+    ef.ZeroFlag = 1u;
+    ef.SignFlag = 1u;
+    ef.OverflowFlag = 1u;
+    SetFlags(context, ef, dst, src1, src2);
+}
+
 static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
+    UNREFERENCED_PARAMETER(isa);
+    UNREFERENCED_PARAMETER(vm);
+    UNREFERENCED_PARAMETER(context);
+    UNREFERENCED_PARAMETER(instructionPc);
 
+    //
+
+    return VmError::OK;
+}
+
+static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+{
+    UNREFERENCED_PARAMETER(isa);
+    UNREFERENCED_PARAMETER(vm);
+    UNREFERENCED_PARAMETER(context);
+    UNREFERENCED_PARAMETER(instructionPc);
+
+/*
+temp <- SRC1 - SignExtend(SRC2);
+ModifyStatusFlags; (* Modify status flags in the same manner as the SUB instruction*)
+*/
+
+    /*
+    uint8 regIndex = isa->ReadArgument<uint8>(vm);
+    Register& reg = context->regGeneral[regIndex];
+    ValueType encoding = static_cast<ValueType>(isa->ReadArgument<uint8>(vm));
+
+    switch (encoding)
+    {
+    case ValueType::Int8:
+
+
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int8>(vm));
+        break;
+    case ValueType::Int16:
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int16>(vm));
+        break;
+    case ValueType::Int32:
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int32>(vm));
+        break;
+    case ValueType::Int64:
+        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int64>(vm));
+        break;
+    case ValueType::UInt8:
+        instructionPc += isa->ReadArgument<uint8>(vm);
+        break;
+    case ValueType::UInt16:
+        instructionPc += isa->ReadArgument<uint16>(vm);
+        break;
+    case ValueType::UInt32:
+        instructionPc += isa->ReadArgument<uint32>(vm);
+        break;
+    case ValueType::UInt64:
+        instructionPc += isa->ReadArgument<uint64>(vm);
+        break;
+    default:
+        return VmError::InvalidInstruction;
+    }*/
+
+    return VmError::OK;
 }
 
 static VmError Test(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
+    UNREFERENCED_PARAMETER(isa);
+    UNREFERENCED_PARAMETER(vm);
+    UNREFERENCED_PARAMETER(context);
+    UNREFERENCED_PARAMETER(instructionPc);
 
-}*/
+/*
+TEMP <- SRC1 AND SRC2;
+SF <- MSB(TEMP);
+IF TEMP = 0
+THEN ZF <- 1;
+ELSE ZF <- 0;
+FI:
+PF <- BitwiseXNOR(TEMP[0:7]);
+CF <- 0;
+OF <- 0;
+(* AF is undefined *)
+*/
+
+    return VmError::OK;
+}
+
+static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+{
+    UNREFERENCED_PARAMETER(isa);
+    UNREFERENCED_PARAMETER(vm);
+    UNREFERENCED_PARAMETER(context);
+    UNREFERENCED_PARAMETER(instructionPc);
+
+    return VmError::OK;
+}
 
 std::function<VmError(WispISA*, Vm*, WispContext*, uint64)> g_definitionTable[] =
 {
@@ -273,11 +396,13 @@ std::function<VmError(WispISA*, Vm*, WispContext*, uint64)> g_definitionTable[] 
     Return,
     Halt,
 
-    /*
     // Comparison
     Compare,
+    CompareConstant,
     Test,
+    TestConstant,
 
+    /*
     // Tables
 
     // Arrays

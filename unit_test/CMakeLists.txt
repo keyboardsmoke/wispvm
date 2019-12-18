@@ -11,6 +11,7 @@ set(UNIT_TEST_FILES
         vm/simple_vm.cpp
         compiler/tokenizer_tests.cpp
         compiler/lexer_tests.cpp
+		wisp/bytecode_tests.cpp
         main.cpp)
 
 add_executable(unit_test ${UNIT_TEST_FILES})

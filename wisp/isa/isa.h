@@ -24,6 +24,56 @@ namespace wisp
         NotParity,                  // ParityFlag == 0 (if not parity/parity odd)
     };
 
+    enum class InstructionCodes
+    {
+        // General Purpose
+        Move,
+        MoveConstantInteger,
+        MoveRelative,
+        MoveConstantFP,
+        ClearRegister,
+
+        // Memory
+        Store,
+        Load,
+
+        // Control Flow
+        Jump,
+        ConditionalJump,
+        Call,
+        Return,
+        Halt,
+
+        // Comparison
+        Compare,
+        CompareConstant,
+        Test,
+        TestConstant,
+
+        /*
+        // Tables
+
+        // Arrays
+
+        // Math (Register to Register only)
+        Add,
+        Sub,
+        Mul,
+        Mod,
+        Pow,
+        Div,
+        IDiv,
+        BAnd,
+        BOr,
+        BXor,
+        Shl,
+        Shr,
+        Unm,
+        BNot,
+        Not
+        */
+    };
+
     class WispISA : public vmcore::ISA
     {
     public:
