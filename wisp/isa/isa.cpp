@@ -281,12 +281,10 @@ void SetFlags(WispContext* context, const T& dst, const T& src1, const T& src2)
 
 static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
-    UNREFERENCED_PARAMETER(isa);
-    UNREFERENCED_PARAMETER(vm);
-    UNREFERENCED_PARAMETER(context);
     UNREFERENCED_PARAMETER(instructionPc);
 
-    //
+    Register r1 = context->regGeneral[isa->ReadArgument<uint8>(vm)];
+    Register r2 = context->regGeneral[isa->ReadArgument<uint8>(vm)];
 
     return VmError::OK;
 }

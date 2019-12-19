@@ -10,6 +10,8 @@ set(WISP_FILES
         ${CMAKE_SOURCE_DIR}/shared/decoder.h
         program.h
         program.cpp
+		value.h
+		value.cpp
         register_math.h
         register.h
         register.cpp

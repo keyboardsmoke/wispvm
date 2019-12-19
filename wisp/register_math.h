@@ -22,7 +22,6 @@ namespace wisp {
         [](Register & lhs, Register & rhs) -> VmError { lhs.SetInteger<lhsCppType>(lhs.GetInteger<lhsCppType>() op static_cast<lhsCppType>(rhs.GetBool()), lhsValueType); return VmError::OK; }, /* Bool */ \
         UNHANDLED_REGISTER_OPERATION, /* Float */ \
         UNHANDLED_REGISTER_OPERATION, /* Double */ \
-        [](Register & lhs, Register & rhs) -> VmError { lhs.SetInteger<lhsCppType>(lhs.GetInteger<lhsCppType>() op static_cast<lhsCppType>(rhs.GetInteger<uint64>()), lhsValueType); return VmError::OK; }, /* Pointer */ \
         UNHANDLED_REGISTER_OPERATION, /* NativeFunction */ \
         UNHANDLED_REGISTER_OPERATION, /* Table */ \
         UNHANDLED_REGISTER_OPERATION, /* Array */ \
@@ -43,7 +42,6 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, /* Bool */ \
         [](Register & lhs, Register & rhs) -> VmError { lhs.SetFP<lhsCppType>(lhs.GetFP<lhsCppType>() op static_cast<lhsCppType>(rhs.GetFP<float>()), lhsValueType); return VmError::OK; }, /* Float */ \
         [](Register & lhs, Register & rhs) -> VmError { lhs.SetFP<lhsCppType>(lhs.GetFP<lhsCppType>() op static_cast<lhsCppType>(rhs.GetFP<double>()), lhsValueType); return VmError::OK; }, /* Double */ \
-        UNHANDLED_REGISTER_OPERATION, /* Pointer */ \
         UNHANDLED_REGISTER_OPERATION, /* NativeFunction */ \
         UNHANDLED_REGISTER_OPERATION, /* Table */ \
         UNHANDLED_REGISTER_OPERATION, /* Array */ \
@@ -53,7 +51,6 @@ namespace wisp {
 { \
     { \
         /* None */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
@@ -95,32 +92,11 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     CreateFPMathOperationTableRow(ValueType::Float, float, op) \
     CreateFPMathOperationTableRow(ValueType::Double, double, op) \
     { \
-        /* Pointer */ \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-    }, \
-    { \
         /* NativeFunction */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
@@ -154,11 +130,9 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     { \
         /* Array */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
@@ -196,7 +170,6 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     CreateIntegerMathOperationTableRow(ValueType::Int8, int8, op) \
     CreateIntegerMathOperationTableRow(ValueType::Int16, int16, op) \
@@ -208,7 +181,6 @@ namespace wisp {
     CreateIntegerMathOperationTableRow(ValueType::UInt64, uint64, op) \
     { \
         /* Bool */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
@@ -242,30 +214,9 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     { \
         /* Double */ \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
-    }, \
-    { \
-        /* Pointer */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
@@ -299,7 +250,6 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     { \
         /* Table */ \
@@ -318,11 +268,9 @@ namespace wisp {
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
-        UNHANDLED_REGISTER_OPERATION, \
     }, \
     { \
         /* Array */ \
-        UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \
         UNHANDLED_REGISTER_OPERATION, \

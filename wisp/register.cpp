@@ -21,16 +21,6 @@ void Register::DestroyValue()
     m_type = ValueType::None;
 }
 
-uint64 Register::GetPointerOffset()
-{
-    return m_value;
-}
-
-uint8* Register::GetPointerFromBase(uint8* base)
-{
-    return base + GetPointerOffset();
-}
-
 bool Register::GetBool()
 {
     return m_value != 0u;
@@ -109,12 +99,6 @@ void Register::SetUInt64(uint64 value)
 {
     m_value = value;
     m_type = ValueType::UInt64;
-}
-
-void Register::SetPointer(uint64 offset)
-{
-    m_value = offset;
-    m_type = ValueType::Pointer;
 }
 
 void Register::SetBool(bool value)

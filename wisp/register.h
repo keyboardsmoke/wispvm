@@ -20,45 +20,10 @@
 #include <cstring>
 
 #include "vm/vm.h"
+#include "value.h"
 
 namespace wisp
 {
-    // There are exactly 15 types so that the ValueType can be encoded in 4 bits.
-    // We can't support more. If we need to save space for whatever reason,
-    // maybe types could be encoded as base type (int/real/native/table/array) and a width code.
-    enum class ValueType
-    {
-        None = 0,
-
-        // Integer Represented (signed)
-        Int8,
-        Int16,
-        Int32,
-        Int64,
-
-        // Integer Represented (unsigned)
-        UInt8,
-        UInt16,
-        UInt32,
-        UInt64,
-
-        // Boolean
-        Bool,
-
-        // FP represented
-        Float,
-        Double,
-
-        // Pointer
-        Pointer,
-
-        // Native index represented
-        NativeFunction,
-        Table,
-        Array,
-        Max,
-    };
-
     class Register
     {
     public:
@@ -109,11 +74,6 @@ namespace wisp
             return typeNumber >= niBegin && typeNumber <= niEnd;
         }
 
-        bool IsPointer()
-        {
-            return m_type == ValueType::Pointer;
-        }
-
         bool IsBoolean()
         {
             return m_type == ValueType::Bool;
@@ -137,8 +97,6 @@ namespace wisp
             return RetrieveValueFrom64BitInteger<T>();
         }
 
-        uint64 GetPointerOffset();
-        uint8* GetPointerFromBase(uint8 * base);
         bool GetBool();
         uint64 GetNativeFunctionIndex();
         uint64 GetTableIndex();
