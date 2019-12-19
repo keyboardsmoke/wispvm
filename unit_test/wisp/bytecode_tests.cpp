@@ -12,7 +12,7 @@ TEST_CASE("Wisp Bytecode")
             // MOV R0, 1
             static_cast<uint8>(wisp::InstructionCodes::MoveConstantInteger),
             0,
-            static_cast<uint8>(wisp::ValueType::UInt8),
+            static_cast<uint8>(wisp::IntegerValueType::UInt8),
             1,
 
             // 

@@ -18,3 +18,9 @@ add_executable(unit_test ${UNIT_TEST_FILES})
 target_link_libraries(unit_test vm)
 target_link_libraries(unit_test compiler)
 target_link_libraries(unit_test doctest)
+
+set_target_properties(unit_test PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)

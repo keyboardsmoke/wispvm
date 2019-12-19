@@ -6,6 +6,58 @@
 using namespace wisp;
 using namespace vmcore;
 
+static VmError SetIntegerRegisterValueWithEncoding(WispISA* isa, Vm* vm, RegisterInt& reg, IntegerValueType encoding, uint64 base = 0u)
+{
+    switch (encoding)
+    {
+    case IntegerValueType::Int8:
+        reg.Set<int8>(static_cast<int8>(base) + isa->ReadArgument<int8>(vm));
+        break;
+    case IntegerValueType::Int16:
+        reg.Set<int16>(static_cast<int16>(base) + isa->ReadArgument<int16>(vm));
+        break;
+    case IntegerValueType::Int32:
+        reg.Set<int32>(static_cast<int32>(base) + isa->ReadArgument<int32>(vm));
+        break;
+    case IntegerValueType::Int64:
+        reg.Set<int64>(static_cast<int64>(base) + isa->ReadArgument<int64>(vm));
+        break;
+    case IntegerValueType::UInt8:
+        reg.Set<uint8>(static_cast<uint8>(base) + isa->ReadArgument<uint8>(vm));
+        break;
+    case IntegerValueType::UInt16:
+        reg.Set<uint16>(static_cast<uint16>(base) + isa->ReadArgument<uint16>(vm));
+        break;
+    case IntegerValueType::UInt32:
+        reg.Set<uint32>(static_cast<uint32>(base) + isa->ReadArgument<uint32>(vm));
+        break;
+    case IntegerValueType::UInt64:
+        reg.Set<uint64>(static_cast<uint64>(base) + isa->ReadArgument<uint64>(vm));
+        break;
+    default:
+        return VmError::InvalidInstruction;
+    }
+
+    return VmError::OK;
+}
+
+static VmError SetFPRegisterValueWithEncoding(WispISA* isa, Vm* vm, RegisterFP& reg, FPValueType encoding)
+{
+    switch (encoding)
+    {
+    case FPValueType::Float:
+        reg.Set<float>(isa->ReadArgument<float>(vm));
+        break;
+    case FPValueType::Double:
+        reg.Set<double>(isa->ReadArgument<double>(vm));
+        break;
+    default:
+        return VmError::InvalidInstruction;
+    }
+
+    return VmError::OK;
+}
+
 static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
     UNREFERENCED_PARAMETER(instructionPc);
@@ -13,8 +65,8 @@ static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
     uint8 regIndex1 = isa->ReadArgument<uint8>(vm);
     uint8 regIndex2 = isa->ReadArgument<uint8>(vm);
 
-    Register& reg1 = context->regGeneral[regIndex1];
-    Register& reg2 = context->regGeneral[regIndex2];
+    RegisterInt& reg1 = context->regGp[regIndex1];
+    RegisterInt& reg2 = context->regGp[regIndex2];
 
     reg1.CopyValue(reg2);
 
@@ -26,40 +78,9 @@ static VmError MoveConstantInteger(WispISA* isa, Vm* vm, WispContext* context, u
     UNREFERENCED_PARAMETER(instructionPc);
 
     uint8 regIndex = isa->ReadArgument<uint8>(vm);
-    Register& reg = context->regGeneral[regIndex];
-    ValueType encoding = static_cast<ValueType>(isa->ReadArgument<uint8>(vm));
-
-    switch (encoding)
-    {
-    case ValueType::Int8:
-        reg.SetInt8(isa->ReadArgument<int8>(vm));
-        break;
-    case ValueType::Int16:
-        reg.SetInt16(isa->ReadArgument<int16>(vm));
-        break;
-    case ValueType::Int32:
-        reg.SetInt32(isa->ReadArgument<int32>(vm));
-        break;
-    case ValueType::Int64:
-        reg.SetInt64(isa->ReadArgument<int64>(vm));
-        break;
-    case ValueType::UInt8:
-        reg.SetUInt8(isa->ReadArgument<uint8>(vm));
-        break;
-    case ValueType::UInt16:
-        reg.SetUInt16(isa->ReadArgument<uint16>(vm));
-        break;
-    case ValueType::UInt32:
-        reg.SetUInt32(isa->ReadArgument<uint32>(vm));
-        break;
-    case ValueType::UInt64:
-        reg.SetUInt64(isa->ReadArgument<uint64>(vm));
-        break;
-    default:
-        return VmError::InvalidInstruction;
-    }
-
-    return VmError::OK;
+    RegisterInt& reg = context->regGp[regIndex];
+    IntegerValueType encoding = static_cast<IntegerValueType>(isa->ReadArgument<uint8>(vm));
+    return SetIntegerRegisterValueWithEncoding(isa, vm, reg, encoding);
 }
 
 static VmError MoveConstantFP(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
@@ -67,73 +88,24 @@ static VmError MoveConstantFP(WispISA* isa, Vm* vm, WispContext* context, uint64
     UNREFERENCED_PARAMETER(instructionPc);
 
     uint8 regIndex = isa->ReadArgument<uint8>(vm);
-    Register& reg = context->regGeneral[regIndex];
-    ValueType encoding = static_cast<ValueType>(isa->ReadArgument<uint8>(vm));
-
-    switch (encoding)
-    {
-    case ValueType::Float:
-        reg.SetFloat(isa->ReadArgument<float>(vm));
-        break;
-    case ValueType::Double:
-        reg.SetDouble(isa->ReadArgument<double>(vm));
-        break;
-    default:
-        return VmError::InvalidInstruction;
-    }
-
-    return VmError::OK;
+    RegisterFP& reg = context->regFp[regIndex];
+    FPValueType encoding = static_cast<FPValueType>(isa->ReadArgument<uint8>(vm));
+    return SetFPRegisterValueWithEncoding(isa, vm, reg, encoding);
 }
 
 static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
     uint8 regIndex = isa->ReadArgument<uint8>(vm);
-    Register& reg = context->regGeneral[regIndex];
-    ValueType encoding = static_cast<ValueType>(isa->ReadArgument<uint8>(vm));
-
-    switch (encoding)
-    {
-    case ValueType::Int8:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int8>(vm));
-        break;
-    case ValueType::Int16:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int16>(vm));
-        break;
-    case ValueType::Int32:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int32>(vm));
-        break;
-    case ValueType::Int64:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int64>(vm));
-        break;
-    case ValueType::UInt8:
-        instructionPc += isa->ReadArgument<uint8>(vm);
-        break;
-    case ValueType::UInt16:
-        instructionPc += isa->ReadArgument<uint16>(vm);
-        break;
-    case ValueType::UInt32:
-        instructionPc += isa->ReadArgument<uint32>(vm);
-        break;
-    case ValueType::UInt64:
-        instructionPc += isa->ReadArgument<uint64>(vm);
-        break;
-    default:
-        return VmError::InvalidInstruction;
-    }
-
-    reg.SetUInt64(instructionPc);
-
-    return VmError::OK;
+    RegisterInt& reg = context->regGp[regIndex];
+    IntegerValueType encoding = static_cast<IntegerValueType>(isa->ReadArgument<uint8>(vm));
+    return SetIntegerRegisterValueWithEncoding(isa, vm, reg, encoding, instructionPc);
 }
 
 static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
     UNREFERENCED_PARAMETER(instructionPc);
-
     uint8 reg = isa->ReadArgument<uint8>(vm);
-
-    context->regGeneral[reg].DestroyValue();
-
+    context->regGp[reg].DestroyValue();
     return VmError::OK;
 }
 
@@ -283,8 +255,8 @@ static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instru
 {
     UNREFERENCED_PARAMETER(instructionPc);
 
-    Register r1 = context->regGeneral[isa->ReadArgument<uint8>(vm)];
-    Register r2 = context->regGeneral[isa->ReadArgument<uint8>(vm)];
+    RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
+    RegisterInt r2 = context->regGp[isa->ReadArgument<uint8>(vm)];
 
     return VmError::OK;
 }
@@ -443,30 +415,30 @@ VmError WispISA::GetRelativeAddressDestinationFromPc(vmcore::Vm* vm, WispContext
 {
     UNREFERENCED_PARAMETER(context);
 
-    switch (static_cast<ValueType>(encoding))
+    switch (static_cast<IntegerValueType>(encoding))
     {
-    case ValueType::Int8:
+    case IntegerValueType::Int8:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int8>(vm));
         return VmError::OK;
-    case ValueType::Int16:
+    case IntegerValueType::Int16:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int16>(vm));
         return VmError::OK;
-    case ValueType::Int32:
+    case IntegerValueType::Int32:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int32>(vm));
         return VmError::OK;
-    case ValueType::Int64:
+    case IntegerValueType::Int64:
         *addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int64>(vm));
         return VmError::OK;
-    case ValueType::UInt8:
+    case IntegerValueType::UInt8:
         *addr = pc + ReadArgument<uint8>(vm);
         return VmError::OK;
-    case ValueType::UInt16:
+    case IntegerValueType::UInt16:
         *addr = pc + ReadArgument<uint16>(vm);
         return VmError::OK;
-    case ValueType::UInt32:
+    case IntegerValueType::UInt32:
         *addr = pc + ReadArgument<uint32>(vm);
         return VmError::OK;
-    case ValueType::UInt64:
+    case IntegerValueType::UInt64:
         *addr = pc + ReadArgument<uint64>(vm);
         return VmError::OK;
     }

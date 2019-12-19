@@ -20,170 +20,54 @@
 #include <cstring>
 
 #include "vm/vm.h"
-#include "value.h"
+
+#include "integer_value.h"
+#include "fp_value.h"
 
 namespace wisp
 {
-    class Register
+    class RegisterFP
     {
     public:
-        Register() : m_value(0), m_type(ValueType::None) {}
+        RegisterFP() : m_value() {}
 
-        bool HasValue()
+        template<typename T>
+        void Set(T value)
         {
-            return (m_type != ValueType::None);
-        }
-
-        bool IsInteger()
-        {
-            uint32 typeNumber = static_cast<uint32>(m_type);
-            uint32 intBegin = static_cast<uint32>(ValueType::Int8);
-            uint32 intEnd = static_cast<uint32>(ValueType::UInt64);
-            return typeNumber >= intBegin && typeNumber <= intEnd;
-        }
-
-        bool IsSignedInteger()
-        {
-            uint32 typeNumber = static_cast<uint32>(m_type);
-            uint32 intBegin = static_cast<uint32>(ValueType::Int8);
-            uint32 intEnd = static_cast<uint32>(ValueType::Int64);
-            return typeNumber >= intBegin && typeNumber <= intEnd;
-        }
-
-        bool IsUnsignedInteger()
-        {
-            uint32 typeNumber = static_cast<uint32>(m_type);
-            uint32 intBegin = static_cast<uint32>(ValueType::UInt8);
-            uint32 intEnd = static_cast<uint32>(ValueType::UInt64);
-            return typeNumber >= intBegin && typeNumber <= intEnd;
-        }
-
-        bool IsFloatingPoint()
-        {
-            uint32 typeNumber = static_cast<uint32>(m_type);
-            uint32 fpBegin = static_cast<uint32>(ValueType::Float);
-            uint32 fpEnd = static_cast<uint32>(ValueType::Double);
-            return typeNumber >= fpBegin && typeNumber <= fpEnd;
-        }
-
-        bool IsNativeIndexRepresented()
-        {
-            uint32 typeNumber = static_cast<uint32>(m_type);
-            uint32 niBegin = static_cast<uint32>(ValueType::NativeFunction);
-            uint32 niEnd = static_cast<uint32>(ValueType::Array);
-            return typeNumber >= niBegin && typeNumber <= niEnd;
-        }
-
-        bool IsBoolean()
-        {
-            return m_type == ValueType::Bool;
-        }
-
-        // Getters
-        ValueType GetType()
-        {
-            return m_type;
+            m_value.Set<T>(value);
         }
 
         template<typename T>
-        T GetInteger()
+        T Get()
         {
-            return RetrieveValueFrom64BitInteger<T>();
+            return m_value.Get<T>();
+        }
+
+    private:
+        FPValue m_value;
+    };
+
+    class RegisterInt
+    {
+    public:
+        RegisterInt() : m_value() {}
+
+        template<typename T>
+        void Set(T value)
+        {
+            m_value.Set<T>(value);
         }
 
         template<typename T>
-        T GetFP()
+        T Get()
         {
-            return RetrieveValueFrom64BitInteger<T>();
+            return m_value.Get<T>();
         }
 
-        bool GetBool();
-        uint64 GetNativeFunctionIndex();
-        uint64 GetTableIndex();
-        uint64 GetArrayIndex();
-        uint64 GetRawInteger();
-        double GetRawFP();
-
-        // Setters
-        template<typename T>
-        void SetInteger(T value, ValueType type)
-        {
-            m_type = type;
-            assert(IsInteger());
-            StoreValueIn64BitInteger<T>(value);
-        }
-
-        template<typename T>
-        void SetFP(T value, ValueType type)
-        {
-            m_type = type;
-            assert(IsFloatingPoint());
-            StoreValueIn64BitInteger<T>(value);
-        }
-
-        void SetInt8(int8 value);
-        void SetUInt8(uint8 value);
-        void SetInt16(int16 value);
-        void SetUInt16(uint16 value);
-        void SetInt32(int32 value);
-        void SetUInt32(uint32 value);
-        void SetInt64(int64 value);
-        void SetUInt64(uint64 value);
-        void SetPointer(uint64 offset);
-        void SetBool(bool value);
-        void SetFloat(float fp);
-        void SetDouble(double db);
-        void SetNativeFunctionIndex(uint64 functionIndex);
-        void SetTableIndex(uint64 tableIndex);
-        void SetArrayIndex(uint64 arrayIndex);
-        void SetRawInteger(uint64 value);
-        void SetRawFP(double value);
-
-        // Math operations
-        vmcore::VmError AddUnsignedInteger(uint64 value);
-        vmcore::VmError AddSignedInteger(int64 value);
-        vmcore::VmError AddFloatingPoint(double value);
-
-        vmcore::VmError SubUnsignedInteger(uint64 value);
-        vmcore::VmError SubSignedInteger(int64 value);
-        vmcore::VmError SubFloatingPoint(double value);
-
-        // Basic Math
-        vmcore::VmError AddRegister(Register & rhs);
-        vmcore::VmError SubRegister(Register & rhs);
-        vmcore::VmError MulRegister(Register & rhs);
-        vmcore::VmError DivRegister(Register & rhs);
-        vmcore::VmError ModuloRegister(Register & rhs);
-
-        // Bitwise
-        vmcore::VmError XorRegister(Register & rhs);
-        vmcore::VmError OrRegister(Register & rhs);
-        vmcore::VmError AndRegister(Register & rhs);
-        vmcore::VmError LeftShiftRegister(Register & rhs);
-        vmcore::VmError RightShiftRegister(Register & rhs);
-
-        void CopyValue(Register & rhs);
+        void CopyValue(RegisterInt& rhs);
         void DestroyValue();
 
     private:
-
-        template<typename T>
-        void StoreValueIn64BitInteger(const T & value)
-        {
-            memset(&m_value, 0, sizeof(uint64));
-            memcpy(&m_value, &value, sizeof(T));
-        }
-
-        template<typename T>
-        T RetrieveValueFrom64BitInteger()
-        {
-            T ret;
-            memset(&ret, 0, sizeof(T));
-            memcpy(&ret, &m_value, sizeof(T));
-            return ret;
-        }
-
-        uint64 m_value;
-        ValueType m_type;
+        IntegerValue m_value;
     };
 }

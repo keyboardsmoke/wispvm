@@ -10,24 +10,13 @@ set(WISP_FILES
         ${CMAKE_SOURCE_DIR}/shared/decoder.h
         program.h
         program.cpp
-		value.h
-		value.cpp
-        register_math.h
+        integer_value.h
+        integer_value.cpp
+        fp_value.h
+        fp_value.cpp
         register.h
         register.cpp
         context.h
-        isa/compare.h
-        isa/compare.cpp
-        isa/control_flow.h
-        isa/control_flow.cpp
-        isa/fp.h
-        isa/fp.cpp
-        isa/int.h
-        isa/int.cpp
-        isa/memory.h
-        isa/memory.cpp
-        isa/string.h
-        isa/string.cpp
         isa/isa.h
         isa/isa.cpp
         main.cpp)
