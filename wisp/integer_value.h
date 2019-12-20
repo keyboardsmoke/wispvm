@@ -177,6 +177,13 @@ namespace wisp
             return a;
         }
 
+        IntegerValue operator~()
+        {
+            IntegerValue ret = *this;
+            ret.Not();
+            return ret;
+        }
+
         IntegerValue Add(const IntegerValue& other) const;
         IntegerValue Sub(const IntegerValue& other) const;
         IntegerValue Mul(const IntegerValue& other) const;

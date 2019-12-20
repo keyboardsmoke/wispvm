@@ -22,8 +22,8 @@ TEST_CASE("Wisp Bytecode")
     {
         wisp::ByteCodeGenerator gen;
 
-        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(1));
-        gen.Compare(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(1));
+        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
+        gen.Compare(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
         gen.Halt();
 
         wisp::WispContext context;
@@ -36,7 +36,7 @@ TEST_CASE("Wisp Bytecode")
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
 
-        PrintEFlags(context.eflags);
+        // PrintEFlags(context.eflags);
 
         REQUIRE(context.eflags.ZeroFlag == 1);
     }

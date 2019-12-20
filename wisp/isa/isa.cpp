@@ -251,47 +251,73 @@ static VmError Halt(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 
 VmError SetFlagsForIntegerOperation(WispContext* context, const WispExecutionFlags& dirty, IntegerValue& dst, IntegerValue& src1, IntegerValue& src2)
 {
-    if (dirty.CarryFlag)
+    static uint32 parity_table[8] =
     {
-        std::visit([context](auto&& a1, auto&& a2, auto&& dst_v)
-        {
-            auto v = (a1 ^ ((a1 ^ a2) & (a2 ^ dst_v)));
-            context->eflags.CarryFlag = (v >> sizeof(v) & 1);
-        }, src1.GetValue(), src2.GetValue(), dst.GetValue());
-    }
+        0x96696996,
+        0x69969669,
+        0x69969669,
+        0x96696996,
+        0x69969669,
+        0x96696996,
+        0x96696996,
+        0x69969669,
+    };
 
-    if (dirty.ParityFlag)
+    // We'll handle the SF/ZF/PF first.
+    if (dirty.SignFlag)
     {
-        std::visit([context](auto&& arg)
+        std::visit([context](auto&& destination)
         {
-            uint8 v = arg & 0xff;
-            v ^= v >> 1;
-            v ^= v >> 2;
-
-            // integer promotion
-            int32 vp = (v & 0x11111111U) * 0x11111111U;
-
-            context->eflags.ParityFlag = (!((vp >> 28) & 1));
+            typedef decltype(destination) dtype;
+            dtype signMaskShift = static_cast<dtype>((sizeof(dtype) * 8) - 1);
+            dtype signMask = (static_cast<dtype>(1) << signMaskShift);
+            context->eflags.SignFlag = ((destination & signMask) == signMask);
         }, dst.GetValue());
     }
 
     if (dirty.ZeroFlag)
     {
-        std::visit([context](auto&& arg) { context->eflags.ZeroFlag = (!arg); }, dst.GetValue());
+        std::visit([context](auto&& destination)
+        {
+            typedef decltype(destination) dtype;
+            dtype neg = static_cast<dtype>(~0);
+            context->eflags.ZeroFlag = ((destination & neg) == 0);
+        }, dst.GetValue());
     }
 
-    if (dirty.SignFlag)
+    if (dirty.ParityFlag)
     {
-        std::visit([context](auto&& arg) { context->eflags.SignFlag = (arg >> sizeof(arg) & 1); }, dst.GetValue());
+        std::visit([context](auto&& destination)
+        {
+            auto piece = destination & 0xff;
+
+            context->eflags.ParityFlag = (((parity_table[piece / 32] >> (piece % 32)) & 1) == 0);
+        }, dst.GetValue());
+    }
+
+    IntegerValue borrowChain = (dst & (~src1 | src2)) | (~src1 & src2);
+
+    // CF/OF happens here
+    if (dirty.CarryFlag)
+    {
+        std::visit([context](auto&& destination)
+        {
+            typedef decltype(destination) dtype;
+            dtype signMaskShift = static_cast<dtype>((sizeof(dtype) * 8) - 1);
+            dtype signMask = (static_cast<dtype>(1) << signMaskShift);
+            context->eflags.CarryFlag = ((destination & signMask) == signMask);
+        }, borrowChain.GetValue());
     }
 
     if (dirty.OverflowFlag)
     {
-        std::visit([context](auto&& arg1, auto&& arg2, auto&& dst_v) 
+        std::visit([context](auto&& destination)
         {
-            auto v = ((arg1 ^ dst_v) & (arg2 ^ dst_v));
-            context->eflags.OverflowFlag = (v >> sizeof(v) & 1);
-        }, src1.GetValue(), src2.GetValue(), dst.GetValue());
+            typedef decltype(destination) dtype;
+            dtype overflowMaskShift = static_cast<dtype>((sizeof(dtype) * 8) - 2);
+            dtype xorMask = (destination >> overflowMaskShift);
+            context->eflags.CarryFlag = (((xorMask) ^ ((xorMask) >> 1)) & 1);
+        }, borrowChain.GetValue());
     }
 
     return VmError::OK;
