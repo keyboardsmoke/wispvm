@@ -7,7 +7,9 @@
 #include "wisp/bytecode.h"
 #include <iostream>
 
-static void PrintEFlags(const wisp::WispExecutionFlags& flags)
+using namespace wisp;
+
+static void PrintEFlags(const WispExecutionFlags& flags)
 {
     std::cout << "EFLAGS::CarryFlag = " << (int)flags.CarryFlag << std::endl;
     std::cout << "EFLAGS::ParityFlag = " << (int)flags.ParityFlag << std::endl;
@@ -22,14 +24,14 @@ TEST_CASE("Wisp Bytecode")
     {
         // EFLAGS = (F_PF|F_ZF|F_IF)
 
-        wisp::ByteCodeGenerator gen;
+        ByteCodeGenerator gen;
 
-        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
-        gen.Compare(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(1)));
+        gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(1)));
         gen.Halt();
 
-        wisp::WispContext context;
-        wisp::WispISA isa;
+        WispContext context;
+        WispISA isa;
         vmcore::MemoryModule mm(0x1000);
         vmcore::Vm vm(&context, &mm, &isa);
 
@@ -51,14 +53,14 @@ TEST_CASE("Wisp Bytecode")
     {
         // EFLAGS = (F_CF|F_PF|F_AF|F_SF|F_IF)
 
-        wisp::ByteCodeGenerator gen;
+        ByteCodeGenerator gen;
 
-        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
-        gen.Compare(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(2)));
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(1)));
+        gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(2)));
         gen.Halt();
 
-        wisp::WispContext context;
-        wisp::WispISA isa;
+        WispContext context;
+        WispISA isa;
         vmcore::MemoryModule mm(0x1000);
         vmcore::Vm vm(&context, &mm, &isa);
 
@@ -80,14 +82,14 @@ TEST_CASE("Wisp Bytecode")
     {
         // EFLAGS = (F_PF|F_ZF|F_IF)
 
-        wisp::ByteCodeGenerator gen;
+        ByteCodeGenerator gen;
 
-        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(0)));
-        gen.Test(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(static_cast<uint32>(1)));
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(0)));
+        gen.Test(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(1)));
         gen.Halt();
 
-        wisp::WispContext context;
-        wisp::WispISA isa;
+        WispContext context;
+        WispISA isa;
         vmcore::MemoryModule mm(0x1000);
         vmcore::Vm vm(&context, &mm, &isa);
 
@@ -103,5 +105,54 @@ TEST_CASE("Wisp Bytecode")
         REQUIRE(context.eflags.ZeroFlag == 1);
         REQUIRE(context.eflags.SignFlag == 0);
         REQUIRE(context.eflags.OverflowFlag == 0);
+    }
+
+    SUBCASE("Compare equality and conditional jump")
+    {
+        ByteCodeGenerator gen;
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
+        gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
+        gen.ConditionalJump(ConditionCode::Zero, IntegerValue(static_cast<uint8>(9))); // We have to calculate this manually for now...
+        gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(10)));
+        gen.Halt();
+        gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(20)));
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        vmcore::MemoryModule mm(0x1000);
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
+
+        auto err = vm.Execute(0);
+        REQUIRE(err == vmcore::VmError::OK);
+
+        REQUIRE(context.eflags.ZeroFlag == 1);
+        REQUIRE(context.regGp[1].Get<uint8>() == 20);
+    }
+
+    SUBCASE("Compare greater than and conditional jump")
+    {
+        ByteCodeGenerator gen;
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(1)));
+        gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
+        gen.ConditionalJump(ConditionCode::GreaterThan, IntegerValue(static_cast<uint8>(9))); // We have to calculate this manually for now...
+        gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(10)));
+        gen.Halt();
+        gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(20)));
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        vmcore::MemoryModule mm(0x1000);
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
+
+        auto err = vm.Execute(0);
+        REQUIRE(err == vmcore::VmError::OK);
+
+        REQUIRE(context.regGp[1].Get<uint8>() == 20);
     }
 }
