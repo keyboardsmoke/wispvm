@@ -62,6 +62,11 @@ namespace wisp
             return *pval;
         }
 
+        value_storage GetValue() const
+        {
+            return m_value;
+        }
+
         FPValueType GetType()
         {
             if (!HasValue())

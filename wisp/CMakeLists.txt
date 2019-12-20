@@ -8,6 +8,7 @@ set(WISP_FILES
         ${CMAKE_SOURCE_DIR}/shared/types.h
         ${CMAKE_SOURCE_DIR}/shared/random.h
         ${CMAKE_SOURCE_DIR}/shared/decoder.h
+        bytecode.h
         program.h
         program.cpp
         integer_value.h

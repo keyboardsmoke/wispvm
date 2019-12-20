@@ -4,6 +4,7 @@
 #include "wisp/context.h"
 #include "wisp/isa/isa.h"
 #include "vm/vm.h"
+#include "wisp/bytecode.h"
 #include <iostream>
 
 static void PrintEFlags(const wisp::WispExecutionFlags& flags)
@@ -19,36 +20,24 @@ TEST_CASE("Wisp Bytecode")
 {
     SUBCASE("Compare and Jump")
     {
-        uint8 bytecode[] =
-        {
-            // MOV R0, 1
-            static_cast<uint8>(wisp::InstructionCodes::MoveConstantInteger),
-            0,
-            static_cast<uint8>(wisp::IntegerValueType::UInt8),
-            1,
+        wisp::ByteCodeGenerator gen;
 
-            // CMP R0, 2
-            static_cast<uint8>(wisp::InstructionCodes::CompareConstant),
-            0,
-            static_cast<uint8>(wisp::IntegerValueType::UInt8),
-            2,
-
-            // die
-            static_cast<uint8>(wisp::InstructionCodes::Halt)
-        };
+        gen.Mov(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(1));
+        gen.Compare(wisp::GeneralPurposeRegisters::R0, wisp::IntegerValue(1));
+        gen.Halt();
 
         wisp::WispContext context;
         wisp::WispISA isa;
         vmcore::MemoryModule mm(0x1000);
         vmcore::Vm vm(&context, &mm, &isa);
 
-        memcpy(mm.GetPhysicalMemory(), bytecode, sizeof(bytecode));
+        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
 
         PrintEFlags(context.eflags);
 
-        REQUIRE(context.eflags.ZeroFlag == 0);
+        REQUIRE(context.eflags.ZeroFlag == 1);
     }
 }

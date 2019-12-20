@@ -69,6 +69,85 @@ namespace wisp
     };
     static_assert(sizeof(WispExecutionFlags) == sizeof(uint8), "Invalid size for WispExecutionFlags");
 
+    enum class GeneralPurposeRegisters
+    {
+        R0 = 0,
+        R1,
+        R2,
+        R3,
+        R4,
+        R5,
+        R6,
+        R7,
+        R8,
+        R9,
+        R10,
+        R11,
+        R12,
+        R13,
+        R14,
+        R15,
+        R16,
+        R17,
+        R18,
+        R19,
+        R20,
+        R21,
+        R22,
+        R23,
+        R24,
+        R25,
+        R26,
+        R27,
+        R28,
+        R29,
+        R30,
+        R31,
+        Count
+    };
+
+    enum class FloatingPointRegisters
+    {
+        FP0,
+        FP1,
+        FP2,
+        FP3,
+        FP4,
+        FP5,
+        FP6,
+        FP7,
+        FP8,
+        FP9,
+        FP10,
+        FP11,
+        FP12,
+        FP13,
+        FP14,
+        FP15,
+        Count
+    };
+
+    enum class ArgumentRegisters
+    {
+        ARG0,
+        ARG1,
+        ARG2,
+        ARG3,
+        ARG4,
+        ARG5,
+        ARG6,
+        ARG7,
+        ARG8,
+        ARG9,
+        ARG10,
+        ARG11,
+        ARG12,
+        ARG13,
+        ARG14,
+        ARG15,
+        Count
+    };
+
     class WispContext : public vmcore::Context
     {
     public:
@@ -76,13 +155,13 @@ namespace wisp
         // uint8 GetRegisterId(RegisterFP& reg);
 
         // General purpose registers
-        RegisterInt regGp[32];
+        RegisterInt regGp[static_cast<int>(GeneralPurposeRegisters::Count)];
 
         // Floating point registers
-        RegisterFP regFp[16];
+        RegisterFP regFp[static_cast<int>(FloatingPointRegisters::Count)];
 
         // Function Registers
-        RegisterInt regAp[16];
+        RegisterInt regAp[static_cast<int>(ArgumentRegisters::Count)];
         RegisterInt regRp;
 
         // Stack Pointer
