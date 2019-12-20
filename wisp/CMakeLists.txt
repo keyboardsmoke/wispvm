@@ -3,25 +3,48 @@ project(wisp)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-set(WISP_FILES
-        ${CMAKE_SOURCE_DIR}/shared/platform.h
-        ${CMAKE_SOURCE_DIR}/shared/types.h
-        ${CMAKE_SOURCE_DIR}/shared/random.h
-        ${CMAKE_SOURCE_DIR}/shared/decoder.h
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(ISA_HEADERS
+        isa/isa.h
+        isa/encoding.h
+        isa/compare.h
+        isa/control_flow.h
+        isa/integer_math.h
+        isa/load_store.h
+        isa/move.h
+        )
+
+set(ISA_SOURCES
+        isa/isa.cpp
+        isa/encoding.cpp
+        isa/compare.cpp
+        isa/control_flow.cpp
+        isa/integer_math.cpp
+        isa/load_store.cpp
+        isa/move.cpp
+        )
+
+set(BASE_HEADERS
         bytecode.h
         program.h
-        program.cpp
         integer_value.h
-        integer_value.cpp
         fp_value.h
-        fp_value.cpp
         register.h
-        register.cpp
-        context.h
-        isa/isa.h
-        isa/isa.cpp)
+        context.h)
 
-add_library(wisp ${WISP_FILES})
+set(BASE_SOURCES
+        program.cpp
+        integer_value.cpp
+        fp_value.cpp
+        register.cpp)
+
+if (MSVC)
+  source_group("Header Files\\isa" FILES ${ISA_HEADERS})
+  source_group("Source Files\\isa" FILES ${ISA_SOURCES})
+endif()
+
+add_library(wisp ${BASE_SOURCES} ${ISA_SOURCES} ${BASE_HEADERS} ${ISA_HEADERS})
 target_link_libraries(wisp vm)
 target_link_libraries(wisp compiler)
 

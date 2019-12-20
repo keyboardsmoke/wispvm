@@ -37,8 +37,28 @@ const char* Vm::GetErrorString(VmError error)
     return "Unknown";
 }
 
+VmError Vm::Initialize()
+{
+    auto err = m_isa->Initialize();
+    if (err != VmError::OK)
+        return err;
+
+    m_initialized = true;
+
+    return VmError::OK;
+}
+
 VmError Vm::Execute(uint64 offset)
 {
+    // Initialize if the user has not yet initialized.
+    // The user can control when Initialization happens by calling it themselves if they want.
+    if (m_initialized == false)
+    {
+        auto err = Initialize();
+        if (err != VmError::OK)
+            return err;
+    }
+
     m_context->regPc.GoTo(offset);
 
     // Start execution

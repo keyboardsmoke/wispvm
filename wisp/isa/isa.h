@@ -1,10 +1,15 @@
 #pragma once
 
 #include "vm/isa.h"
+#include "vm/vm.h"
 
 namespace wisp
 {
+
     class WispContext;
+    class WispISA;
+
+    typedef vmcore::VmError(*isa_fn)(WispISA*, vmcore::Vm*, WispContext*, uint64);
 
     enum class ConditionCode
     {
@@ -50,7 +55,6 @@ namespace wisp
         Test,
         TestConstant,
 
-        /*
         // Tables
 
         // Arrays
@@ -71,23 +75,26 @@ namespace wisp
         Unm,
         BNot,
         Not
-        */
+    };
+
+    class WispISAModule
+    {
+    public:
+        virtual vmcore::VmError Create(isa_fn* functionList) = 0;
     };
 
     class WispISA : public vmcore::ISA
     {
     public:
+        vmcore::VmError RegisterModule(WispISAModule* pModule)
+        {
+            return pModule->Create(m_isaFunctions);
+        }
+
+        vmcore::VmError Initialize() override;
         vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override;
 
-        // Read an address which is a delta from the instruction PC using the provided encoding
-        vmcore::VmError GetRelativeAddressDestinationFromPc(vmcore::Vm* vm, WispContext* context, uint8 encoding, uint64 pc, uint64* addr);
-
-        template<typename T>
-        T ReadArgument(vmcore::Vm* vm)
-        {
-            T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
-            vm->GetContext()->regPc.Advance(sizeof(T));
-            return ret;
-        }
+    private:
+        isa_fn m_isaFunctions[0xFF]; // Maximum
     };
 }

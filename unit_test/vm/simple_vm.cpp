@@ -37,6 +37,11 @@ public:
         End,
     };
 
+    vmcore::VmError Initialize() override
+    {
+        return vmcore::VmError::OK;
+    }
+
     vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override
     {
         uint64 oldPc = vm->GetContext()->regPc.Get();
