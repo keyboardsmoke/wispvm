@@ -226,22 +226,21 @@ TEST_CASE("Simple VM")
     const uint8 reg2 = 2;
     const uint8 reg3 = 3;
     const uint8 reg4 = 4;
+    const uint8 reg5 = 5;
 
     uint8 programCode[] =
     {
-        SimpleVmISA::InstructionId::PrintContext,                   // 0000
-        SimpleVmISA::InstructionId::Store, reg0, 1,                 // 0001
-        SimpleVmISA::InstructionId::Store, reg1, 10,                // 0004
-        SimpleVmISA::InstructionId::Store, reg3, 0x06,              // 0007
-        SimpleVmISA::InstructionId::Store, reg4, 0x1E,              // 0010
-        SimpleVmISA::InstructionId::AndRegToReg, reg3, reg4,        // 0013
-        SimpleVmISA::InstructionId::MoveRegToReg, reg2, reg1,       // 0016
-        SimpleVmISA::InstructionId::AddRegToReg, reg0, reg1,        // 0019
-        SimpleVmISA::InstructionId::PrintContext,                   // 0022
-        SimpleVmISA::InstructionId::Jump, 7,                        // 0023
-        0x90, 0x90, 0x90, 0x90, 0x90,                               // 0025
-        SimpleVmISA::InstructionId::PrintHelloWorld,                // 0030
-        SimpleVmISA::InstructionId::End                             // 0031
+        SimpleVmISA::InstructionId::Store, reg0, 1,
+        SimpleVmISA::InstructionId::Store, reg1, 10,
+        SimpleVmISA::InstructionId::Store, reg3, 0x06,
+        SimpleVmISA::InstructionId::Store, reg4, 0x1E,
+        SimpleVmISA::InstructionId::AndRegToReg, reg3, reg4,
+        SimpleVmISA::InstructionId::MoveRegToReg, reg2, reg1,
+        SimpleVmISA::InstructionId::AddRegToReg, reg0, reg1,
+        SimpleVmISA::InstructionId::Jump, 7,
+        0x90, 0x90, 0x90, 0x90, 0x90,
+        SimpleVmISA::InstructionId::Store, reg5, 0xff,
+        SimpleVmISA::InstructionId::End
     };
 
     // memset(ram.GetPhysicalMemory(), 0, ram.GetPhysicalMemorySize());
@@ -255,4 +254,5 @@ TEST_CASE("Simple VM")
     REQUIRE(context.regGeneral[reg0].value == 11);
     REQUIRE(context.regGeneral[reg2].value == 10);
     REQUIRE(context.regGeneral[reg3].value == 0x06);
+    REQUIRE(context.regGeneral[reg5].value == 0xff);
 }
