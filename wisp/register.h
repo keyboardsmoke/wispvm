@@ -64,6 +64,11 @@ namespace wisp
             return m_value.Get<T>();
         }
 
+        IntegerValue& GetValue()
+        {
+            return m_value;
+        }
+
         void CopyValue(RegisterInt& rhs);
         void DestroyValue();
 

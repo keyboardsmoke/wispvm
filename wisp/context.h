@@ -72,8 +72,8 @@ namespace wisp
     class WispContext : public vmcore::Context
     {
     public:
-        uint8 GetRegisterId(RegisterInt& reg);
-        uint8 GetRegisterId(RegisterFP& reg);
+        // uint8 GetRegisterId(RegisterInt& reg);
+        // uint8 GetRegisterId(RegisterFP& reg);
 
         // General purpose registers
         RegisterInt regGp[32];

@@ -18,10 +18,9 @@ set(WISP_FILES
         register.cpp
         context.h
         isa/isa.h
-        isa/isa.cpp
-        main.cpp)
+        isa/isa.cpp)
 
-add_executable(wisp ${WISP_FILES})
+add_library(wisp ${WISP_FILES})
 target_link_libraries(wisp vm)
 target_link_libraries(wisp compiler)
 

@@ -32,8 +32,8 @@ namespace wisp
     public:
         typedef std::variant<int8, int16, int32, int64, uint8, uint16, uint32, uint64> value_storage;
 
-        IntegerValue() : m_value() {}
-        IntegerValue(const value_storage& vs) : m_value(vs) {}
+        IntegerValue() : m_value(), m_size(0) {}
+        IntegerValue(const value_storage& vs) : m_value(vs), m_size(GetSizeFromIndex()) {}
 
         bool HasValue()
         {
@@ -63,19 +63,33 @@ namespace wisp
         }
 
         // Setters
+        void Clear()
+        {
+            m_value = value_storage();
+            m_size = GetSizeFromIndex();
+        }
+
         template<typename T>
         void Set(T value)
         {
             m_value = value;
+
+            m_size = GetSizeFromIndex();
         }
 
         // Getters
         template<typename T>
-        T Get()
+        T Get() 
         {
-            T* pval = std::get_if<T>(m_value);
+            assert(HasValue());
+            T* pval = std::get_if<T>(&m_value);
             assert(pval != nullptr);
             return *pval;
+        }
+
+        value_storage GetValue() const
+        {
+            return m_value;
         }
 
         IntegerValueType GetType()
@@ -86,117 +100,131 @@ namespace wisp
             return static_cast<IntegerValueType>(m_value.index() + 1);
         }
 
+        uint32 GetSize() const 
+        {
+            return m_size;
+        }
 
-        /*
-        friend Value& operator+(Value& a, Value& b);
-        friend Value& operator+(Value& a, int8 b);
-        friend Value& operator+(Value& a, int16 b);
-        friend Value& operator+(Value& a, int32 b);
-        friend Value& operator+(Value& a, int64 b);
-        friend Value& operator+(Value& a, uint8 b);
-        friend Value& operator+(Value& a, uint16 b);
-        friend Value& operator+(Value& a, uint32 b);
-        friend Value& operator+(Value& a, uint64 b);
-        friend Value& operator+(Value& a, float b);
-        friend Value& operator+(Value& a, double b);
+        friend IntegerValue operator+(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Add(b);
+        }
 
-        friend Value& operator-(Value& a, Value& b);
-        friend Value& operator-(Value& a, int8 b);
-        friend Value& operator-(Value& a, int16 b);
-        friend Value& operator-(Value& a, int32 b);
-        friend Value& operator-(Value& a, int64 b);
-        friend Value& operator-(Value& a, uint8 b);
-        friend Value& operator-(Value& a, uint16 b);
-        friend Value& operator-(Value& a, uint32 b);
-        friend Value& operator-(Value& a, uint64 b);
-        friend Value& operator-(Value& a, float b);
-        friend Value& operator-(Value& a, double b);
+        friend IntegerValue operator-(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Sub(b);
+        }
 
-        friend Value& operator*(Value& a, Value& b);
-        friend Value& operator*(Value& a, int8 b);
-        friend Value& operator*(Value& a, int16 b);
-        friend Value& operator*(Value& a, int32 b);
-        friend Value& operator*(Value& a, int64 b);
-        friend Value& operator*(Value& a, uint8 b);
-        friend Value& operator*(Value& a, uint16 b);
-        friend Value& operator*(Value& a, uint32 b);
-        friend Value& operator*(Value& a, uint64 b);
-        friend Value& operator*(Value& a, float b);
-        friend Value& operator*(Value& a, double b);
+        friend IntegerValue operator*(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Mul(b);
+        }
 
-        friend Value& operator/(Value& a, Value& b);
-        friend Value& operator/(Value& a, int8 b);
-        friend Value& operator/(Value& a, int16 b);
-        friend Value& operator/(Value& a, int32 b);
-        friend Value& operator/(Value& a, int64 b);
-        friend Value& operator/(Value& a, uint8 b);
-        friend Value& operator/(Value& a, uint16 b);
-        friend Value& operator/(Value& a, uint32 b);
-        friend Value& operator/(Value& a, uint64 b);
-        friend Value& operator/(Value& a, float b);
-        friend Value& operator/(Value& a, double b);
+        friend IntegerValue operator/(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Div(b);
+        }
 
-        friend Value& operator+=(Value& a, Value& b);
-        friend Value& operator+=(Value& a, int8 b);
-        friend Value& operator+=(Value& a, int16 b);
-        friend Value& operator+=(Value& a, int32 b);
-        friend Value& operator+=(Value& a, int64 b);
-        friend Value& operator+=(Value& a, uint8 b);
-        friend Value& operator+=(Value& a, uint16 b);
-        friend Value& operator+=(Value& a, uint32 b);
-        friend Value& operator+=(Value& a, uint64 b);
-        friend Value& operator+=(Value& a, float b);
-        friend Value& operator+=(Value& a, double b);
+        friend IntegerValue operator&(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.And(b);
+        }
 
-        friend Value& operator-=(Value& a, Value& b);
-        friend Value& operator-=(Value& a, int8 b);
-        friend Value& operator-=(Value& a, int16 b);
-        friend Value& operator-=(Value& a, int32 b);
-        friend Value& operator-=(Value& a, int64 b);
-        friend Value& operator-=(Value& a, uint8 b);
-        friend Value& operator-=(Value& a, uint16 b);
-        friend Value& operator-=(Value& a, uint32 b);
-        friend Value& operator-=(Value& a, uint64 b);
-        friend Value& operator-=(Value& a, float b);
-        friend Value& operator-=(Value& a, double b);
+        friend IntegerValue operator|(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Or(b);
+        }
 
-        friend Value& operator*=(Value& a, Value& b);
-        friend Value& operator*=(Value& a, int8 b);
-        friend Value& operator*=(Value& a, int16 b);
-        friend Value& operator*=(Value& a, int32 b);
-        friend Value& operator*=(Value& a, int64 b);
-        friend Value& operator*=(Value& a, uint8 b);
-        friend Value& operator*=(Value& a, uint16 b);
-        friend Value& operator*=(Value& a, uint32 b);
-        friend Value& operator*=(Value& a, uint64 b);
-        friend Value& operator*=(Value& a, float b);
-        friend Value& operator*=(Value& a, double b);
+        friend IntegerValue operator^(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Xor(b);
+        }
 
-        friend Value& operator/=(Value& a, Value& b);
-        friend Value& operator/=(Value& a, int8 b);
-        friend Value& operator/=(Value& a, int16 b);
-        friend Value& operator/=(Value& a, int32 b);
-        friend Value& operator/=(Value& a, int64 b);
-        friend Value& operator/=(Value& a, uint8 b);
-        friend Value& operator/=(Value& a, uint16 b);
-        friend Value& operator/=(Value& a, uint32 b);
-        friend Value& operator/=(Value& a, uint64 b);
-        friend Value& operator/=(Value& a, float b);
-        friend Value& operator/=(Value& a, double b);*/
+        friend IntegerValue operator<<(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Shl(b);
+        }
 
-        IntegerValue Add(const IntegerValue& other);
-        IntegerValue Sub(const IntegerValue& other);
-        IntegerValue Mul(const IntegerValue& other);
-        IntegerValue Div(const IntegerValue& other);
+        friend IntegerValue operator>>(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Shr(b);
+        }
 
-        IntegerValue And(const IntegerValue& other);
-        IntegerValue Or(const IntegerValue& other);
-        IntegerValue Xor(const IntegerValue& other);
-        IntegerValue Shl(const IntegerValue& other);
-        IntegerValue Shr(const IntegerValue& other);
-        IntegerValue Mod(const IntegerValue& other);
+        friend IntegerValue operator%(const IntegerValue& a, const IntegerValue& b)
+        {
+            return a.Mod(b);
+        }
+
+        friend IntegerValue operator+=(IntegerValue a, IntegerValue b)
+        {
+            a = a.Add(b);
+        }
+
+        friend IntegerValue operator-=(IntegerValue a, IntegerValue b)
+        {
+            a = a.Sub(b);
+        }
+
+        friend IntegerValue operator*=(IntegerValue a, IntegerValue b)
+        {
+            a = a.Mul(b);
+            return a;
+        }
+
+        friend IntegerValue operator/=(IntegerValue a, IntegerValue b)
+        {
+            a = a.Div(b);
+            return a;
+        }
+
+        IntegerValue Add(const IntegerValue& other) const;
+        IntegerValue Sub(const IntegerValue& other) const;
+        IntegerValue Mul(const IntegerValue& other) const;
+        IntegerValue Div(const IntegerValue& other) const;
+
+        IntegerValue And(const IntegerValue& other) const;
+        IntegerValue Or(const IntegerValue& other) const;
+        IntegerValue Xor(const IntegerValue& other) const;
+        IntegerValue Shl(const IntegerValue& other) const;
+        IntegerValue Shr(const IntegerValue& other) const;
+        IntegerValue Mod(const IntegerValue& other) const;
+
+        void UnaryPlus();
+        void UnaryMinus();
+        void Not();
+
+        IntegerValue PreIncrement();
+        IntegerValue PostIncrement();
+
+        IntegerValue PreDecrement();
+        IntegerValue PostDecrement();
 
     private:
+        uint32 GetSizeFromIndex()
+        {
+            if (!HasValue())
+                return 0u;
+
+            switch (static_cast<IntegerValueType>(m_value.index() + 1))
+            {
+            case IntegerValueType::Int8:
+            case IntegerValueType::UInt8:
+                return sizeof(uint8);
+            case IntegerValueType::Int16:
+            case IntegerValueType::UInt16:
+                return sizeof(uint16);
+            case IntegerValueType::Int32:
+            case IntegerValueType::UInt32:
+                return sizeof(uint32);
+            case IntegerValueType::Int64:
+            case IntegerValueType::UInt64:
+                return sizeof(uint64);
+            default:
+                __assume(0);
+            }
+        }
+        
         value_storage m_value;
+        uint32 m_size;
     };
 }

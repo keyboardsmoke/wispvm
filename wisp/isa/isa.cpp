@@ -41,6 +41,41 @@ static VmError SetIntegerRegisterValueWithEncoding(WispISA* isa, Vm* vm, Registe
     return VmError::OK;
 }
 
+static VmError GetIntegerConstantValueWithEncoding(WispISA* isa, Vm* vm, IntegerValue& value, IntegerValueType encoding)
+{
+    switch (encoding)
+    {
+    case IntegerValueType::Int8:
+        value.Set<int8>(isa->ReadArgument<int8>(vm));
+        break;
+    case IntegerValueType::Int16:
+        value.Set<int16>(isa->ReadArgument<int16>(vm));
+        break;
+    case IntegerValueType::Int32:
+        value.Set<int32>(isa->ReadArgument<int32>(vm));
+        break;
+    case IntegerValueType::Int64:
+        value.Set<int64>(isa->ReadArgument<int64>(vm));
+        break;
+    case IntegerValueType::UInt8:
+        value.Set<uint8>(isa->ReadArgument<uint8>(vm));
+        break;
+    case IntegerValueType::UInt16:
+        value.Set<uint16>(isa->ReadArgument<uint16>(vm));
+        break;
+    case IntegerValueType::UInt32:
+        value.Set<uint32>(isa->ReadArgument<uint32>(vm));
+        break;
+    case IntegerValueType::UInt64:
+        value.Set<uint64>(isa->ReadArgument<uint64>(vm));
+        break;
+    default:
+        return VmError::InvalidInstruction;
+    }
+
+    return VmError::OK;
+}
+
 static VmError SetFPRegisterValueWithEncoding(WispISA* isa, Vm* vm, RegisterFP& reg, FPValueType encoding)
 {
     switch (encoding)
@@ -214,33 +249,55 @@ static VmError Halt(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 
 //
 
-template<typename T>
-void SetFlags(WispContext* context, const WispExecutionFlags& dirty, const T& dst, const T& src1, const T& src2)
+VmError SetFlagsForIntegerOperation(WispContext* context, const WispExecutionFlags& dirty, IntegerValue& dst, IntegerValue& src1, IntegerValue& src2)
 {
     if (dirty.CarryFlag)
-        context->eflags.CarryFlag = ((src1 ^ ((src1 ^ src2) & (src2 ^ dst))) >> sizeof(T) & 1);
+    {
+        std::visit([context](auto&& a1, auto&& a2, auto&& dst_v)
+        {
+            auto v = (a1 ^ ((a1 ^ a2) & (a2 ^ dst_v)));
+            context->eflags.CarryFlag = (v >> sizeof(v) & 1);
+        }, src1.GetValue(), src2.GetValue(), dst.GetValue());
+    }
 
     if (dirty.ParityFlag)
     {
-        uint8 v = dst & 0xff;
-        v ^= v >> 1;
-        v ^= v >> 2;
-        v = (v & 0x11111111U) * 0x11111111U;
-        context->eflags.ParityFlag = (!((v >> 28) & 1));
+        std::visit([context](auto&& arg)
+        {
+            uint8 v = arg & 0xff;
+            v ^= v >> 1;
+            v ^= v >> 2;
+
+            // integer promotion
+            int32 vp = (v & 0x11111111U) * 0x11111111U;
+
+            context->eflags.ParityFlag = (!((vp >> 28) & 1));
+        }, dst.GetValue());
     }
 
     if (dirty.ZeroFlag)
-        context->eflags.ZeroFlag = (!dst);
+    {
+        std::visit([context](auto&& arg) { context->eflags.ZeroFlag = (!arg); }, dst.GetValue());
+    }
 
     if (dirty.SignFlag)
-        context->eflags.SignFlag = (dst >> sizeof(T) & 1);
+    {
+        std::visit([context](auto&& arg) { context->eflags.SignFlag = (arg >> sizeof(arg) & 1); }, dst.GetValue());
+    }
 
     if (dirty.OverflowFlag)
-        context->eflags.OverflowFlag = (((src1 ^ dst) & (src2 ^ dst)) >> sizeof(T) & 1);
+    {
+        std::visit([context](auto&& arg1, auto&& arg2, auto&& dst_v) 
+        {
+            auto v = ((arg1 ^ dst_v) & (arg2 ^ dst_v));
+            context->eflags.OverflowFlag = (v >> sizeof(v) & 1);
+        }, src1.GetValue(), src2.GetValue(), dst.GetValue());
+    }
+
+    return VmError::OK;
 }
 
-template<typename T>
-void SetFlags(WispContext* context, const T& dst, const T& src1, const T& src2)
+VmError SetFlagsForIntegerOperation(WispContext* context, IntegerValue& dst, IntegerValue& src1, IntegerValue& src2)
 {
     WispExecutionFlags ef;
     ef.CarryFlag = 1u;
@@ -248,7 +305,7 @@ void SetFlags(WispContext* context, const T& dst, const T& src1, const T& src2)
     ef.ZeroFlag = 1u;
     ef.SignFlag = 1u;
     ef.OverflowFlag = 1u;
-    SetFlags(context, ef, dst, src1, src2);
+    return SetFlagsForIntegerOperation(context, ef, dst, src1, src2);
 }
 
 static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
@@ -257,6 +314,11 @@ static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instru
 
     RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
     RegisterInt r2 = context->regGp[isa->ReadArgument<uint8>(vm)];
+
+    IntegerValue result = r1.GetValue() - r2.GetValue();
+
+    // the result could have "any" type in the variant type...
+    SetFlagsForIntegerOperation(context, result, r1.GetValue(), r2.GetValue());
 
     return VmError::OK;
 }
@@ -268,47 +330,17 @@ static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint6
     UNREFERENCED_PARAMETER(context);
     UNREFERENCED_PARAMETER(instructionPc);
 
-/*
-temp <- SRC1 - SignExtend(SRC2);
-ModifyStatusFlags; (* Modify status flags in the same manner as the SUB instruction*)
-*/
+    RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
+    IntegerValueType encoding = static_cast<IntegerValueType>(isa->ReadArgument<uint8>(vm));
 
-    /*
-    uint8 regIndex = isa->ReadArgument<uint8>(vm);
-    Register& reg = context->regGeneral[regIndex];
-    ValueType encoding = static_cast<ValueType>(isa->ReadArgument<uint8>(vm));
+    IntegerValue c1;
+    VmError err = GetIntegerConstantValueWithEncoding(isa, vm, c1, encoding);
+    if (err != VmError::OK)
+        return err;
 
-    switch (encoding)
-    {
-    case ValueType::Int8:
-
-
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int8>(vm));
-        break;
-    case ValueType::Int16:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int16>(vm));
-        break;
-    case ValueType::Int32:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int32>(vm));
-        break;
-    case ValueType::Int64:
-        instructionPc = static_cast<uint64>(static_cast<int64>(instructionPc) + isa->ReadArgument<int64>(vm));
-        break;
-    case ValueType::UInt8:
-        instructionPc += isa->ReadArgument<uint8>(vm);
-        break;
-    case ValueType::UInt16:
-        instructionPc += isa->ReadArgument<uint16>(vm);
-        break;
-    case ValueType::UInt32:
-        instructionPc += isa->ReadArgument<uint32>(vm);
-        break;
-    case ValueType::UInt64:
-        instructionPc += isa->ReadArgument<uint64>(vm);
-        break;
-    default:
-        return VmError::InvalidInstruction;
-    }*/
+    IntegerValue result = r1.GetValue() - c1.GetValue();
+    
+    SetFlagsForIntegerOperation(context, result, r1.GetValue(), c1);
 
     return VmError::OK;
 }
@@ -406,7 +438,7 @@ VmError WispISA::ExecuteInstruction(Vm* vm)
 
     uint64 startingPc = context->regPc.Get();
 
-    const uint16 id = ReadArgument<uint16>(vm);
+    const uint8 id = ReadArgument<uint8>(vm);
 
     return g_definitionTable[id](this, vm, context, startingPc);
 }
