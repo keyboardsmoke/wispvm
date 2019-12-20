@@ -453,11 +453,12 @@ std::function<VmError(WispISA*, Vm*, WispContext*, uint64)> g_definitionTable[] 
     Test,
     TestConstant,
 
-    /*
+
     // Tables
 
     // Arrays
 
+    /*
     // Math (Register to Register only)
     Add,
     Sub,

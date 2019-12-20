@@ -9,7 +9,7 @@ using namespace wisp;
 
 void RegisterInt::CopyValue(RegisterInt& rhs)
 {
-    UNREFERENCED_PARAMETER(rhs);
+    this->m_value = rhs.m_value;
 }
 
 void RegisterInt::DestroyValue()

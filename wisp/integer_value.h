@@ -32,12 +32,16 @@ namespace wisp
     public:
         typedef std::variant<int8, int16, int32, int64, uint8, uint16, uint32, uint64> value_storage;
 
-        IntegerValue() : m_value(), m_size(0) {}
-        IntegerValue(const value_storage& vs) : m_value(vs), m_size(GetSizeFromIndex()) {}
+        IntegerValue() : m_hasValue(false), m_value(), m_size(0)
+        {
+            //
+        }
+
+        IntegerValue(const value_storage& vs) : m_hasValue(true), m_value(vs), m_size(GetSizeFromIndex()) {}
 
         bool HasValue()
         {
-            return !(m_value.index() == std::variant_npos);
+            return m_hasValue;
         }
 
         bool IsSignedInteger()
@@ -65,6 +69,7 @@ namespace wisp
         // Setters
         void Clear()
         {
+            m_hasValue = false;
             m_value = value_storage();
             m_size = GetSizeFromIndex();
         }
@@ -72,8 +77,8 @@ namespace wisp
         template<typename T>
         void Set(T value)
         {
+            m_hasValue = true;
             m_value = value;
-
             m_size = GetSizeFromIndex();
         }
 
@@ -231,6 +236,7 @@ namespace wisp
             }
         }
         
+        bool m_hasValue;
         value_storage m_value;
         uint32 m_size;
     };

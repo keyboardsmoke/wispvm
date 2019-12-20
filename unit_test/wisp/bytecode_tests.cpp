@@ -20,6 +20,52 @@ static void PrintEFlags(const WispExecutionFlags& flags)
 
 TEST_CASE("Wisp Bytecode")
 {
+    SUBCASE("Register Move")
+    {
+        ByteCodeGenerator gen;
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint16>(1)));
+        gen.Mov(GeneralPurposeRegisters::R1, GeneralPurposeRegisters::R0);
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        vmcore::MemoryModule mm(0x1000);
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
+
+        auto err = vm.Execute(0);
+        REQUIRE(err == vmcore::VmError::OK);
+
+        REQUIRE(context.regGp[0].GetValue().GetType() == IntegerValueType::UInt16);
+        REQUIRE(context.regGp[1].GetValue().GetType() == IntegerValueType::UInt16);
+
+        REQUIRE(context.regGp[0].GetValue().Get<uint16>() == 1);
+        REQUIRE(context.regGp[1].GetValue().Get<uint16>() == 1);
+    }
+
+    SUBCASE("Register Clear")
+    {
+        ByteCodeGenerator gen;
+        gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint16>(1)));
+        gen.Clear(GeneralPurposeRegisters::R0);
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        vmcore::MemoryModule mm(0x1000);
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
+
+        auto err = vm.Execute(0);
+        REQUIRE(err == vmcore::VmError::OK);
+
+        std::cout << "Type = " << context.regGp[0].GetValue().GetValue().index() << std::endl;
+
+        REQUIRE(context.regGp[0].GetValue().GetType() == IntegerValueType::None);
+    }
+
     SUBCASE("Compare and flags")
     {
         // EFLAGS = (F_PF|F_ZF|F_IF)
