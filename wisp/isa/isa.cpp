@@ -316,7 +316,7 @@ VmError SetFlagsForIntegerOperation(WispContext* context, const WispExecutionFla
             typedef decltype(destination) dtype;
             dtype overflowMaskShift = static_cast<dtype>((sizeof(dtype) * 8) - 2);
             dtype xorMask = (destination >> overflowMaskShift);
-            context->eflags.CarryFlag = (((xorMask) ^ ((xorMask) >> 1)) & 1);
+            context->eflags.OverflowFlag = (((xorMask) ^ ((xorMask) >> 1)) & 1);
         }, borrowChain.GetValue());
     }
 
@@ -351,9 +351,6 @@ static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instru
 
 static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
-    UNREFERENCED_PARAMETER(isa);
-    UNREFERENCED_PARAMETER(vm);
-    UNREFERENCED_PARAMETER(context);
     UNREFERENCED_PARAMETER(instructionPc);
 
     RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
@@ -373,33 +370,59 @@ static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint6
 
 static VmError Test(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
-    UNREFERENCED_PARAMETER(isa);
-    UNREFERENCED_PARAMETER(vm);
-    UNREFERENCED_PARAMETER(context);
     UNREFERENCED_PARAMETER(instructionPc);
 
-/*
-TEMP <- SRC1 AND SRC2;
-SF <- MSB(TEMP);
-IF TEMP = 0
-THEN ZF <- 1;
-ELSE ZF <- 0;
-FI:
-PF <- BitwiseXNOR(TEMP[0:7]);
-CF <- 0;
-OF <- 0;
-(* AF is undefined *)
-*/
+    RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
+    RegisterInt r2 = context->regGp[isa->ReadArgument<uint8>(vm)];
+
+    IntegerValue result = r1.GetValue() & r2.GetValue();
+
+    std::visit([context](auto&& arg)
+    {
+        context->eflags.OverflowFlag = 0;
+        context->eflags.ZeroFlag = (arg == 0);
+        context->eflags.CarryFlag = 0;
+    }, result.GetValue());
+
+    WispExecutionFlags dirtyFlags;
+
+    // These are calculated as usual
+    dirtyFlags.ParityFlag = 1;
+    dirtyFlags.SignFlag = 1;
+
+    SetFlagsForIntegerOperation(context, result, r1.GetValue(), r2.GetValue());
 
     return VmError::OK;
 }
 
 static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
-    UNREFERENCED_PARAMETER(isa);
-    UNREFERENCED_PARAMETER(vm);
-    UNREFERENCED_PARAMETER(context);
     UNREFERENCED_PARAMETER(instructionPc);
+
+    RegisterInt r1 = context->regGp[isa->ReadArgument<uint8>(vm)];
+    IntegerValueType encoding = static_cast<IntegerValueType>(isa->ReadArgument<uint8>(vm));
+
+    IntegerValue c1;
+    VmError err = GetIntegerConstantValueWithEncoding(isa, vm, c1, encoding);
+    if (err != VmError::OK)
+        return err;
+
+    IntegerValue result = r1.GetValue() & c1;
+
+    std::visit([context](auto&& arg)
+    {
+        context->eflags.OverflowFlag = 0;
+        context->eflags.ZeroFlag = (arg == 0);
+        context->eflags.CarryFlag = 0;
+    }, result.GetValue());
+
+    WispExecutionFlags dirtyFlags;
+
+    // These are calculated as usual
+    dirtyFlags.ParityFlag = 1;
+    dirtyFlags.SignFlag = 1;
+
+    SetFlagsForIntegerOperation(context, result, r1.GetValue(), c1);
 
     return VmError::OK;
 }

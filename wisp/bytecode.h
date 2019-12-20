@@ -65,6 +65,20 @@ namespace wisp
 			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, constant.GetValue());
 		}
 
+		void Test(GeneralPurposeRegisters arg1, GeneralPurposeRegisters arg2)
+		{
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::Test));
+			m_bc.push_back(static_cast<uint8>(arg1));
+			m_bc.push_back(static_cast<uint8>(arg2));
+		}
+
+		void Test(GeneralPurposeRegisters arg, IntegerValue constant)
+		{
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::TestConstant));
+			m_bc.push_back(static_cast<uint8>(arg));
+			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, constant.GetValue());
+		}
+
 		void Halt()
 		{
 			m_bc.push_back(static_cast<uint8>(InstructionCodes::Halt));
