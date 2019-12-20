@@ -95,5 +95,10 @@ VmError Vm::ExecuteState()
 
 VmError Vm::ExecuteInstruction()
 {
+    if (!m_memory->CanExecuteAtLocation(m_memory->GetPhysicalMemory() + m_context->regPc.Get()))
+    {
+        return VmError::AccessViolation;
+    }
+
     return m_isa->ExecuteInstruction(this);
 }

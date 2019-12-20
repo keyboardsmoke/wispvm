@@ -215,7 +215,7 @@ typedef std::vector<uint8> ProgramCode;
 
 TEST_CASE("Simple VM")
 {
-    uint64 memorySize = 16000 * 1000; // 16MB
+    uint64 memorySize = 16777216; // 16MB
     vmcore::MemoryModule ram(memorySize);
     SimpleVmContext context;
     SimpleVmISA isa(&context);

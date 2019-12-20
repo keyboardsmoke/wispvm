@@ -22,6 +22,7 @@ namespace vmcore
         ProgramCrcMismatch,
         CorruptProgram,
         RegisterMismatch,
+        AccessViolation,
 
         // The VM will immediately halt execution
         HaltExecution
