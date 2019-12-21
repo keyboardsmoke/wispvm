@@ -43,6 +43,9 @@ namespace wisp
             return m_value.Get<T>();
         }
 
+        void CopyValue(RegisterFP& rhs);
+        void DestroyValue();
+
     private:
         FPValue m_value;
     };

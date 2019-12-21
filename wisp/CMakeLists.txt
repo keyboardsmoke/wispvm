@@ -31,6 +31,7 @@ set(BASE_HEADERS
         program.h
         integer_value.h
         fp_value.h
+        complex_value.h
         register.h
         context.h)
 
@@ -38,6 +39,7 @@ set(BASE_SOURCES
         program.cpp
         integer_value.cpp
         fp_value.cpp
+        complex_value.cpp
         register.cpp)
 
 if (MSVC)

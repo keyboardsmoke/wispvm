@@ -26,6 +26,32 @@ static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
+static VmError MoveFP(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+{
+	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(instructionPc);
+
+	uint8 regIndex1 = encode::ReadArgument<uint8>(vm);
+	uint8 regIndex2 = encode::ReadArgument<uint8>(vm);
+
+	RegisterFP& reg1 = context->regFp[regIndex1];
+	RegisterFP& reg2 = context->regFp[regIndex2];
+
+	reg1.CopyValue(reg2);
+
+	return VmError::OK;
+}
+
+static VmError MoveComplex(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+{
+	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(vm);
+	UNREFERENCED_PARAMETER(context);
+	UNREFERENCED_PARAMETER(instructionPc);
+
+	return VmError::OK;
+}
+
 static VmError MoveConstantInteger(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
@@ -71,6 +97,8 @@ static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 
 vmcore::VmError MoveISAModule::Create(isa_fn* functionList)
 {
 	functionList[static_cast<uint32>(InstructionCodes::Move)] = Move;
+	functionList[static_cast<uint32>(InstructionCodes::MoveFP)] = MoveFP;
+	functionList[static_cast<uint32>(InstructionCodes::MoveComplex)] = MoveComplex;
 	functionList[static_cast<uint32>(InstructionCodes::MoveConstantInteger)] = MoveConstantInteger;
 	functionList[static_cast<uint32>(InstructionCodes::MoveConstantFP)] = MoveConstantFP;
 	functionList[static_cast<uint32>(InstructionCodes::MoveRelative)] = MoveRelative;

@@ -5,9 +5,6 @@
 
 namespace wisp
 {
-    // There are exactly 15 types so that the ValueType can be encoded in 4 bits.
-// We can't support more. If we need to save space for whatever reason,
-// maybe types could be encoded as base type (int/real/native/table/array) and a width code.
     enum class IntegerValueType
     {
         None = 0,
@@ -49,10 +46,10 @@ namespace wisp
             if (!HasValue())
                 return false;
 
-            std::size_t valueAvoidNone = m_value.index() + 1;
+            uint32 currentType = static_cast<uint32>(GetType());
             uint32 intBegin = static_cast<uint32>(IntegerValueType::Int8);
             uint32 intEnd = static_cast<uint32>(IntegerValueType::Int64);
-            return valueAvoidNone >= intBegin && valueAvoidNone <= intEnd;
+            return currentType >= intBegin && currentType <= intEnd;
         }
 
         bool IsUnsignedInteger()
@@ -60,10 +57,10 @@ namespace wisp
             if (!HasValue())
                 return false;
 
-            std::size_t valueAvoidNone = m_value.index() + 1;
+            uint32 currentType = static_cast<uint32>(GetType());
             uint32 intBegin = static_cast<uint32>(IntegerValueType::UInt8);
             uint32 intEnd = static_cast<uint32>(IntegerValueType::UInt64);
-            return valueAvoidNone >= intBegin && valueAvoidNone <= intEnd;
+            return currentType >= intBegin && currentType <= intEnd;
         }
 
         // Setters
@@ -71,7 +68,7 @@ namespace wisp
         {
             m_hasValue = false;
             m_value = value_storage();
-            m_size = GetSizeFromIndex();
+            m_size = 0;
         }
 
         template<typename T>

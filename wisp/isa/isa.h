@@ -33,6 +33,8 @@ namespace wisp
     {
         // General Purpose
         Move,
+        MoveFP,
+        MoveComplex,
         MoveConstantInteger,
         MoveRelative,
         MoveConstantFP,
@@ -55,10 +57,6 @@ namespace wisp
         Test,
         TestConstant,
 
-        // Tables
-
-        // Arrays
-
         // Math (Register to Register only)
         Add,
         Sub,
@@ -74,7 +72,46 @@ namespace wisp
         Shr,
         Unm,
         BNot,
-        Not
+        Not,
+
+        // SystemCall takes an arbitrary amount of operands depending on the call
+        // Some system calls are implemented by wisp, while others are a result of
+        // native function expansion by the user binding against wisp.
+        SystemCall,
+
+        // Below this line are functions which enable non-basic types to function
+        // such as: table, array, they're a little weirder than what you'd expect from bytecode
+        // Each non-basic type is represented by an integer, which is an index into the complexType pool
+
+        // Strings
+        StringCreate,
+        StringClear,
+        StringIsEmpty,
+        StringAppend,
+        StringDestroy,
+
+        // Tables
+        TableCreate,
+        TableClear,
+        TableIsEmpty,
+        TableSetKeyValue,
+        TableGetKeyValue,
+        TableGetPairAtIndex,
+        TableGetSize,
+        TableDestroy,
+
+        // Arrays
+        ArrayCreate,
+        ArrayClear,
+        ArrayIsEmpty,
+        ArrayReserve,
+        ArrayPush,
+        ArrayPop,
+        ArrayInsert,
+        ArrayGetValueAtIndex,
+        ArraySetValueAtIndex,
+        ArrayEraseAtIndex,
+        ArrayDestroy,
     };
 
     class WispISAModule

@@ -5,9 +5,6 @@
 
 namespace wisp
 {
-    // There are exactly 15 types so that the ValueType can be encoded in 4 bits.
-// We can't support more. If we need to save space for whatever reason,
-// maybe types could be encoded as base type (int/real/native/table/array) and a width code.
     enum class FPValueType
     {
         None = 0,
@@ -15,49 +12,53 @@ namespace wisp
         Double,
     };
 
-    // Value is what Register will contain
-    // It is an interface that allows rapid iteration
     class FPValue
     {
     public:
         typedef std::variant<float, double> value_storage;
 
-        FPValue() : m_value() {}
-        FPValue(const value_storage& vs) : m_value(vs) {}
+        FPValue() : m_hasValue(false), m_value(), m_size(0) {}
+        FPValue(const value_storage& vs) : m_hasValue(true), m_value(vs), m_size(GetSizeFromIndex())
+        {
+        }
 
         bool HasValue()
         {
-            return !(m_value.index() == std::variant_npos);
+            return m_hasValue;
         }
 
         bool IsFloat()
         {
-            if (!HasValue())
-                return false;
-
-            return (m_value.index() + 1) == static_cast<std::size_t>(FPValueType::Float);
+            return (GetType() == FPValueType::Float);
         }
 
         bool IsDouble()
         {
-            if (!HasValue())
-                return false;
-
-            return (m_value.index() + 1) == static_cast<std::size_t>(FPValueType::Double);
+            return (GetType() == FPValueType::Double);
         }
 
         // Setters
+        void Clear()
+        {
+            m_hasValue = false;
+            m_value = value_storage();
+            m_size = 0;
+        }
+
         template<typename T>
         void Set(T value)
         {
+            m_hasValue = true;
             m_value = value;
+            m_size = GetSizeFromIndex();
         }
 
         // Getters
         template<typename T>
         T Get()
         {
-            T* pval = std::get_if<T>(m_value);
+            assert(HasValue());
+            T* pval = std::get_if<T>(&m_value);
             assert(pval != nullptr);
             return *pval;
         }
@@ -75,103 +76,10 @@ namespace wisp
             return static_cast<FPValueType>(m_value.index() + 1);
         }
 
-
-        /*
-        friend Value& operator+(Value& a, Value& b);
-        friend Value& operator+(Value& a, int8 b);
-        friend Value& operator+(Value& a, int16 b);
-        friend Value& operator+(Value& a, int32 b);
-        friend Value& operator+(Value& a, int64 b);
-        friend Value& operator+(Value& a, uint8 b);
-        friend Value& operator+(Value& a, uint16 b);
-        friend Value& operator+(Value& a, uint32 b);
-        friend Value& operator+(Value& a, uint64 b);
-        friend Value& operator+(Value& a, float b);
-        friend Value& operator+(Value& a, double b);
-
-        friend Value& operator-(Value& a, Value& b);
-        friend Value& operator-(Value& a, int8 b);
-        friend Value& operator-(Value& a, int16 b);
-        friend Value& operator-(Value& a, int32 b);
-        friend Value& operator-(Value& a, int64 b);
-        friend Value& operator-(Value& a, uint8 b);
-        friend Value& operator-(Value& a, uint16 b);
-        friend Value& operator-(Value& a, uint32 b);
-        friend Value& operator-(Value& a, uint64 b);
-        friend Value& operator-(Value& a, float b);
-        friend Value& operator-(Value& a, double b);
-
-        friend Value& operator*(Value& a, Value& b);
-        friend Value& operator*(Value& a, int8 b);
-        friend Value& operator*(Value& a, int16 b);
-        friend Value& operator*(Value& a, int32 b);
-        friend Value& operator*(Value& a, int64 b);
-        friend Value& operator*(Value& a, uint8 b);
-        friend Value& operator*(Value& a, uint16 b);
-        friend Value& operator*(Value& a, uint32 b);
-        friend Value& operator*(Value& a, uint64 b);
-        friend Value& operator*(Value& a, float b);
-        friend Value& operator*(Value& a, double b);
-
-        friend Value& operator/(Value& a, Value& b);
-        friend Value& operator/(Value& a, int8 b);
-        friend Value& operator/(Value& a, int16 b);
-        friend Value& operator/(Value& a, int32 b);
-        friend Value& operator/(Value& a, int64 b);
-        friend Value& operator/(Value& a, uint8 b);
-        friend Value& operator/(Value& a, uint16 b);
-        friend Value& operator/(Value& a, uint32 b);
-        friend Value& operator/(Value& a, uint64 b);
-        friend Value& operator/(Value& a, float b);
-        friend Value& operator/(Value& a, double b);
-
-        friend Value& operator+=(Value& a, Value& b);
-        friend Value& operator+=(Value& a, int8 b);
-        friend Value& operator+=(Value& a, int16 b);
-        friend Value& operator+=(Value& a, int32 b);
-        friend Value& operator+=(Value& a, int64 b);
-        friend Value& operator+=(Value& a, uint8 b);
-        friend Value& operator+=(Value& a, uint16 b);
-        friend Value& operator+=(Value& a, uint32 b);
-        friend Value& operator+=(Value& a, uint64 b);
-        friend Value& operator+=(Value& a, float b);
-        friend Value& operator+=(Value& a, double b);
-
-        friend Value& operator-=(Value& a, Value& b);
-        friend Value& operator-=(Value& a, int8 b);
-        friend Value& operator-=(Value& a, int16 b);
-        friend Value& operator-=(Value& a, int32 b);
-        friend Value& operator-=(Value& a, int64 b);
-        friend Value& operator-=(Value& a, uint8 b);
-        friend Value& operator-=(Value& a, uint16 b);
-        friend Value& operator-=(Value& a, uint32 b);
-        friend Value& operator-=(Value& a, uint64 b);
-        friend Value& operator-=(Value& a, float b);
-        friend Value& operator-=(Value& a, double b);
-
-        friend Value& operator*=(Value& a, Value& b);
-        friend Value& operator*=(Value& a, int8 b);
-        friend Value& operator*=(Value& a, int16 b);
-        friend Value& operator*=(Value& a, int32 b);
-        friend Value& operator*=(Value& a, int64 b);
-        friend Value& operator*=(Value& a, uint8 b);
-        friend Value& operator*=(Value& a, uint16 b);
-        friend Value& operator*=(Value& a, uint32 b);
-        friend Value& operator*=(Value& a, uint64 b);
-        friend Value& operator*=(Value& a, float b);
-        friend Value& operator*=(Value& a, double b);
-
-        friend Value& operator/=(Value& a, Value& b);
-        friend Value& operator/=(Value& a, int8 b);
-        friend Value& operator/=(Value& a, int16 b);
-        friend Value& operator/=(Value& a, int32 b);
-        friend Value& operator/=(Value& a, int64 b);
-        friend Value& operator/=(Value& a, uint8 b);
-        friend Value& operator/=(Value& a, uint16 b);
-        friend Value& operator/=(Value& a, uint32 b);
-        friend Value& operator/=(Value& a, uint64 b);
-        friend Value& operator/=(Value& a, float b);
-        friend Value& operator/=(Value& a, double b);*/
+        uint32 GetSize() const
+        {
+            return m_size;
+        }
 
         FPValue Add(const FPValue& other);
         FPValue Sub(const FPValue& other);
@@ -179,6 +87,24 @@ namespace wisp
         FPValue Div(const FPValue& other);
 
     private:
+        uint32 GetSizeFromIndex()
+        {
+            if (!HasValue())
+                return 0u;
+
+            switch (static_cast<FPValueType>(m_value.index() + 1))
+            {
+            case FPValueType::Float:
+                return sizeof(float);
+            case FPValueType::Double:
+                return sizeof(double);
+            default:
+                __assume(0);
+            }
+        }
+
+        bool m_hasValue;
         value_storage m_value;
+        uint32 m_size;
     };
 }
