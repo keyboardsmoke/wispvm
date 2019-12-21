@@ -27,6 +27,7 @@ set(ISA_SOURCES
 
 set(BASE_HEADERS
         bytecode.h
+        mm.h
         program.h
         integer_value.h
         fp_value.h

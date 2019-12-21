@@ -5,6 +5,7 @@
 #include "wisp/isa/isa.h"
 #include "vm/vm.h"
 #include "wisp/bytecode.h"
+#include "wisp/mm.h"
 #include <iostream>
 
 using namespace wisp;
@@ -29,10 +30,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
@@ -53,15 +52,11 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
-
-        std::cout << "Type = " << context.regGp[0].GetValue().GetValue().index() << std::endl;
 
         REQUIRE(context.regGp[0].GetValue().GetType() == IntegerValueType::None);
     }
@@ -78,10 +73,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
@@ -107,10 +100,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
@@ -136,10 +127,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
@@ -166,10 +155,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
@@ -191,10 +178,8 @@ TEST_CASE("Wisp Bytecode")
 
         WispContext context;
         WispISA isa;
-        vmcore::MemoryModule mm(0x1000);
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
         vmcore::Vm vm(&context, &mm, &isa);
-
-        memcpy(mm.GetPhysicalMemory(), gen.GetData().data(), gen.GetData().size());
 
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);

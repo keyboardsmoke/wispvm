@@ -4,41 +4,35 @@
 
 namespace vmcore
 {
-    // The default state 
-    struct PageTableEntry
-    {
-        // All permissions by default
-        PageTableEntry() :
-            Readable(1u), Writable(1u), Executable(1u) {}
-
-        PageTableEntry(uint8 read, uint8 write, uint8 execute) :
-            Readable(read), Writable(write), Executable(execute) {}
-
-        uint8 Readable : 1;
-        uint8 Writable : 1;
-        uint8 Executable : 1;
-    };
-    static_assert(sizeof(PageTableEntry) == sizeof(uint8));
-
     class MemoryModule
     {
     public:
         static constexpr const uint32 PageSize = 0x1000;
 
         MemoryModule() = delete;
-        
+
+        MemoryModule(uint8* data, uint64 size) : m_size(size)
+        {
+            // We want to force it to be page aligned, even if they provide a lower value.
+            uint64 allocationSize = PageAlignUp(size);
+
+            // Make sure to initialize these to zero.
+            m_pool = new uint8[allocationSize]();
+
+            // Set initial data, all other reads and writes must go through interfaces
+            memcpy(m_pool, data, size);
+        }
+
         MemoryModule(uint64 totalMemorySize) : m_size(totalMemorySize)
         {
             assert((m_size % PageSize) == 0);
 
             // Make sure to initialize these to zero.
             m_pool = new uint8[totalMemorySize]();
-            m_pageTable = new PageTableEntry[(m_size / PageSize)]();
         }
 
         ~MemoryModule()
         { 
-            delete[] m_pageTable;
             delete[] m_pool;
         }
 
@@ -52,106 +46,32 @@ namespace vmcore
             return PageAlign(address + (PageSize - 1));
         }
 
-        PageTableEntry* GetPageTableEntryForAddress(uint8* dst)
+        virtual bool CanExecute(uint64 offset, uint64 size) = 0;
+        virtual bool CanRead(uint64 offset, uint64 size) = 0;
+        virtual bool CanWrite(uint64 offset, uint64 size) = 0;
+
+        template<typename T>
+        T Read(uint64 offset)
         {
-            if (dst < m_pool || dst >= (m_pool + m_size))
-                return nullptr;
-
-            uint64 offset = static_cast<uint64>(dst - m_pool);
-            uint64 alignedOffset = PageAlign(offset);
-            assert(alignedOffset < m_size);
-            return &m_pageTable[alignedOffset / PageSize];
-        }
-
-        bool MarkPagesWithPermissions(uint8* dst, uint64 size, const PageTableEntry& entry)
-        {
-            if (dst < m_pool || dst >= (m_pool + m_size))
-                return false;
-
-            uint64 offset = static_cast<uint64>(dst - m_pool);
-
-            assert((offset % PageSize) == 0);
-            assert((size % PageSize) == 0);
-
-            size_t startIndex = offset / PageSize;
-
-            for (size_t i = 0; i < (size / PageSize); ++i)
-            {
-                m_pageTable[startIndex + i] = entry;
-            }
-
-            return true;
-        }
-
-        void WriteMemoryWithPagePermissions(uint8* dst, uint8* src, uint64 size, const PageTableEntry& entry)
-        {
-            memcpy(dst, src, size);
-
-            size = PageAlignUp(size); // We mark the entire page
-            MarkPagesWithPermissions(dst, size, entry);
+            T ret;
+            assert(Read(offset, &ret, sizeof(T)));
+            return ret;
         }
 
         template<typename T>
-        T ReadWithPermissions(uint8* dst)
+        void Write(uint64 offset, const T& data)
         {
-            PageTableEntry* beg = GetPageTableEntryForAddress(dst);
-            PageTableEntry* end = GetPageTableEntryForAddress(dst + sizeof(T));
-            assert(beg != nullptr && end != nullptr);
-
-            if (beg == end)
-            {
-                assert(beg->Readable == 1u);
-            }
-            else
-            {
-                assert(beg->Readable == 1u && end->Readable == 1u);
-            }
-
-            return *reinterpret_cast<T*>(&dst[0]);
+            assert(Write(offset, const_cast<T*>(&data), sizeof(T)));
         }
 
-        template<typename T>
-        void WriteWithPermissions(uint8* dst, const T& value)
-        {
-            PageTableEntry* beg = GetPageTableEntryForAddress(dst);
-            PageTableEntry* end = GetPageTableEntryForAddress(dst + sizeof(T));
-            assert(beg != nullptr && end != nullptr);
+        virtual bool Read(uint64 offset, void* data, uint64 size);
+        virtual bool Write(uint64 offset, void* data, uint64 size);
 
-            if (beg == end)
-            {
-                assert(beg->Writable == 1u);
-            }
-            else
-            {
-                assert(beg->Writable == 1u && end->Writable == 1u);
-            }
-
-            *reinterpret_cast<T*>(&dst[0]) = value;
-        }
-
-        bool CanExecuteAtLocation(uint8* dst)
-        {
-            PageTableEntry* pte = GetPageTableEntryForAddress(dst);
-            assert(pte != nullptr);
-            return (pte->Executable == 1u);
-        }
-
-        uint8* GetPhysicalMemory()
-        {
-            return m_pool;
-        }
-
-        uint64 GetPhysicalMemorySize()
-        {
-            return m_size;
-        }
-
-    private:
+    protected:
+        // Marked as protected in case a class that inherets wants to expose these
+        // It isn't recommended, but if you don't want to simulate page protections
+        // It's probably a lot easier.
         uint8* m_pool;
         uint64 m_size;
-        PageTableEntry* m_pageTable;
-
-        // The underlying OS will take care of paging in/out memory as needed
-        // but we have to take care of permissions. Every page's permissions are readable by default.
     };
 }

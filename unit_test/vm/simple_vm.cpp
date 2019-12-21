@@ -18,6 +18,28 @@ public:
     SimpleVmRegister regGeneral[32];
 };
 
+class SimpleVmMemoryModule : public vmcore::MemoryModule
+{
+public:
+    SimpleVmMemoryModule(uint8* data, uint64 size) : vmcore::MemoryModule(data, size) {}
+    SimpleVmMemoryModule(uint64 totalMemorySize) : vmcore::MemoryModule(totalMemorySize) {}
+
+    bool CanExecute(uint64 offset, uint64 size) override
+    {
+        return true;
+    }
+
+    bool CanRead(uint64 offset, uint64 size) override
+    {
+        return true;
+    }
+
+    bool CanWrite(uint64 offset, uint64 size) override
+    {
+        return true;
+    }
+};
+
 class SimpleVmISA : public vmcore::ISA
 {
 public:
@@ -45,7 +67,7 @@ public:
     vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override
     {
         uint64 oldPc = vm->GetContext()->regPc.Get();
-        uint8 id = *(vm->GetMemory()->GetPhysicalMemory() + oldPc);
+        uint8 id = vm->GetMemory()->Read<uint8>(oldPc);
         vm->GetContext()->regPc.Advance(sizeof(uint8));
         uint64 newPc = vm->GetContext()->regPc.Get();
 
@@ -188,7 +210,7 @@ private:
     template<typename T>
     T ReadArgument(vmcore::Vm* vm)
     {
-        T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
+        T ret = vm->GetMemory()->Read<T>(vm->GetContext()->regPc.Get());
         vm->GetContext()->regPc.Advance(sizeof(T));
         return ret;
     }
@@ -215,12 +237,6 @@ typedef std::vector<uint8> ProgramCode;
 
 TEST_CASE("Simple VM")
 {
-    uint64 memorySize = 16777216; // 16MB
-    vmcore::MemoryModule ram(memorySize);
-    SimpleVmContext context;
-    SimpleVmISA isa(&context);
-    vmcore::Vm instance(&context, &ram, &isa);
-
     const uint8 reg0 = 0;
     const uint8 reg1 = 1;
     const uint8 reg2 = 2;
@@ -243,9 +259,12 @@ TEST_CASE("Simple VM")
         SimpleVmISA::InstructionId::End
     };
 
-    // memset(ram.GetPhysicalMemory(), 0, ram.GetPhysicalMemorySize());
 
-    memcpy(ram.GetPhysicalMemory(), programCode, sizeof(programCode));
+    uint64 memorySize = 16777216; // 16MB
+    SimpleVmMemoryModule ram(programCode, sizeof(programCode));
+    SimpleVmContext context;
+    SimpleVmISA isa(&context);
+    vmcore::Vm instance(&context, &ram, &isa);
 
     vmcore::VmError err = instance.Execute(0);
 

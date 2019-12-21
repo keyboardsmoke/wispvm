@@ -95,7 +95,9 @@ VmError Vm::ExecuteState()
 
 VmError Vm::ExecuteInstruction()
 {
-    if (!m_memory->CanExecuteAtLocation(m_memory->GetPhysicalMemory() + m_context->regPc.Get()))
+    // TODO: We want to check to see if the tail can execute too, don't we?...
+
+    if (!m_memory->CanExecute(m_context->regPc.Get(), 1u))
     {
         return VmError::AccessViolation;
     }

@@ -12,7 +12,7 @@ namespace wisp
 		template<typename T>
 		T ReadArgument(vmcore::Vm* vm)
 		{
-			T ret = *reinterpret_cast<T*>(vm->GetMemory()->GetPhysicalMemory() + vm->GetContext()->regPc.Get());
+			T ret = vm->GetMemory()->Read<T>(vm->GetContext()->regPc.Get());
 			vm->GetContext()->regPc.Advance(sizeof(T));
 			return ret;
 		}

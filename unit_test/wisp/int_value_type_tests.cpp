@@ -44,8 +44,6 @@ TEST_CASE("Integer Values")
 		auto r = a ^ b;
 		wisp::IntegerValue ir = i1.Xor(i2);
 
-		std::cout << "Type = " << GetVariantType(ir.GetValue()).name() << std::endl;
-
 		REQUIRE(typeid(r) == GetVariantType(ir.GetValue()));
 		REQUIRE(ir.Get<decltype(r)>() == r);
 	}
