@@ -21,15 +21,14 @@
 
 #include "vm/vm.h"
 
-#include "integer_value.h"
-#include "fp_value.h"
+#include "value.h"
 
 namespace wisp
 {
-    class RegisterFP
+    class Register
     {
     public:
-        RegisterFP() : m_value() {}
+        Register() : m_value() {}
 
         template<typename T>
         void Set(T value)
@@ -43,39 +42,15 @@ namespace wisp
             return m_value.Get<T>();
         }
 
-        void CopyValue(RegisterFP& rhs);
-        void DestroyValue();
-
-    private:
-        FPValue m_value;
-    };
-
-    class RegisterInt
-    {
-    public:
-        RegisterInt() : m_value() {}
-
-        template<typename T>
-        void Set(T value)
-        {
-            m_value.Set<T>(value);
-        }
-
-        template<typename T>
-        T Get()
-        {
-            return m_value.Get<T>();
-        }
-
-        IntegerValue& GetValue()
+        Value& GetValue()
         {
             return m_value;
         }
 
-        void CopyValue(RegisterInt& rhs);
+        void CopyValue(Register& rhs);
         void DestroyValue();
 
     private:
-        IntegerValue m_value;
+        Value m_value;
     };
 }

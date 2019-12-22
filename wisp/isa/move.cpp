@@ -18,36 +18,10 @@ static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	uint8 regIndex1 = encode::ReadArgument<uint8>(vm);
 	uint8 regIndex2 = encode::ReadArgument<uint8>(vm);
 
-	RegisterInt& reg1 = context->regGp[regIndex1];
-	RegisterInt& reg2 = context->regGp[regIndex2];
+	Register& reg1 = context->regGp[regIndex1];
+	Register& reg2 = context->regGp[regIndex2];
 
 	reg1.CopyValue(reg2);
-
-	return VmError::OK;
-}
-
-static VmError MoveFP(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
-{
-	UNREFERENCED_PARAMETER(isa);
-	UNREFERENCED_PARAMETER(instructionPc);
-
-	uint8 regIndex1 = encode::ReadArgument<uint8>(vm);
-	uint8 regIndex2 = encode::ReadArgument<uint8>(vm);
-
-	RegisterFP& reg1 = context->regFp[regIndex1];
-	RegisterFP& reg2 = context->regFp[regIndex2];
-
-	reg1.CopyValue(reg2);
-
-	return VmError::OK;
-}
-
-static VmError MoveComplex(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
-{
-	UNREFERENCED_PARAMETER(isa);
-	UNREFERENCED_PARAMETER(vm);
-	UNREFERENCED_PARAMETER(context);
-	UNREFERENCED_PARAMETER(instructionPc);
 
 	return VmError::OK;
 }
@@ -58,7 +32,7 @@ static VmError MoveConstantInteger(WispISA* isa, Vm* vm, WispContext* context, u
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
-	RegisterInt& reg = context->regGp[regIndex];
+	Register& reg = context->regGp[regIndex];
 	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
 	return encode::SetIntegerRegisterValueWithEncoding(vm, reg, encoding);
 }
@@ -69,7 +43,7 @@ static VmError MoveConstantFP(WispISA* isa, Vm* vm, WispContext* context, uint64
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
-	RegisterFP& reg = context->regFp[regIndex];
+	Register& reg = context->regGp[regIndex];
 	FPValueType encoding = static_cast<FPValueType>(encode::ReadArgument<uint8>(vm));
 	return encode::SetFPRegisterValueWithEncoding(vm, reg, encoding);
 }
@@ -79,7 +53,7 @@ static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	UNREFERENCED_PARAMETER(isa);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
-	RegisterInt& reg = context->regGp[regIndex];
+	Register& reg = context->regGp[regIndex];
 	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
 	return encode::SetIntegerRegisterValueWithEncoding(vm, reg, encoding, instructionPc);
 }
@@ -97,8 +71,6 @@ static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 
 vmcore::VmError MoveISAModule::Create(isa_fn* functionList)
 {
 	functionList[static_cast<uint32>(InstructionCodes::Move)] = Move;
-	functionList[static_cast<uint32>(InstructionCodes::MoveFP)] = MoveFP;
-	functionList[static_cast<uint32>(InstructionCodes::MoveComplex)] = MoveComplex;
 	functionList[static_cast<uint32>(InstructionCodes::MoveConstantInteger)] = MoveConstantInteger;
 	functionList[static_cast<uint32>(InstructionCodes::MoveConstantFP)] = MoveConstantFP;
 	functionList[static_cast<uint32>(InstructionCodes::MoveRelative)] = MoveRelative;

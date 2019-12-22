@@ -36,11 +36,13 @@ TEST_CASE("Wisp Bytecode")
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
 
-        REQUIRE(context.regGp[0].GetValue().GetType() == IntegerValueType::UInt16);
-        REQUIRE(context.regGp[1].GetValue().GetType() == IntegerValueType::UInt16);
+        REQUIRE(context.regGp[0].GetValue().GetType() == ValueType::Integer);
+        REQUIRE(context.regGp[0].GetValue().Get<IntegerValue>().GetType() == IntegerValueType::UInt16);
+        REQUIRE(context.regGp[1].GetValue().GetType() == ValueType::Integer);
+        REQUIRE(context.regGp[1].GetValue().Get<IntegerValue>().GetType() == IntegerValueType::UInt16);
 
-        REQUIRE(context.regGp[0].GetValue().Get<uint16>() == 1);
-        REQUIRE(context.regGp[1].GetValue().Get<uint16>() == 1);
+        REQUIRE(context.regGp[0].GetValue().Get<IntegerValue>().Get<uint16>() == 1);
+        REQUIRE(context.regGp[1].GetValue().Get<IntegerValue>().Get<uint16>() == 1);
     }
 
     SUBCASE("Register Clear")
@@ -58,7 +60,7 @@ TEST_CASE("Wisp Bytecode")
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
 
-        REQUIRE(context.regGp[0].GetValue().GetType() == IntegerValueType::None);
+        REQUIRE(context.regGp[0].GetValue().GetType() == ValueType::None);
     }
 
     SUBCASE("Compare and flags")
@@ -162,7 +164,7 @@ TEST_CASE("Wisp Bytecode")
         REQUIRE(err == vmcore::VmError::OK);
 
         REQUIRE(context.eflags.ZeroFlag == 1);
-        REQUIRE(context.regGp[1].Get<uint8>() == 20);
+        REQUIRE(context.regGp[1].Get<IntegerValue>().Get<uint8>() == 20);
     }
 
     SUBCASE("Compare greater than and conditional jump")
@@ -184,6 +186,6 @@ TEST_CASE("Wisp Bytecode")
         auto err = vm.Execute(0);
         REQUIRE(err == vmcore::VmError::OK);
 
-        REQUIRE(context.regGp[1].Get<uint8>() == 20);
+        REQUIRE(context.regGp[1].Get<IntegerValue>().Get<uint8>() == 20);
     }
 }

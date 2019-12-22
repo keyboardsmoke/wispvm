@@ -106,27 +106,6 @@ namespace wisp
         Count
     };
 
-    enum class FloatingPointRegisters
-    {
-        FP0,
-        FP1,
-        FP2,
-        FP3,
-        FP4,
-        FP5,
-        FP6,
-        FP7,
-        FP8,
-        FP9,
-        FP10,
-        FP11,
-        FP12,
-        FP13,
-        FP14,
-        FP15,
-        Count
-    };
-
     enum class ArgumentRegisters
     {
         ARG0,
@@ -155,17 +134,14 @@ namespace wisp
         // uint8 GetRegisterId(RegisterFP& reg);
 
         // General purpose registers
-        RegisterInt regGp[static_cast<int>(GeneralPurposeRegisters::Count)];
-
-        // Floating point registers
-        RegisterFP regFp[static_cast<int>(FloatingPointRegisters::Count)];
+        Register regGp[static_cast<int>(GeneralPurposeRegisters::Count)];
 
         // Function Registers
-        RegisterInt regAp[static_cast<int>(ArgumentRegisters::Count)];
-        RegisterInt regRp;
+        Register regAp[static_cast<int>(ArgumentRegisters::Count)];
+        Register regRp;
 
         // Stack Pointer
-        RegisterInt regSp;
+        Register regSp;
 
         // Execution Flags
         WispExecutionFlags eflags;

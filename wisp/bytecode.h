@@ -25,6 +25,11 @@ namespace wisp
 			return ret;
 		}
 		
+		uint32 Mov(GeneralPurposeRegisters dst, Value value)
+		{
+			return std::visit([this, dst](auto&& arg) -> auto { return Mov(dst, arg); }, value.GetValue());
+		}
+
 		uint32 Mov(GeneralPurposeRegisters dst, IntegerValue value)
 		{
 			uint32 ret = static_cast<uint32>(m_bc.size());
@@ -34,7 +39,7 @@ namespace wisp
 			return ret;
 		}
 
-		uint32 Mov(FloatingPointRegisters dst, FPValue value)
+		uint32 Mov(GeneralPurposeRegisters dst, FPValue value)
 		{
 			uint32 ret = static_cast<uint32>(m_bc.size());
 			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstantFP));
@@ -187,6 +192,24 @@ namespace wisp
 			m_bc.push_back(static_cast<uint8>(FPValueType::Double));
 			WriteDataType(value);
 		}
+
+		// Functions to take care of visitors that shouldn't ever happen
+
+		uint32 Mov(GeneralPurposeRegisters dst, StringValue value)
+		{
+			assert(false);
+		}
+
+		uint32 Mov(GeneralPurposeRegisters dst, TableValue value)
+		{
+			assert(false);
+		}
+
+		uint32 Mov(GeneralPurposeRegisters dst, ArrayValue value)
+		{
+			assert(false);
+		}
+
 
 		std::vector<uint8> m_bc;
 	};

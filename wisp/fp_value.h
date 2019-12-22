@@ -81,10 +81,52 @@ namespace wisp
             return m_size;
         }
 
-        FPValue Add(const FPValue& other);
-        FPValue Sub(const FPValue& other);
-        FPValue Mul(const FPValue& other);
-        FPValue Div(const FPValue& other);
+        friend FPValue operator+(const FPValue& a, const FPValue& b)
+        {
+            return a.Add(b);
+        }
+
+        friend FPValue operator-(const FPValue& a, const FPValue& b)
+        {
+            return a.Sub(b);
+        }
+
+        friend FPValue operator*(const FPValue& a, const FPValue& b)
+        {
+            return a.Mul(b);
+        }
+
+        friend FPValue operator/(const FPValue& a, const FPValue& b)
+        {
+            return a.Div(b);
+        }
+
+        friend FPValue operator+=(FPValue a, FPValue b)
+        {
+            a = a.Add(b);
+        }
+
+        friend FPValue operator-=(FPValue a, FPValue b)
+        {
+            a = a.Sub(b);
+        }
+
+        friend FPValue operator*=(FPValue a, FPValue b)
+        {
+            a = a.Mul(b);
+            return a;
+        }
+
+        friend FPValue operator/=(FPValue a, FPValue b)
+        {
+            a = a.Div(b);
+            return a;
+        }
+
+        FPValue Add(const FPValue& other) const;
+        FPValue Sub(const FPValue& other) const;
+        FPValue Mul(const FPValue& other) const;
+        FPValue Div(const FPValue& other) const;
 
     private:
         uint32 GetSizeFromIndex()

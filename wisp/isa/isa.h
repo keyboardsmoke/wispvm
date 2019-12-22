@@ -33,11 +33,9 @@ namespace wisp
     {
         // General Purpose
         Move,
-        MoveFP,
-        MoveComplex,
         MoveConstantInteger,
-        MoveRelative,
         MoveConstantFP,
+        MoveRelative,
         ClearRegister,
 
         // Memory

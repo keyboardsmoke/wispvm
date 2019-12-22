@@ -7,22 +7,12 @@ using namespace vmcore;
 
 using namespace wisp;
 
-void RegisterFP::CopyValue(RegisterFP& rhs)
+void Register::CopyValue(Register& rhs)
 {
     this->m_value = rhs.m_value;
 }
 
-void RegisterFP::DestroyValue()
+void Register::DestroyValue()
 {
-    m_value = FPValue();
-}
-
-void RegisterInt::CopyValue(RegisterInt& rhs)
-{
-    this->m_value = rhs.m_value;
-}
-
-void RegisterInt::DestroyValue()
-{
-    m_value = IntegerValue();
+    m_value = Value();
 }
