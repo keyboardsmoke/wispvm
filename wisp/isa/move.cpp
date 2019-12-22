@@ -26,26 +26,14 @@ static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
-static VmError MoveConstantInteger(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError MoveConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
 	Register& reg = context->regGp[regIndex];
-	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
-	return encode::SetIntegerRegisterValueWithEncoding(vm, reg, encoding);
-}
-
-static VmError MoveConstantFP(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
-{
-	UNREFERENCED_PARAMETER(isa);
-	UNREFERENCED_PARAMETER(instructionPc);
-
-	uint8 regIndex = encode::ReadArgument<uint8>(vm);
-	Register& reg = context->regGp[regIndex];
-	FPValueType encoding = static_cast<FPValueType>(encode::ReadArgument<uint8>(vm));
-	return encode::SetFPRegisterValueWithEncoding(vm, reg, encoding);
+	return encode::ReadValueWithEncodingToRegister(vm, reg);
 }
 
 static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
@@ -54,8 +42,29 @@ static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
 	Register& reg = context->regGp[regIndex];
-	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
-	return encode::SetIntegerRegisterValueWithEncoding(vm, reg, encoding, instructionPc);
+
+	Value value;
+	VmError err = encode::ReadValueWithEncoding(vm, value);
+	if (err != VmError::OK)
+		return err;
+
+	assert(value.IsIntegerValue());
+
+	IntegerValue ival = value.Get<IntegerValue>();
+
+	uint64 target = std::visit([instructionPc](auto&& arg) -> uint64
+	{
+		return static_cast<uint64>(
+			(std::is_signed_v<decltype(arg)> ? static_cast<int64>(instructionPc) : instructionPc) + arg
+		);
+	}, 
+	ival.GetValue());
+
+	IntegerValue destValue;
+	destValue.Set(target);
+	reg.Set(destValue);
+
+	return VmError::OK;
 }
 
 static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
@@ -71,8 +80,7 @@ static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 
 vmcore::VmError MoveISAModule::Create(isa_fn* functionList)
 {
 	functionList[static_cast<uint32>(InstructionCodes::Move)] = Move;
-	functionList[static_cast<uint32>(InstructionCodes::MoveConstantInteger)] = MoveConstantInteger;
-	functionList[static_cast<uint32>(InstructionCodes::MoveConstantFP)] = MoveConstantFP;
+	functionList[static_cast<uint32>(InstructionCodes::MoveConstant)] = MoveConstant;
 	functionList[static_cast<uint32>(InstructionCodes::MoveRelative)] = MoveRelative;
 	functionList[static_cast<uint32>(InstructionCodes::ClearRegister)] = ClearRegister;
 

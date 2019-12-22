@@ -13,6 +13,7 @@ set(ISA_HEADERS
         isa/integer_math.h
         isa/load_store.h
         isa/move.h
+        isa/string.h
         )
 
 set(ISA_SOURCES
@@ -23,12 +24,14 @@ set(ISA_SOURCES
         isa/integer_math.cpp
         isa/load_store.cpp
         isa/move.cpp
+        isa/string.cpp
         )
 
 set(BASE_HEADERS
         bytecode.h
         mm.h
         program.h
+        value.h
         integer_value.h
         fp_value.h
         complex_value.h
@@ -37,6 +40,7 @@ set(BASE_HEADERS
 
 set(BASE_SOURCES
         program.cpp
+        value.cpp
         integer_value.cpp
         fp_value.cpp
         complex_value.cpp

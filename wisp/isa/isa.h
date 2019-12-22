@@ -33,8 +33,7 @@ namespace wisp
     {
         // General Purpose
         Move,
-        MoveConstantInteger,
-        MoveConstantFP,
+        MoveConstant,
         MoveRelative,
         ClearRegister,
 
@@ -83,6 +82,8 @@ namespace wisp
 
         // Strings
         StringCreate,
+        StringSet,
+        StringGet,
         StringClear,
         StringIsEmpty,
         StringAppend,
@@ -90,6 +91,7 @@ namespace wisp
 
         // Tables
         TableCreate,
+        TableGet,
         TableClear,
         TableIsEmpty,
         TableSetKeyValue,
@@ -99,6 +101,7 @@ namespace wisp
 
         // Arrays
         ArrayCreate,
+        ArrayGet,
         ArrayClear,
         ArrayIsEmpty,
         ArrayReserve,

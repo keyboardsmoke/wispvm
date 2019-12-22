@@ -33,7 +33,7 @@ namespace wisp
 		uint32 Mov(GeneralPurposeRegisters dst, IntegerValue value)
 		{
 			uint32 ret = static_cast<uint32>(m_bc.size());
-			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstantInteger));
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstant));
 			m_bc.push_back(static_cast<uint8>(dst));
 			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, value.GetValue());
 			return ret;
@@ -42,7 +42,7 @@ namespace wisp
 		uint32 Mov(GeneralPurposeRegisters dst, FPValue value)
 		{
 			uint32 ret = static_cast<uint32>(m_bc.size());
-			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstantFP));
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstant));
 			m_bc.push_back(static_cast<uint8>(dst));
 			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, value.GetValue());
 			return ret;
@@ -135,60 +135,70 @@ namespace wisp
 
 		void WriteEncodedValue(int8 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::Int8));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(int16 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::Int16));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(int32 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::Int32));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(int64 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::Int64));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(uint8 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::UInt8));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(uint16 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::UInt16));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(uint32 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::UInt32));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(uint64 value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::Integer));
 			m_bc.push_back(static_cast<uint8>(IntegerValueType::UInt64));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(float value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::FP));
 			m_bc.push_back(static_cast<uint8>(FPValueType::Float));
 			WriteDataType(value);
 		}
 
 		void WriteEncodedValue(double value)
 		{
+			m_bc.push_back(static_cast<uint8>(ValueType::FP));
 			m_bc.push_back(static_cast<uint8>(FPValueType::Double));
 			WriteDataType(value);
 		}

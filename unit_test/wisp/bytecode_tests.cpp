@@ -149,7 +149,7 @@ TEST_CASE("Wisp Bytecode")
         ByteCodeGenerator gen;
         gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
         gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
-        gen.ConditionalJump(ConditionCode::Zero, IntegerValue(static_cast<uint8>(9))); // We have to calculate this manually for now...
+        gen.ConditionalJump(ConditionCode::Zero, IntegerValue(static_cast<uint8>(11))); // We have to calculate this manually for now...
         gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(10)));
         gen.Halt();
         gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(20)));
@@ -172,7 +172,7 @@ TEST_CASE("Wisp Bytecode")
         ByteCodeGenerator gen;
         gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(1)));
         gen.Compare(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint8>(0)));
-        gen.ConditionalJump(ConditionCode::GreaterThan, IntegerValue(static_cast<uint8>(9))); // We have to calculate this manually for now...
+        gen.ConditionalJump(ConditionCode::GreaterThan, IntegerValue(static_cast<uint8>(11))); // We have to calculate this manually for now...
         gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(10)));
         gen.Halt();
         gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint8>(20)));

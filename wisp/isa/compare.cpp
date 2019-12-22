@@ -120,18 +120,20 @@ static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint6
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
-	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
 
-	IntegerValue c1;
-	VmError err = encode::GetIntegerConstantValueWithEncoding(vm, c1, encoding);
+	Value c1;
+	VmError err = encode::ReadValueWithEncoding(vm, c1);
 	if (err != VmError::OK)
 		return err;
 
+	assert(c1.GetType() == ValueType::Integer);
+
 	IntegerValue i1 = r1.GetValue().Get<IntegerValue>();
+	IntegerValue i2 = c1.Get<IntegerValue>();
 
-	IntegerValue result = i1 - c1.GetValue();
+	IntegerValue result = i1 - i2.GetValue();
 
-	SetFlagsForIntegerOperation(context, result, i1, c1);
+	SetFlagsForIntegerOperation(context, result, i1, i2);
 
 	return VmError::OK;
 }
@@ -173,16 +175,18 @@ static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
-	IntegerValueType encoding = static_cast<IntegerValueType>(encode::ReadArgument<uint8>(vm));
 
-	IntegerValue c1;
-	VmError err = encode::GetIntegerConstantValueWithEncoding(vm, c1, encoding);
+	Value c1;
+	VmError err = encode::ReadValueWithEncoding(vm, c1);
 	if (err != VmError::OK)
 		return err;
 
-	IntegerValue i1 = r1.GetValue().Get<IntegerValue>();
+	assert(c1.GetType() == ValueType::Integer);
 
-	IntegerValue result = i1 & c1;
+	IntegerValue i1 = r1.GetValue().Get<IntegerValue>();
+	IntegerValue i2 = c1.Get<IntegerValue>();
+
+	IntegerValue result = i1 & i2;
 
 	std::visit([context](auto&& arg)
 		{
@@ -197,7 +201,7 @@ static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	dirtyFlags.ParityFlag = 1;
 	dirtyFlags.SignFlag = 1;
 
-	SetFlagsForIntegerOperation(context, result, i1, c1);
+	SetFlagsForIntegerOperation(context, result, i1, i2);
 
 	return VmError::OK;
 }

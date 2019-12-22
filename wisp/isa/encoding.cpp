@@ -10,132 +10,93 @@
 using namespace wisp;
 using namespace vmcore;
 
-VmError encode::SetIntegerRegisterValueWithEncoding(Vm* vm, Register& reg, IntegerValueType encoding, uint64 base)
+static VmError ReadIntegerValueWithEncoding(Vm* vm, IntegerValueType type, Value& value)
 {
-	IntegerValue value;
+	IntegerValue ival;
 
-	switch (encoding)
+	switch (type)
 	{
 	case IntegerValueType::Int8:
-		value.Set<int8>(static_cast<int8>(base) + encode::ReadArgument<int8>(vm));
+		ival.Set<int8>(encode::ReadArgument<int8>(vm));
 		break;
 	case IntegerValueType::Int16:
-		value.Set<int16>(static_cast<int16>(base) + encode::ReadArgument<int16>(vm));
+		ival.Set<int16>(encode::ReadArgument<int16>(vm));
 		break;
 	case IntegerValueType::Int32:
-		value.Set<int32>(static_cast<int32>(base) + encode::ReadArgument<int32>(vm));
+		ival.Set<int32>(encode::ReadArgument<int32>(vm));
 		break;
 	case IntegerValueType::Int64:
-		value.Set<int64>(static_cast<int64>(base) + encode::ReadArgument<int64>(vm));
+		ival.Set<int64>(encode::ReadArgument<int64>(vm));
 		break;
 	case IntegerValueType::UInt8:
-		value.Set<uint8>(static_cast<uint8>(base) + encode::ReadArgument<uint8>(vm));
+		ival.Set<uint8>(encode::ReadArgument<uint8>(vm));
 		break;
 	case IntegerValueType::UInt16:
-		value.Set<uint16>(static_cast<uint16>(base) + encode::ReadArgument<uint16>(vm));
+		ival.Set<uint16>(encode::ReadArgument<uint16>(vm));
 		break;
 	case IntegerValueType::UInt32:
-		value.Set<uint32>(static_cast<uint32>(base) + encode::ReadArgument<uint32>(vm));
+		ival.Set<uint32>(encode::ReadArgument<uint32>(vm));
 		break;
 	case IntegerValueType::UInt64:
-		value.Set<uint64>(static_cast<uint64>(base) + encode::ReadArgument<uint64>(vm));
+		ival.Set<uint64>(encode::ReadArgument<uint64>(vm));
 		break;
 	default:
 		return VmError::InvalidInstruction;
 	}
 
-	reg.Set(value);
+	value.Set(ival);
 
 	return VmError::OK;
 }
 
-VmError encode::GetIntegerConstantValueWithEncoding(Vm* vm, IntegerValue& value, IntegerValueType encoding)
+static VmError ReadFloatingPointValueWithEncoding(vmcore::Vm* vm, FPValueType type, Value& value)
 {
-	switch (encoding)
-	{
-	case IntegerValueType::Int8:
-		value.Set<int8>(encode::ReadArgument<int8>(vm));
-		break;
-	case IntegerValueType::Int16:
-		value.Set<int16>(encode::ReadArgument<int16>(vm));
-		break;
-	case IntegerValueType::Int32:
-		value.Set<int32>(encode::ReadArgument<int32>(vm));
-		break;
-	case IntegerValueType::Int64:
-		value.Set<int64>(encode::ReadArgument<int64>(vm));
-		break;
-	case IntegerValueType::UInt8:
-		value.Set<uint8>(encode::ReadArgument<uint8>(vm));
-		break;
-	case IntegerValueType::UInt16:
-		value.Set<uint16>(encode::ReadArgument<uint16>(vm));
-		break;
-	case IntegerValueType::UInt32:
-		value.Set<uint32>(encode::ReadArgument<uint32>(vm));
-		break;
-	case IntegerValueType::UInt64:
-		value.Set<uint64>(encode::ReadArgument<uint64>(vm));
-		break;
-	default:
-		return VmError::InvalidInstruction;
-	}
+	FPValue fval;
 
-	return VmError::OK;
-}
-
-VmError encode::SetFPRegisterValueWithEncoding(Vm* vm, Register& reg, FPValueType encoding)
-{
-	FPValue value;
-
-	switch (encoding)
+	switch (type)
 	{
 	case FPValueType::Float:
-		value.Set<float>(encode::ReadArgument<float>(vm));
+		fval.Set<float>(encode::ReadArgument<float>(vm));
 		break;
 	case FPValueType::Double:
-		value.Set<double>(encode::ReadArgument<double>(vm));
+		fval.Set<double>(encode::ReadArgument<double>(vm));
 		break;
 	default:
 		return VmError::InvalidInstruction;
 	}
 
-	reg.Set(value);
+	value.Set(fval);
 
 	return VmError::OK;
 }
 
-VmError encode::GetRelativeAddressDestinationFromPc(vmcore::Vm* vm, WispContext* context, uint8 encoding, uint64 pc, uint64* addr)
+VmError encode::ReadValueWithEncoding(vmcore::Vm* vm, Value& value)
 {
-	UNREFERENCED_PARAMETER(context);
+	uint8 group = ReadArgument<uint8>(vm);
+	uint8 encoding = ReadArgument<uint8>(vm);
 
-	switch (static_cast<IntegerValueType>(encoding))
+	switch (static_cast<ValueType>(group))
 	{
-	case IntegerValueType::Int8:
-		*addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int8>(vm));
-		return VmError::OK;
-	case IntegerValueType::Int16:
-		*addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int16>(vm));
-		return VmError::OK;
-	case IntegerValueType::Int32:
-		*addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int32>(vm));
-		return VmError::OK;
-	case IntegerValueType::Int64:
-		*addr = static_cast<uint64>(static_cast<int64>(pc) + ReadArgument<int64>(vm));
-		return VmError::OK;
-	case IntegerValueType::UInt8:
-		*addr = pc + ReadArgument<uint8>(vm);
-		return VmError::OK;
-	case IntegerValueType::UInt16:
-		*addr = pc + ReadArgument<uint16>(vm);
-		return VmError::OK;
-	case IntegerValueType::UInt32:
-		*addr = pc + ReadArgument<uint32>(vm);
-		return VmError::OK;
-	case IntegerValueType::UInt64:
-		*addr = pc + ReadArgument<uint64>(vm);
-		return VmError::OK;
+	case ValueType::Integer:
+		return ReadIntegerValueWithEncoding(vm, static_cast<IntegerValueType>(encoding), value);
+	case ValueType::FP:
+		return ReadFloatingPointValueWithEncoding(vm, static_cast<FPValueType>(encoding), value);
+	default:
+		assert(false);
+		break;
 	}
 
 	return VmError::InvalidInstruction;
+}
+
+VmError encode::ReadValueWithEncodingToRegister(vmcore::Vm* vm, Register& reg)
+{
+	Value val;
+	VmError err = ReadValueWithEncoding(vm, val);
+	if (err != VmError::OK)
+		return err;
+
+	reg.SetValue(val);
+
+	return VmError::OK;
 }

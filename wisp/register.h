@@ -42,6 +42,11 @@ namespace wisp
             return m_value.Get<T>();
         }
 
+        void SetValue(const Value& value)
+        {
+            m_value = value;
+        }
+
         Value& GetValue()
         {
             return m_value;

@@ -14,14 +14,26 @@ static VmError Jump(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 {
 	UNREFERENCED_PARAMETER(isa);
 
-	uint8 encoding = encode::ReadArgument<uint8>(vm);
-
-	uint64 dest = 0;
-	VmError err = encode::GetRelativeAddressDestinationFromPc(vm, context, encoding, instructionPc, &dest);
+	Value delta;
+	VmError err = encode::ReadValueWithEncoding(vm, delta);
 	if (err != VmError::OK)
 		return err;
 
-	context->regPc.GoTo(dest);
+	assert(delta.IsIntegerValue());
+
+	IntegerValue deltaInteger = delta.Get<IntegerValue>();
+
+	uint64 pc = instructionPc;
+
+	std::visit([&pc](auto&& arg)
+	{
+		pc = static_cast<uint64>(
+			(std::is_signed_v<decltype(arg)> ? static_cast<int64>(pc) : pc) + arg
+		);
+	}, 
+	deltaInteger.GetValue());
+
+	context->regPc.GoTo(pc);
 
 	return VmError::OK;
 }

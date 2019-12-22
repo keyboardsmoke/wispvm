@@ -4,10 +4,8 @@ namespace wisp
 {
 	namespace encode
 	{
-		vmcore::VmError SetIntegerRegisterValueWithEncoding(vmcore::Vm* vm, Register& reg, IntegerValueType encoding, uint64 base = 0u);
-		vmcore::VmError GetIntegerConstantValueWithEncoding(vmcore::Vm* vm, IntegerValue& value, IntegerValueType encoding);
-		vmcore::VmError SetFPRegisterValueWithEncoding(vmcore::Vm* vm, Register& reg, FPValueType encoding);
-		vmcore::VmError GetRelativeAddressDestinationFromPc(vmcore::Vm* vm, WispContext* context, uint8 encoding, uint64 pc, uint64* addr);
+		vmcore::VmError ReadValueWithEncoding(vmcore::Vm* vm, Value& value);
+		vmcore::VmError ReadValueWithEncodingToRegister(vmcore::Vm* vm, Register& reg);
 
 		template<typename T>
 		T ReadArgument(vmcore::Vm* vm)
