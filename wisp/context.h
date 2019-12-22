@@ -106,39 +106,11 @@ namespace wisp
         Count
     };
 
-    enum class ArgumentRegisters
-    {
-        ARG0,
-        ARG1,
-        ARG2,
-        ARG3,
-        ARG4,
-        ARG5,
-        ARG6,
-        ARG7,
-        ARG8,
-        ARG9,
-        ARG10,
-        ARG11,
-        ARG12,
-        ARG13,
-        ARG14,
-        ARG15,
-        Count
-    };
-
     class WispContext : public vmcore::Context
     {
     public:
-        // uint8 GetRegisterId(RegisterInt& reg);
-        // uint8 GetRegisterId(RegisterFP& reg);
-
         // General purpose registers
         Register regGp[static_cast<int>(GeneralPurposeRegisters::Count)];
-
-        // Function Registers
-        Register regAp[static_cast<int>(ArgumentRegisters::Count)];
-        Register regRp;
 
         // Stack Pointer
         Register regSp;
