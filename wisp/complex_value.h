@@ -21,11 +21,10 @@ namespace wisp
     {
     public:
         std::string& GetString() { return m_string; }
-
-        ComplexValueType GetType()
-        {
-            return ComplexValueType::String;
-        }
+        void SetString(const std::string& str);
+        bool IsEmpty() const;
+        void Append(const std::string& app);
+        ComplexValueType GetType() const;
 
     private:
         std::string m_string;
@@ -34,22 +33,13 @@ namespace wisp
     class TableValue
     {
     public:
-        Value& GetValue(const std::string& key)
-        {
-            return m_map[key];
-        }
-
+        Value& GetValue(const std::string& key);
         void SetValue(const std::string& key, Value value);
-
-        std::unordered_map<std::string, Value>& GetMap()
-        {
-            return m_map;
-        }
-
-        ComplexValueType GetType()
-        {
-            return ComplexValueType::Table;
-        }
+        void Clear();
+        bool IsEmpty() const;
+        size_t GetSize() const;
+        std::unordered_map<std::string, Value>& GetMap();
+        ComplexValueType GetType() const;
 
     private:
         std::unordered_map<std::string, Value> m_map;
@@ -58,18 +48,16 @@ namespace wisp
     class ArrayValue
     {
     public:
-        Value& GetValue(size_t index)
-        {
-            assert(index > 0 && index < m_vec.size());
-            return m_vec[index];
-        }
-
+        Value& GetValue(size_t index);
         void SetValue(size_t index, Value value);
-
-        ComplexValueType GetType()
-        {
-            return ComplexValueType::Array;
-        }
+        void Clear();
+        bool IsEmpty() const;
+        void Reserve(size_t size);
+        void Push(const Value& val);
+        void Pop();
+        void Insert(size_t index, const Value& val);
+        void Erase(size_t index);
+        ComplexValueType GetType() const;
 
     private:
         std::vector<Value> m_vec;

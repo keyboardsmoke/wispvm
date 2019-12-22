@@ -94,7 +94,6 @@ namespace wisp
         TableIsEmpty,
         TableSetKeyValue,
         TableGetKeyValue,
-        TableGetPairAtIndex,
         TableGetSize,
         TableDestroy,
 
