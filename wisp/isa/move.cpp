@@ -10,9 +10,10 @@
 using namespace wisp;
 using namespace vmcore;
 
-static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Move(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 regIndex1 = encode::ReadArgument<uint8>(vm);
@@ -26,9 +27,10 @@ static VmError Move(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
-static VmError MoveConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError MoveConstant(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
@@ -36,9 +38,10 @@ static VmError MoveConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	return encode::ReadValueWithEncodingToRegister(vm, reg);
 }
 
-static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError MoveRelative(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 
 	uint8 regIndex = encode::ReadArgument<uint8>(vm);
 	Register& reg = context->regGp[regIndex];
@@ -67,9 +70,10 @@ static VmError MoveRelative(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	return VmError::OK;
 }
 
-static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError ClearRegister(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	uint8 reg = encode::ReadArgument<uint8>(vm);
@@ -77,12 +81,12 @@ static VmError ClearRegister(WispISA* isa, Vm* vm, WispContext* context, uint64 
 	return VmError::OK;
 }
 
-vmcore::VmError MoveISAModule::Create(isa_fn* functionList)
+vmcore::VmError MoveISAModule::Create(std::unordered_map<InstructionCodes, isa_fn>& functionList)
 {
-	functionList[static_cast<uint32>(InstructionCodes::Move)] = Move;
-	functionList[static_cast<uint32>(InstructionCodes::MoveConstant)] = MoveConstant;
-	functionList[static_cast<uint32>(InstructionCodes::MoveRelative)] = MoveRelative;
-	functionList[static_cast<uint32>(InstructionCodes::ClearRegister)] = ClearRegister;
+	functionList[InstructionCodes::Move] = Move;
+	functionList[InstructionCodes::MoveConstant] = MoveConstant;
+	functionList[InstructionCodes::MoveRelative] = MoveRelative;
+	functionList[InstructionCodes::ClearRegister] = ClearRegister;
 
 	return vmcore::VmError::OK;
 }

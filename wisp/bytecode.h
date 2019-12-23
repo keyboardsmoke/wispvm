@@ -4,6 +4,7 @@
 #include "register.h"
 #include "context.h"
 #include "isa/isa.h"
+#include "wisp/isa/syscall.h"
 
 namespace wisp
 {
@@ -45,6 +46,15 @@ namespace wisp
 			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveConstant));
 			m_bc.push_back(static_cast<uint8>(dst));
 			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, value.GetValue());
+			return ret;
+		}
+
+		uint32 MovRelative(GeneralPurposeRegisters dst, IntegerValue delta)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::MoveRelative));
+			m_bc.push_back(static_cast<uint8>(dst));
+			std::visit([this](auto&& arg) { WriteEncodedValue(arg); }, delta.GetValue());
 			return ret;
 		}
 
@@ -109,10 +119,28 @@ namespace wisp
 			return ret;
 		}
 
+		uint32 SystemCall(SystemCallIndices index)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::SystemCall));
+			m_bc.push_back(static_cast<uint8>(index));
+			return ret;
+		}
+
 		uint32 Halt()
 		{
 			uint32 ret = static_cast<uint32>(m_bc.size());
 			m_bc.push_back(static_cast<uint8>(InstructionCodes::Halt));
+			return ret;
+		}
+
+		// Complex stuff
+		uint32 CreateString(GeneralPurposeRegisters dst, GeneralPurposeRegisters src)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::StringCreate));
+			m_bc.push_back(static_cast<uint8>(dst));
+			m_bc.push_back(static_cast<uint8>(src));
 			return ret;
 		}
 

@@ -6,6 +6,7 @@ namespace wisp
 	{
 		vmcore::VmError ReadValueWithEncoding(vmcore::Vm* vm, Value& value);
 		vmcore::VmError ReadValueWithEncodingToRegister(vmcore::Vm* vm, Register& reg);
+		vmcore::VmError ReadStringOffsetIntoRegister(vmcore::Vm* vm, Register& reg, IntegerValue& offset);
 
 		template<typename T>
 		T ReadArgument(vmcore::Vm* vm)

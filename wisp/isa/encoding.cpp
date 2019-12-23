@@ -6,6 +6,7 @@
 #include "vm/vm.h"
 #include "isa.h"
 #include "encoding.h"
+#include <iostream>
 
 using namespace wisp;
 using namespace vmcore;
@@ -97,6 +98,34 @@ VmError encode::ReadValueWithEncodingToRegister(vmcore::Vm* vm, Register& reg)
 		return err;
 
 	reg.SetValue(val);
+
+	return VmError::OK;
+}
+
+VmError encode::ReadStringOffsetIntoRegister(vmcore::Vm* vm, Register& reg, IntegerValue& offset)
+{
+	StringValue sval;
+
+	sval.SetString(std::visit([&vm](auto&& arg) -> std::string
+	{
+		std::string str;
+
+		char c = 0;
+		while (vm->GetMemory()->Read(arg, &c, 1))
+		{
+			if (c == 0)
+				break;
+
+			str.append(1, c);
+
+			++arg;
+		}
+
+		return str;
+	}, 
+	offset.GetValue()));
+
+	reg.SetValue(Value(sval));
 
 	return VmError::OK;
 }

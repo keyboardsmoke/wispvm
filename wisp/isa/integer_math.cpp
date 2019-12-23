@@ -10,26 +10,26 @@
 using namespace wisp;
 using namespace vmcore;
 
-vmcore::VmError MathISAModule::Create(isa_fn* functionList)
+vmcore::VmError MathISAModule::Create(std::unordered_map<InstructionCodes, isa_fn>& functionList)
 {
     UNREFERENCED_PARAMETER(functionList);
 
     /*
-    functionList[static_cast<uint32>(InstructionCodes::Add)] = Add;
-    functionList[static_cast<uint32>(InstructionCodes::Sub)] = Sub;
-    functionList[static_cast<uint32>(InstructionCodes::Mul)] = Mul;
-    functionList[static_cast<uint32>(InstructionCodes::Mod)] = Mod;
-    functionList[static_cast<uint32>(InstructionCodes::Pow)] = Pow;
-    functionList[static_cast<uint32>(InstructionCodes::Div)] = Div;
-    functionList[static_cast<uint32>(InstructionCodes::IDiv)] = IDiv;
-    functionList[static_cast<uint32>(InstructionCodes::BAnd)] = BAnd;
-    functionList[static_cast<uint32>(InstructionCodes::BOr)] = BOr;
-    functionList[static_cast<uint32>(InstructionCodes::BXor)] = BXor;
-    functionList[static_cast<uint32>(InstructionCodes::Shl)] = Shl;
-    functionList[static_cast<uint32>(InstructionCodes::Shr)] = Shr;
-    functionList[static_cast<uint32>(InstructionCodes::Unm)] = Unm;
-    functionList[static_cast<uint32>(InstructionCodes::BNot)] = BNot;
-    functionList[static_cast<uint32>(InstructionCodes::Not)] = Not;
+    functionList[InstructionCodes::Add] = Add;
+    functionList[InstructionCodes::Sub] = Sub;
+    functionList[InstructionCodes::Mul] = Mul;
+    functionList[InstructionCodes::Mod] = Mod;
+    functionList[InstructionCodes::Pow] = Pow;
+    functionList[InstructionCodes::Div] = Div;
+    functionList[InstructionCodes::IDiv] = IDiv;
+    functionList[InstructionCodes::BAnd] = BAnd;
+    functionList[InstructionCodes::BOr] = BOr;
+    functionList[InstructionCodes::BXor] = BXor;
+    functionList[InstructionCodes::Shl] = Shl;
+    functionList[InstructionCodes::Shr] = Shr;
+    functionList[InstructionCodes::Unm] = Unm;
+    functionList[InstructionCodes::BNot] = BNot;
+    functionList[InstructionCodes::Not] = Not;
     */
 
     return vmcore::VmError::OK;

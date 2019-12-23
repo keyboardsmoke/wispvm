@@ -15,7 +15,8 @@ set(COMPILER_UNIT_TESTS
 
 set(WISP_UNIT_TESTS
         wisp/bytecode_tests.cpp
-        wisp/int_value_type_tests.cpp)
+        wisp/int_value_type_tests.cpp
+        wisp/complex_string_tests.cpp)
 
 if (MSVC)
   source_group("Source Files\\vm" FILES ${VM_UNIT_TESTS})

@@ -14,6 +14,7 @@ set(ISA_HEADERS
         isa/load_store.h
         isa/move.h
         isa/string.h
+        isa/syscall.h
         )
 
 set(ISA_SOURCES
@@ -25,6 +26,7 @@ set(ISA_SOURCES
         isa/load_store.cpp
         isa/move.cpp
         isa/string.cpp
+        isa/syscall.cpp
         )
 
 set(BASE_HEADERS
@@ -36,6 +38,7 @@ set(BASE_HEADERS
         fp_value.h
         complex_value.h
         register.h
+        string_formatter.h
         context.h)
 
 set(BASE_SOURCES
@@ -44,6 +47,7 @@ set(BASE_SOURCES
         integer_value.cpp
         fp_value.cpp
         complex_value.cpp
+        string_formatter.cpp
         register.cpp)
 
 if (MSVC)

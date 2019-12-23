@@ -10,9 +10,10 @@
 using namespace wisp;
 using namespace vmcore;
 
-static VmError Jump(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Jump(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 
 	Value delta;
 	VmError err = encode::ReadValueWithEncoding(vm, delta);
@@ -38,7 +39,7 @@ static VmError Jump(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
-static VmError ConditionalJump(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError ConditionalJump(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	ConditionCode conditionCode = static_cast<ConditionCode>(encode::ReadArgument<uint8>(vm));
 
@@ -64,16 +65,17 @@ static VmError ConditionalJump(WispISA* isa, Vm* vm, WispContext* context, uint6
 
 	if (shouldSwitchPc == 1u)
 	{
-		return Jump(isa, vm, context, instructionPc);
+		return Jump(isa, mod, vm, context, instructionPc);
 	}
 
 	// If condition is not met, fall through...
 	return VmError::OK;
 }
 
-static VmError Call(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Call(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(vm);
 	UNREFERENCED_PARAMETER(context);
 	UNREFERENCED_PARAMETER(instructionPc);
@@ -83,9 +85,10 @@ static VmError Call(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
-static VmError Return(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Return(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(vm);
 	UNREFERENCED_PARAMETER(context);
 	UNREFERENCED_PARAMETER(instructionPc);
@@ -95,9 +98,10 @@ static VmError Return(WispISA* isa, Vm* vm, WispContext* context, uint64 instruc
 	return VmError::OK;
 }
 
-static VmError Halt(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Halt(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(vm);
 	UNREFERENCED_PARAMETER(context);
 	UNREFERENCED_PARAMETER(instructionPc);
@@ -105,13 +109,13 @@ static VmError Halt(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::HaltExecution;
 }
 
-vmcore::VmError ControlFlowISAModule::Create(isa_fn* functionList)
+vmcore::VmError ControlFlowISAModule::Create(std::unordered_map<InstructionCodes, isa_fn>& functionList)
 {
-	functionList[static_cast<uint32>(InstructionCodes::Jump)] = Jump;
-	functionList[static_cast<uint32>(InstructionCodes::ConditionalJump)] = ConditionalJump;
-	functionList[static_cast<uint32>(InstructionCodes::Call)] = Call;
-	functionList[static_cast<uint32>(InstructionCodes::Return)] = Return;
-	functionList[static_cast<uint32>(InstructionCodes::Halt)] = Halt;
+	functionList[InstructionCodes::Jump] = Jump;
+	functionList[InstructionCodes::ConditionalJump] = ConditionalJump;
+	functionList[InstructionCodes::Call] = Call;
+	functionList[InstructionCodes::Return] = Return;
+	functionList[InstructionCodes::Halt] = Halt;
 
 	return vmcore::VmError::OK;
 }

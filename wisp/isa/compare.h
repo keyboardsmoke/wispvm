@@ -7,6 +7,6 @@ namespace wisp
 	class CompareISAModule : public WispISAModule
 	{
 	public:
-		vmcore::VmError Create(isa_fn* functionList) override;
+		vmcore::VmError Create(std::unordered_map<InstructionCodes, isa_fn>& functionList) override;
 	};
 }

@@ -95,9 +95,10 @@ VmError SetFlagsForIntegerOperation(WispContext* context, IntegerValue& dst, Int
 	return SetFlagsForIntegerOperation(context, ef, dst, src1, src2);
 }
 
-static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Compare(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
@@ -114,9 +115,10 @@ static VmError Compare(WispISA* isa, Vm* vm, WispContext* context, uint64 instru
 	return VmError::OK;
 }
 
-static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError CompareConstant(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
@@ -138,9 +140,10 @@ static VmError CompareConstant(WispISA* isa, Vm* vm, WispContext* context, uint6
 	return VmError::OK;
 }
 
-static VmError Test(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError Test(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
@@ -169,9 +172,10 @@ static VmError Test(WispISA* isa, Vm* vm, WispContext* context, uint64 instructi
 	return VmError::OK;
 }
 
-static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 instructionPc)
+static VmError TestConstant(WispISA* isa, WispISAModule* mod, Vm* vm, WispContext* context, uint64 instructionPc)
 {
 	UNREFERENCED_PARAMETER(isa);
+	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register r1 = context->regGp[encode::ReadArgument<uint8>(vm)];
@@ -206,12 +210,12 @@ static VmError TestConstant(WispISA* isa, Vm* vm, WispContext* context, uint64 i
 	return VmError::OK;
 }
 
-vmcore::VmError CompareISAModule::Create(isa_fn* functionList)
+vmcore::VmError CompareISAModule::Create(std::unordered_map<InstructionCodes, isa_fn>& functionList)
 {
-	functionList[static_cast<uint32>(InstructionCodes::Compare)] = Compare;
-	functionList[static_cast<uint32>(InstructionCodes::CompareConstant)] = CompareConstant;
-	functionList[static_cast<uint32>(InstructionCodes::Test)] = Test;
-	functionList[static_cast<uint32>(InstructionCodes::TestConstant)] = TestConstant;
+	functionList[InstructionCodes::Compare] = Compare;
+	functionList[InstructionCodes::CompareConstant] = CompareConstant;
+	functionList[InstructionCodes::Test] = Test;
+	functionList[InstructionCodes::TestConstant] = TestConstant;
 
 	return vmcore::VmError::OK;
 }

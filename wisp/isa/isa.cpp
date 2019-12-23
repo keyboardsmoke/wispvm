@@ -8,25 +8,34 @@
 //#include "isa/integer_math.h"
 #include "isa/load_store.h"
 #include "isa/move.h"
+#include "isa/string.h"
+#include "isa/syscall.h"
 
 using namespace wisp;
 using namespace vmcore;
 
 VmError WispISA::Initialize()
 {
+    // Register the base handlers for the VM
     VmError err = VmError::OK;
 
     // CMP, TEST, etc.
-    err = CompareISAModule().Create(m_isaFunctions); if (err != VmError::OK) { return err; }
+    err = RegisterModule(new CompareISAModule()); if (err != VmError::OK) { return err; }
 
     // JMP, COND JMP, CALL, RET, HALT
-    err = ControlFlowISAModule().Create(m_isaFunctions); if (err != VmError::OK) { return err; }
+    RegisterModule(new ControlFlowISAModule()); if (err != VmError::OK) { return err; }
 
     // LOAD, STORE
-    err = LoadStoreISAModule().Create(m_isaFunctions); if (err != VmError::OK) { return err; }
+    RegisterModule(new LoadStoreISAModule()); if (err != VmError::OK) { return err; }
 
     // MOV, MOVFP
-    err = MoveISAModule().Create(m_isaFunctions); if (err != VmError::OK) { return err; }
+    RegisterModule(new MoveISAModule()); if (err != VmError::OK) { return err; }
+
+    // Complex STRING
+    RegisterModule(new StringISAModule()); if (err != VmError::OK) { return err; }
+
+    // SYSCALL
+    RegisterModule(new SyscallISAModule()); if (err != VmError::OK) { return err; }
 
     return err;
 }
@@ -43,7 +52,11 @@ VmError WispISA::ExecuteInstruction(Vm* vm)
 
     const uint8 id = encode::ReadArgument<uint8>(vm);
 
-    assert(id < (sizeof(m_isaFunctions) / sizeof(m_isaFunctions[0])));
-    assert(m_isaFunctions[id] != nullptr);
-    return m_isaFunctions[id](this, vm, context, startingPc);
+    auto f = m_isaFunctions.find(static_cast<InstructionCodes>(id));
+    if (f != m_isaFunctions.end())
+    {
+        return f->second.func(this, f->second.mod, vm, context, startingPc);
+    }
+
+    return VmError::InvalidInstruction;
 }

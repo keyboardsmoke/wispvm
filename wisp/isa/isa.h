@@ -5,11 +5,11 @@
 
 namespace wisp
 {
-
     class WispContext;
+    class WispISAModule;
     class WispISA;
 
-    typedef vmcore::VmError(*isa_fn)(WispISA*, vmcore::Vm*, WispContext*, uint64);
+    typedef vmcore::VmError(*isa_fn)(WispISA*, WispISAModule*, vmcore::Vm*, WispContext*, uint64);
 
     enum class ConditionCode
     {
@@ -87,7 +87,6 @@ namespace wisp
         StringClear,
         StringIsEmpty,
         StringAppend,
-        StringDestroy,
 
         // Tables
         TableCreate,
@@ -117,21 +116,47 @@ namespace wisp
     class WispISAModule
     {
     public:
-        virtual vmcore::VmError Create(isa_fn* functionList) = 0;
+        virtual vmcore::VmError Create(std::unordered_map<InstructionCodes, isa_fn>& functionList) = 0;
+    };
+
+    struct ISAHandlerEntry
+    {
+        WispISAModule* module;
+        std::unordered_map<InstructionCodes, isa_fn> registration;
     };
 
     class WispISA : public vmcore::ISA
     {
     public:
+        struct InstructionHandler
+        {
+            WispISAModule* mod;
+            isa_fn func;
+        };
+
         vmcore::VmError RegisterModule(WispISAModule* pModule)
         {
-            return pModule->Create(m_isaFunctions);
+            std::unordered_map<InstructionCodes, isa_fn> moduleMap;
+            vmcore::VmError err = pModule->Create(moduleMap);
+            if (err != vmcore::VmError::OK)
+                return err;
+
+            // Override registrations
+            // This means ISA modules that register handlers
+            // on top of existing handlers will override
+            for (auto mm : moduleMap)
+            {
+                m_isaFunctions[mm.first].mod = pModule;
+                m_isaFunctions[mm.first].func = mm.second;
+            }
+
+            return vmcore::VmError::OK;
         }
 
         vmcore::VmError Initialize() override;
         vmcore::VmError ExecuteInstruction(vmcore::Vm* vm) override;
 
     private:
-        isa_fn m_isaFunctions[0xFF]; // Maximum
+        std::unordered_map<InstructionCodes, InstructionHandler> m_isaFunctions;
     };
 }

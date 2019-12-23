@@ -1,0 +1,71 @@
+#include "doctest/doctest.h"
+#include "shared/types.h"
+#include "wisp/register.h"
+#include "wisp/context.h"
+#include "wisp/isa/isa.h"
+#include "vm/vm.h"
+#include "wisp/bytecode.h"
+#include "wisp/mm.h"
+#include <iostream>
+
+using namespace wisp;
+
+uint32 WriteStringToGenerator(ByteCodeGenerator& gen, const std::string& str)
+{
+    uint32 pos = gen.GetData().size();
+
+    for (size_t i = 0; i < str.length(); ++i)
+    {
+        gen.GetData().push_back(str.data()[i]);
+    }
+
+    gen.GetData().push_back(0);
+
+    return pos;
+}
+
+TEST_CASE("Complex String Tests")
+{
+    SUBCASE("Initialize and print string")
+    {
+        ByteCodeGenerator gen;
+
+        uint32 hello = WriteStringToGenerator(gen, "Hello.");
+
+        uint32 programStart = gen.Mov(GeneralPurposeRegisters::R0, IntegerValue(static_cast<uint32>(0)));
+        gen.CreateString(GeneralPurposeRegisters::R1, GeneralPurposeRegisters::R0);
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        auto err = vm.Execute(programStart);
+        REQUIRE(err == vmcore::VmError::OK);
+    }
+
+    SUBCASE("Format String Print")
+    {
+        ByteCodeGenerator gen;
+
+        uint32 formatString = WriteStringToGenerator(gen, "This is an integer {0}, this is a float {1}, yep.");
+
+        uint32 programStart = gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(static_cast<uint32>(0)));
+        gen.CreateString(GeneralPurposeRegisters::R0, GeneralPurposeRegisters::R1);
+        gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(123));
+        gen.Mov(GeneralPurposeRegisters::R2, FPValue(3.23f));
+        gen.SystemCall(SystemCallIndices::Print);
+        gen.Halt();
+
+        WispContext context;
+        WispISA isa;
+        wisp::MemoryModule mm(gen.GetData().data(), gen.GetData().size());
+        vmcore::Vm vm(&context, &mm, &isa);
+
+        auto err = vm.Execute(programStart);
+        REQUIRE(err == vmcore::VmError::OK);
+
+        // TODO: Verify without calling print... format string function?
+    }
+}
