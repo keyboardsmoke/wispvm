@@ -87,6 +87,7 @@ namespace wisp
         StringClear,
         StringIsEmpty,
         StringAppend,
+        StringFormat,
 
         // Tables
         TableCreate,

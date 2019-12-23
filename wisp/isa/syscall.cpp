@@ -28,20 +28,11 @@ static VmError SyscallPrint(WispISA* isa, WispISAModule* mod, Vm* vm, WispContex
 	UNREFERENCED_PARAMETER(isa);
 	UNREFERENCED_PARAMETER(mod);
 	UNREFERENCED_PARAMETER(vm);
-	UNREFERENCED_PARAMETER(context);
 	UNREFERENCED_PARAMETER(instructionPc);
 
 	Register& fmt = context->regGp[0];
 
 	assert(fmt.GetValue().IsStringValue());
-
-	std::string formatString = fmt.GetValue().Get<StringValue>().GetString();
-
-	StringFormatter formatter(formatString);
-
-	std::string formattedString = formatter.GetFormattedString(context);
-
-	std::cout << formattedString << std::endl;
 
 	return VmError::OK;
 }

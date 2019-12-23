@@ -144,6 +144,16 @@ namespace wisp
 			return ret;
 		}
 
+		uint32 FormatString()
+		{
+			// That R0 is the parameter is implicit. R1-R31 (depending on entries)
+			// is the format string variables.
+			// If all registers end up getting used... well, oops. Need to fix later with stack.
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::StringFormat));
+			return ret;
+		}
+
 		std::vector<uint8>& GetData()
 		{
 			return m_bc;

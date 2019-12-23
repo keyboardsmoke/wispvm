@@ -55,7 +55,7 @@ TEST_CASE("Complex String Tests")
         gen.CreateString(GeneralPurposeRegisters::R0, GeneralPurposeRegisters::R1);
         gen.Mov(GeneralPurposeRegisters::R1, IntegerValue(123));
         gen.Mov(GeneralPurposeRegisters::R2, FPValue(3.23f));
-        gen.SystemCall(SystemCallIndices::Print);
+        gen.FormatString();
         gen.Halt();
 
         WispContext context;
@@ -65,7 +65,7 @@ TEST_CASE("Complex String Tests")
 
         auto err = vm.Execute(programStart);
         REQUIRE(err == vmcore::VmError::OK);
-
-        // TODO: Verify without calling print... format string function?
+        REQUIRE(context.regGp[0].GetValue().IsStringValue());
+        REQUIRE(context.regGp[0].GetValue().Get<StringValue>().GetString() == "This is an integer 123, this is a float 3.23, yep.");
     }
 }

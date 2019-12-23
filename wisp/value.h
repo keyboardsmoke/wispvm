@@ -83,7 +83,7 @@ namespace wisp
 
         // Getters
         template<typename T>
-        T Get()
+        T& Get()
         {
             assert(HasValue());
             T* pval = std::get_if<T>(&m_value);
