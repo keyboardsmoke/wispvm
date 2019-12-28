@@ -62,6 +62,25 @@ ComplexValueType TableValue::GetType() const
 
 //
 
+static constexpr ValueType GetValueTypeFromComplexValueType(ComplexValueType type)
+{
+    switch (type)
+    {
+    case ComplexValueType::String:
+        return ValueType::String;
+    case ComplexValueType::Table:
+        return ValueType::Table;
+    case ComplexValueType::Array:
+        return ValueType::Array;
+    }
+
+    return ValueType::None;
+}
+
+ArrayValue::ArrayValue(IntegerValueType elementType) : m_valueType(ValueType::Integer), m_type(elementType) {}
+ArrayValue::ArrayValue(FPValueType elementType) : m_valueType(ValueType::FP), m_type(elementType) {}
+ArrayValue::ArrayValue(ComplexValueType elementType) : m_valueType(GetValueTypeFromComplexValueType(elementType)), m_type(elementType) {}
+
 Value& ArrayValue::GetValue(size_t index)
 {
     assert(index > 0 && index < m_vec.size());
@@ -70,6 +89,13 @@ Value& ArrayValue::GetValue(size_t index)
 
 void ArrayValue::SetValue(size_t index, Value value)
 {
+    assert(index < m_vec.size());
+    assert(m_vec[index].GetType() == value.GetType());
+
+    // This works great when data already exists...
+    // But, we still need to ensure our element type is equal to Value's GetValue type...
+    assert(m_vec[index].IsSameBaseType(value));
+
     m_vec[index] = value;
 }
 
@@ -90,6 +116,14 @@ void ArrayValue::Reserve(size_t size)
 
 void ArrayValue::Push(const Value& val)
 {
+    assert(std::visit([](auto&& a, auto&& b) -> bool
+    {
+        return std::is_same<decltype(a), decltype(b)>::value;
+    }, GetElementType(), val.GetValue()));
+
+    // assert(m_vec[index].GetType() == value.GetType());
+    // assert(m_vec[index].IsSameBaseType(value));
+
     m_vec.push_back(val);
 }
 
@@ -111,4 +145,14 @@ void ArrayValue::Erase(size_t index)
 ComplexValueType ArrayValue::GetType() const
 {
     return ComplexValueType::Array;
+}
+
+ValueType ArrayValue::GetElementValueType() const
+{
+    return m_valueType;
+}
+
+ArrayValue::element_type ArrayValue::GetElementType() const
+{
+    return m_type;
 }

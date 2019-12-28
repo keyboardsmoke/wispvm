@@ -14,6 +14,7 @@ set(ISA_HEADERS
         isa/load_store.h
         isa/move.h
         isa/string.h
+        isa/array.h
         isa/syscall.h
         )
 
@@ -26,6 +27,7 @@ set(ISA_SOURCES
         isa/load_store.cpp
         isa/move.cpp
         isa/string.cpp
+        isa/array.h
         isa/syscall.cpp
         )
 

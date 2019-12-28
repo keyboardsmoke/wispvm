@@ -66,6 +66,8 @@ namespace wisp
 
             return static_cast<ValueType>(m_value.index() + 1);
         }
+        
+        bool IsSameBaseType(Value& rhs);
 
         // Setters
         void Clear()
