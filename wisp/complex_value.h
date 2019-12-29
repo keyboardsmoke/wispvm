@@ -61,7 +61,7 @@ namespace wisp
         ArrayValue(ComplexValueType elementType);
 
         Value& GetValue(size_t index);
-        void SetValue(size_t index, Value value);
+        void SetValue(size_t index, Value& value);
         void Clear();
         bool IsEmpty() const;
         void Reserve(size_t size);

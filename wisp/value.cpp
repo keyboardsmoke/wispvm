@@ -84,6 +84,7 @@ bool TypeResolver<ArrayValue, ArrayValue>::IsSame(ArrayValue& a, ArrayValue& b)
     }, a.GetElementType(), b.GetElementType());
 }
 
+// TODO: If this is a const function it breaks???
 bool Value::IsSameBaseType(Value& rhs)
 {
     // Only compare if we both contain values..

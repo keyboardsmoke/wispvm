@@ -77,20 +77,28 @@ static constexpr ValueType GetValueTypeFromComplexValueType(ComplexValueType typ
     return ValueType::None;
 }
 
+static bool IsArrayValueCompatible(const ArrayValue& arr, const Value& val)
+{
+    return ((arr.GetElementValueType() == val.GetType()) && std::visit([](auto&& a, auto&& b) -> bool
+    {
+        return static_cast<uint8>(a) == static_cast<uint8>(b.GetType());
+    }, arr.GetElementType(), val.GetValue()));
+}
+
 ArrayValue::ArrayValue(IntegerValueType elementType) : m_valueType(ValueType::Integer), m_type(elementType) {}
 ArrayValue::ArrayValue(FPValueType elementType) : m_valueType(ValueType::FP), m_type(elementType) {}
 ArrayValue::ArrayValue(ComplexValueType elementType) : m_valueType(GetValueTypeFromComplexValueType(elementType)), m_type(elementType) {}
 
 Value& ArrayValue::GetValue(size_t index)
 {
-    assert(index > 0 && index < m_vec.size());
+    assert(index < m_vec.size());
     return m_vec[index];
 }
 
-void ArrayValue::SetValue(size_t index, Value value)
+void ArrayValue::SetValue(size_t index, Value& value)
 {
     assert(index < m_vec.size());
-    assert(m_vec[index].GetType() == value.GetType());
+    assert(IsArrayValueCompatible(*this, value));
 
     // This works great when data already exists...
     // But, we still need to ensure our element type is equal to Value's GetValue type...
@@ -116,14 +124,7 @@ void ArrayValue::Reserve(size_t size)
 
 void ArrayValue::Push(const Value& val)
 {
-    assert(std::visit([](auto&& a, auto&& b) -> bool
-    {
-        return std::is_same<decltype(a), decltype(b)>::value;
-    }, GetElementType(), val.GetValue()));
-
-    // assert(m_vec[index].GetType() == value.GetType());
-    // assert(m_vec[index].IsSameBaseType(value));
-
+    assert(IsArrayValueCompatible(*this, val));
     m_vec.push_back(val);
 }
 
@@ -134,11 +135,14 @@ void ArrayValue::Pop()
 
 void ArrayValue::Insert(size_t index, const Value& val)
 {
+    assert(index < m_vec.size());
+    assert(IsArrayValueCompatible(*this, val));
     m_vec.insert(m_vec.begin() + index, val);
 }
 
 void ArrayValue::Erase(size_t index)
 {
+    assert(index < m_vec.size());
     m_vec.erase(m_vec.begin() + index);
 }
 

@@ -9,6 +9,7 @@
 #include "isa/load_store.h"
 #include "isa/move.h"
 #include "isa/string.h"
+#include "isa/array.h"
 #include "isa/syscall.h"
 
 using namespace wisp;
@@ -34,6 +35,9 @@ VmError WispISA::Initialize()
     // Complex STRING
     RegisterModule(new StringISAModule()); if (err != VmError::OK) { return err; }
 
+    // Complex ARRAY
+    RegisterModule(new ArrayISAModule()); if (err != VmError::OK) { return err; }
+
     // SYSCALL
     RegisterModule(new SyscallISAModule()); if (err != VmError::OK) { return err; }
 
@@ -43,6 +47,8 @@ VmError WispISA::Initialize()
 VmError WispISA::ExecuteInstruction(Vm* vm)
 {
     WispContext* context = dynamic_cast<WispContext*>(vm->GetContext());
+    assert(context);
+
     if (context == nullptr)
     {
         return VmError::InvalidContext;
@@ -53,9 +59,14 @@ VmError WispISA::ExecuteInstruction(Vm* vm)
     const uint8 id = encode::ReadArgument<uint8>(vm);
 
     auto f = m_isaFunctions.find(static_cast<InstructionCodes>(id));
+    assert(f != m_isaFunctions.end());
+
     if (f != m_isaFunctions.end())
     {
-        return f->second.func(this, f->second.mod, vm, context, startingPc);
+        VmError err = f->second.func(this, f->second.mod, vm, context, startingPc);
+        assert(err == VmError::OK || err == VmError::HaltExecution);
+
+        return err;
     }
 
     return VmError::InvalidInstruction;

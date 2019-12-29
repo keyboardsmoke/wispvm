@@ -154,6 +154,44 @@ namespace wisp
 			return ret;
 		}
 
+		//
+		uint32 CreateArray(GeneralPurposeRegisters dst, ValueType valueType, uint8 subType)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::ArrayCreate));
+			m_bc.push_back(static_cast<uint8>(dst));
+			m_bc.push_back(static_cast<uint8>(valueType));
+			m_bc.push_back(subType);
+			return ret;
+		}
+
+		uint32 CreateIntegerArray(GeneralPurposeRegisters dst, IntegerValueType type)
+		{
+			return CreateArray(dst, ValueType::Integer, static_cast<uint8>(type));
+		}
+
+		uint32 CreateFPArray(GeneralPurposeRegisters dst, FPValueType type)
+		{
+			return CreateArray(dst, ValueType::FP, static_cast<uint8>(type));
+		}
+		
+		uint32 ClearArray(GeneralPurposeRegisters dst)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::ArrayClear));
+			m_bc.push_back(static_cast<uint8>(dst));
+			return ret;
+		}
+
+		uint32 PushArray(GeneralPurposeRegisters dst, GeneralPurposeRegisters src)
+		{
+			uint32 ret = static_cast<uint32>(m_bc.size());
+			m_bc.push_back(static_cast<uint8>(InstructionCodes::ArrayPush));
+			m_bc.push_back(static_cast<uint8>(dst));
+			m_bc.push_back(static_cast<uint8>(src));
+			return ret;
+		}
+
 		std::vector<uint8>& GetData()
 		{
 			return m_bc;

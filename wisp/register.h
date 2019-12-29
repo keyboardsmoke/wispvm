@@ -37,7 +37,7 @@ namespace wisp
         }
 
         template<typename T>
-        T Get()
+        T& Get()
         {
             return m_value.Get<T>();
         }

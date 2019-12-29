@@ -27,7 +27,7 @@ set(ISA_SOURCES
         isa/load_store.cpp
         isa/move.cpp
         isa/string.cpp
-        isa/array.h
+        isa/array.cpp
         isa/syscall.cpp
         )
 

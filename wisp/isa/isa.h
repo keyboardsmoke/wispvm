@@ -37,6 +37,10 @@ namespace wisp
         MoveRelative,
         ClearRegister,
 
+        // Type Conversion
+        Convert,
+        Cast,
+
         // Memory
         Store,
         Load,
@@ -101,7 +105,6 @@ namespace wisp
 
         // Arrays
         ArrayCreate,
-        ArrayGet,
         ArrayClear,
         ArrayIsEmpty,
         ArrayReserve,

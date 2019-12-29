@@ -36,12 +36,12 @@ namespace wisp
 
         IntegerValue(const value_storage& vs) : m_hasValue(true), m_value(vs), m_size(GetSizeFromIndex()) {}
 
-        bool HasValue()
+        bool HasValue() const
         {
             return m_hasValue;
         }
 
-        bool IsSignedInteger()
+        bool IsSignedInteger() const
         {
             if (!HasValue())
                 return false;
@@ -52,7 +52,7 @@ namespace wisp
             return currentType >= intBegin && currentType <= intEnd;
         }
 
-        bool IsUnsignedInteger()
+        bool IsUnsignedInteger() const
         {
             if (!HasValue())
                 return false;
@@ -94,7 +94,7 @@ namespace wisp
             return m_value;
         }
 
-        IntegerValueType GetType()
+        IntegerValueType GetType() const
         {
             if (!HasValue())
                 return IntegerValueType::None;

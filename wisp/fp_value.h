@@ -22,17 +22,17 @@ namespace wisp
         {
         }
 
-        bool HasValue()
+        bool HasValue() const
         {
             return m_hasValue;
         }
 
-        bool IsFloat()
+        bool IsFloat() const
         {
             return (GetType() == FPValueType::Float);
         }
 
-        bool IsDouble()
+        bool IsDouble() const
         {
             return (GetType() == FPValueType::Double);
         }
@@ -68,7 +68,7 @@ namespace wisp
             return m_value;
         }
 
-        FPValueType GetType()
+        FPValueType GetType() const
         {
             if (!HasValue())
                 return FPValueType::None;

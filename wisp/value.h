@@ -29,37 +29,37 @@ namespace wisp
         Value(const TableValue& value) : m_hasValue(true), m_value(value) {}
         Value(const ArrayValue& value) : m_hasValue(true), m_value(value) {}
 
-        bool HasValue()
+        bool HasValue() const
         {
             return m_hasValue;
         }
 
-        bool IsIntegerValue()
+        bool IsIntegerValue() const
         {
             return (GetType() == ValueType::Integer);
         }
 
-        bool IsFPValue()
+        bool IsFPValue() const
         {
             return (GetType() == ValueType::FP);
         }
 
-        bool IsStringValue()
+        bool IsStringValue() const
         {
             return (GetType() == ValueType::String);
         }
 
-        bool IsTableValue()
+        bool IsTableValue() const
         {
             return (GetType() == ValueType::Table);
         }
 
-        bool IsArrayValue()
+        bool IsArrayValue() const
         {
             return (GetType() == ValueType::Array);
         }
 
-        ValueType GetType()
+        ValueType GetType() const
         {
             if (!HasValue())
                 return ValueType::None;
